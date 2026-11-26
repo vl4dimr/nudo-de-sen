@@ -52,6 +52,23 @@ def firma_ok(data: bytes, ext: str) -> bool:
     return False
 
 
+def optimizar_imagen(crudo: bytes, ext: str, lado=1600):
+    """Pasa una foto a WebP (calidad 82) y la reduce si mide más de `lado` px, conservando la transparencia.
+    Usa Pillow si está instalado; si no está o algo falla, devuelve la imagen tal cual."""
+    try:
+        from io import BytesIO
+        from PIL import Image, ImageOps
+        im = Image.open(BytesIO(crudo))
+        im = ImageOps.exif_transpose(im)
+        if max(im.size) > lado: im.thumbnail((lado, lado), Image.LANCZOS)
+        if im.mode not in ("RGB", "RGBA"): im = im.convert("RGBA" if "A" in im.getbands() or im.info.get("transparency") is not None else "RGB")
+        out = BytesIO(); im.save(out, "WEBP", quality=82, method=4)
+        nuevo = out.getvalue()
+        return (nuevo, ".webp") if len(nuevo) < len(crudo) or ext not in (".webp", ".jpg", ".png") else (crudo, ext)
+    except Exception:
+        return crudo, ext
+
+
 def ext_de_firma(data: bytes):
     for e in (".webp", ".png", ".jpg"):
         if firma_ok(data, e): return e
@@ -648,7 +665,7 @@ class Panel(BaseHTTPRequestHandler):
                 return self.error(400, f"No se pudo abrir el ZIP: {e}")
             finally:
                 final.unlink(missing_ok=True)
-            if not medios: return self.error(400, "El ZIP no trae fotos ni modelos 3D que se puedan usar")
+            if not medios: return self.error(400, "El ZIP no trae fotos, modelos 3D ni un giro 360° que se puedan usar")
             return self.enviar(200, {"ok": True, "medios": medios, "omitidos": omitidos})
         if tipo == "giro":
             try:
@@ -666,7 +683,9 @@ class Panel(BaseHTTPRequestHandler):
     def giro_de_html(self, hpath: Path, carpeta: Path, base: str):
         """Saca, en orden, las imágenes incrustadas (data:image/...;base64) de una página de
         «vistas 360°» y las guarda como archivos. Del HTML no se usa nada más."""
-        texto = hpath.read_text("utf-8", errors="ignore")
+        return self.giro_de_texto(hpath.read_text("utf-8", errors="ignore"), carpeta, base)
+
+    def giro_de_texto(self, texto: str, carpeta: Path, base: str):
         datos = re.findall(r"data:image/(?:webp|png|jpe?g);base64,([A-Za-z0-9+/=]+)", texto)
         if not GIRO_MIN <= len(datos) <= GIRO_MAX:
             raise ValueError(f"trae {len(datos)} imágenes; un giro necesita entre {GIRO_MIN} y {GIRO_MAX}")
@@ -678,6 +697,7 @@ class Panel(BaseHTTPRequestHandler):
                 crudo = base64.b64decode(b64)
                 ext = ext_de_firma(crudo[:16])
                 if not ext or len(crudo) > LIMITES["imagen"]: raise ValueError(f"la vista {i + 1} no es una imagen válida")
+                crudo, ext = optimizar_imagen(crudo, ext)
                 f = destino / f"v{i:02d}{ext}"
                 f.write_bytes(crudo)
                 vistas.append(f.relative_to(self.server.raiz).as_posix())
@@ -731,10 +751,27 @@ class Panel(BaseHTTPRequestHandler):
             for i in entradas:
                 if i.filename in usados: continue
                 ext = Path(i.filename).suffix.lower()
+                # una página de «vistas 360°» dentro del ZIP: se sacan sus imágenes como un giro
+                if ext in EXT["giro"] and i.file_size <= LIMITES["giro"]:
+                    try:
+                        g = self.giro_de_texto(z.read(i).decode("utf-8", "ignore"), carpeta, Path(i.filename).stem)
+                        creados.append(carpeta / Path(g["src"]).parent.name)
+                        medios.insert(0, g)
+                    except ValueError:
+                        omitidos.append(i.filename)
+                    continue
                 tipo = "modelo" if ext == ".glb" else "imagen" if ext in EXT["imagen"] else None
                 if not tipo or i.file_size > LIMITES[tipo]:
                     omitidos.append(i.filename); continue
-                final = carpeta / f"{slug(Path(i.filename).stem)}-{secrets.token_hex(3)}{'.jpg' if ext == '.jpeg' else ext}"
+                if tipo == "imagen":   # las fotos se pasan a WebP (más livianas para celulares)
+                    crudo = z.read(i)
+                    if not firma_ok(crudo[:16], ext): omitidos.append(i.filename); continue
+                    crudo, ext2 = optimizar_imagen(crudo, ext)
+                    final = carpeta / f"{slug(Path(i.filename).stem)}-{secrets.token_hex(3)}{'.jpg' if ext2 == '.jpeg' else ext2}"
+                    creados.append(final); final.write_bytes(crudo)
+                    fotos.append((i.filename, {"tipo": "imagen", "src": final.relative_to(self.server.raiz).as_posix()}))
+                    continue
+                final = carpeta / f"{slug(Path(i.filename).stem)}-{secrets.token_hex(3)}{ext}"
                 creados.append(final)
                 with z.open(i) as src, final.open("wb") as dst: shutil.copyfileobj(src, dst)
                 with final.open("rb") as f: cab = f.read(16)
