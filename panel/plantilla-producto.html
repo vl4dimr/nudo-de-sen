@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es-PE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Página generada por el panel (panel/servidor.py). No editar a mano: se reescribe al guardar. -->
+<title>%%NOMBRE%% · Nudo de SEN</title>
+<meta name="description" content="%%DESCRIPCION%%">
+<meta name="theme-color" content="#8e2a3c">
+<meta property="og:type" content="product">
+<meta property="og:locale" content="es_PE">
+<meta property="og:site_name" content="Nudo de SEN">
+<meta property="og:title" content="%%NOMBRE%% · %%PRECIO_TXT%%">
+<meta property="og:description" content="%%DESCRIPCION%%">
+<meta property="og:url" content="%%URL%%">
+<meta property="og:image" content="%%IMAGEN_ABS%%">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="%%URL%%">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="icon" type="image/png" href="/assets/logo.png">
+<link rel="apple-touch-icon" href="/assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Outfit:wght@400..700&display=swap" rel="stylesheet">
+%%MODEL_VIEWER%%
+<script type="application/ld+json">%%JSONLD%%</script>
+%%ESTILOS%%
+</head>
+<body>
+%%ICONOS%%
+<div class="top"><div class="wrap">
+  <strong>Amigurumis personalizados · Puno, Perú</strong>
+  <ul><li><a href="/#nosotros">Nosotros</a></li><li><a href="/#preguntas">Preguntas</a></li><li><a class="waL" href="%%WA_GENERAL%%" target="_blank" rel="noopener"><svg class="i"><use href="#i-wa"/></svg>WhatsApp</a></li><li><a href="https://www.tiktok.com/@nudodesen" target="_blank" rel="noopener"><svg class="i"><use href="#i-tt"/></svg>TikTok</a></li></ul>
+</div></div>
+
+<div class="header"><div class="wrap">
+  <a class="logo" href="/" aria-label="Nudo de SEN, inicio"><svg class="mk" aria-hidden="true"><use href="#i-logo"/></svg><span>Nudo<i> de </i><span>SEN</span></span></a>
+  <nav class="menu" aria-label="Principal"><a href="/#categorias">Categorías</a><a href="/#catalogo">Catálogo</a><a href="/#ocasiones">Ocasiones</a><a href="/#personalizados">Personalizados</a><a href="/#nosotros">Nosotros</a></nav>
+  <a class="cart" href="/#lista" style="text-decoration:none;display:flex;align-items:center"><span>Mi lista</span><i id="count">0</i></a>
+</div></div>
+
+<main class="pagina-producto">
+<div class="wrap">
+  <nav class="migas" aria-label="Ruta"><a href="/">Inicio</a><span>/</span><a href="/?c=%%CATEGORIA_URL%%#catalogo">%%CATEGORIA%%</a><span>/</span><b>%%NOMBRE%%</b></nav>
+  <article class="producto">
+    <div class="fgal">
+      <div class="fstage" id="fStage">%%PRIMER_MEDIO%%</div>
+      <div class="fthumbs" id="fThumbs">%%MINIATURAS%%</div>
+    </div>
+    <div class="finfo">
+      <span class="k">%%CATEGORIA%%</span>
+      <h1>%%NOMBRE%%</h1>
+      <p class="fd">%%DETALLE%%</p>
+      <p class="fp">%%PRECIO_HTML%%</p>
+      <button id="fAdd" data-id="%%ID%%">Me interesa</button>
+      <a class="btn ghost" href="%%WA_PRODUCTO%%" target="_blank" rel="noopener"><svg class="i"><use href="#i-wa"/></svg>Preguntar por WhatsApp</a>
+      <ul class="fvent">
+        <li><svg class="i"><use href="#i-truck"/></svg>Envíos desde Puno a todo el Perú</li>
+        <li><svg class="i"><use href="#i-heart"/></svg>Hecho a mano y a pedido</li>
+        <li><svg class="i"><use href="#i-cam"/></svg>Lo personalizamos a partir de tu foto</li>
+      </ul>
+      <p class="fn">Precio referencial. Te confirmamos el precio final, el tamaño y la fecha de entrega por WhatsApp.</p>
+    </div>
+  </article>
+  %%RELACIONADOS%%
+</div>
+</main>
+
+<footer><div class="wrap">
+  <div class="flogo"><svg class="mk" aria-hidden="true"><use href="#i-logo"/></svg><span>Nudo<i> de </i><span>SEN</span></span></div>
+  <ul><li><a href="/#categorias">Categorías</a></li><li><a href="/#catalogo">Catálogo</a></li><li><a href="/#personalizados">Personalizados</a></li><li><a href="/#nosotros">Nosotros</a></li><li><a href="/#preguntas">Preguntas</a></li></ul>
+  <p>© <strong>Nudo de SEN</strong> · Puno, Perú · Envíos a todo el país</p>
+</div></footer>
+<a class="btn wa fab" href="%%WA_PRODUCTO%%" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><svg class="i"><use href="#i-wa"/></svg></a>
+
+<script type="application/json" id="medios">%%MEDIOS_JSON%%</script>
+<script>
+{
+const $=id=>document.getElementById(id);
+const M=JSON.parse($('medios').textContent),N=%%NOMBRE_JS%%;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ver=m=>m.tipo==='video'?'<video src="/'+esc(m.src)+'"'+(m.poster?' poster="/'+esc(m.poster)+'"':'')+' controls playsinline preload="metadata"></video>'
+  :m.tipo==='modelo'?'<model-viewer src="/'+esc(m.src)+'" camera-controls auto-rotate shadow-intensity="1" camera-orbit="20deg 80deg auto" interaction-prompt="none" alt="'+esc(N)+' en 3D"></model-viewer><small class="hint3d">Gíralo con el dedo</small>'
+  :'<img src="/'+esc(m.src)+'" alt="'+esc(N)+'">';
+$('fThumbs').addEventListener('click',e=>{const b=e.target.closest('[data-fi]');if(!b)return;
+  $('fStage').innerHTML=ver(M[+b.dataset.fi]);$('fThumbs').querySelectorAll('button').forEach(x=>x.setAttribute('aria-current',x===b))});
+// Mi lista: la misma que usa la página principal
+let cart={};try{cart=JSON.parse(localStorage.getItem('lista-nudodesen')||'{}')||{}}catch(e){}
+const id=$('fAdd').dataset.id;
+const pintar=()=>{const on=cart[id]>0;$('fAdd').textContent=on?'En tu lista · Ver lista':'Me interesa';$('fAdd').classList.toggle('on',on);
+  $('count').textContent=Object.values(cart).reduce((t,n)=>t+(n>0?n:0),0)};
+$('fAdd').onclick=()=>{if(cart[id]>0){location.href='/#lista';return}cart[id]=1;try{localStorage.setItem('lista-nudodesen',JSON.stringify(cart))}catch(e){}pintar()};
+pintar();
+}
+</script>
+</body>
+</html>
