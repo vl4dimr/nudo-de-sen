@@ -53,6 +53,7 @@
       <h1>%%NOMBRE%%</h1>
       <p class="fd">%%DETALLE%%</p>
       <p class="fp">%%PRECIO_HTML%%</p>
+      %%FICHA%%
       <button id="fAdd" data-id="%%ID%%">Me interesa</button>
       <a class="btn ghost" href="%%WA_PRODUCTO%%" target="_blank" rel="noopener"><svg class="i"><use href="#i-wa"/></svg>Preguntar por WhatsApp</a>
       <ul class="fvent">
@@ -97,9 +98,13 @@ armarGiro(M[0]);balancear();
 // Mi lista: la misma que usa la página principal
 let cart={};try{cart=JSON.parse(localStorage.getItem('lista-nudodesen')||'{}')||{}}catch(e){}
 const id=$('fAdd').dataset.id;
+// Contador propio de visitas y clics (sin cookies ni datos personales)
+const ev=t=>{try{if(/nudodesen\.com$/.test(location.hostname)&&navigator.sendBeacon)navigator.sendBeacon('/admin/api/e',JSON.stringify({t,p:id}))}catch(e){}};
+ev('vista');
+document.addEventListener('click',e=>{if(e.target.closest('a[href*="wa.me"]'))ev('whatsapp')},true);
 const pintar=()=>{const on=cart[id]>0;$('fAdd').textContent=on?'En tu lista · Ver lista':'Me interesa';$('fAdd').classList.toggle('on',on);
   $('count').textContent=Object.values(cart).reduce((t,n)=>t+(n>0?n:0),0)};
-$('fAdd').onclick=()=>{if(cart[id]>0){location.href='/#lista';return}cart[id]=1;try{localStorage.setItem('lista-nudodesen',JSON.stringify(cart))}catch(e){}pintar()};
+$('fAdd').onclick=()=>{if(cart[id]>0){location.href='/#lista';return}ev('interes');cart[id]=1;try{localStorage.setItem('lista-nudodesen',JSON.stringify(cart))}catch(e){}pintar()};
 pintar();
 }
 </script>

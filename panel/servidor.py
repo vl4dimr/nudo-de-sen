@@ -13,7 +13,7 @@ Uso:
   python servidor.py --raiz C:\\sitios\\nudodesen --privado C:\\sitios\\nudodesen-panel
   python servidor.py --privado C:\\sitios\\nudodesen-panel --clave "nueva contraseña"   (cambia la contraseña y sale)
 """
-import argparse, base64, hashlib, hmac, json, mimetypes, os, re, secrets, shutil, struct, sys, time, unicodedata, zipfile
+import argparse, base64, hashlib, hmac, json, mimetypes, os, re, secrets, shutil, struct, sys, threading, time, unicodedata, zipfile
 from datetime import datetime
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -214,9 +214,23 @@ def validar(c):
             if m.get("poster"): mm["poster"] = ruta_medio(m["poster"])
             if tipo == "modelo" and m.get("relieve"): mm["relieve"] = True
             medios.append(mm)
-        out["productos"].append({
+        medidas = {}
+        for k in ("alto", "ancho", "fondo"):
+            v = (x.get("medidas") or {}).get(k)
+            if v in ("", None): continue
+            v = float(v)
+            if not 0 < v <= 500: raise ValueError(f"La medida «{k}» debe estar entre 0 y 500 cm")
+            medidas[k] = int(v) if v == int(v) else round(v, 1)
+        materiales = []
+        for mat in (x.get("materiales") or [])[:15]:
+            mat = texto(mat, 50)
+            if mat and mat.lower() not in (m.lower() for m in materiales): materiales.append(mat)
+        prod = {
             "id": pid, "nombre": texto(x.get("nombre"), 80, True), "categoria": cat, "precio": precio,
-            "detalle": texto(x.get("detalle"), 400), "visible": bool(x.get("visible", True)), "medios": medios})
+            "detalle": texto(x.get("detalle"), 400), "visible": bool(x.get("visible", True)), "medios": medios}
+        if medidas: prod["medidas"] = medidas
+        if materiales: prod["materiales"] = materiales
+        out["productos"].append(prod)
     return out
 
 
@@ -245,6 +259,16 @@ def giro(m):
     if m.get("relieve"):
         return 'data-relieve camera-orbit="0deg 85deg auto" min-camera-orbit="-40deg 70deg auto" max-camera-orbit="40deg 100deg auto"'
     return 'auto-rotate camera-orbit="20deg 80deg auto"'
+
+
+def cm(v):
+    return f"{v:g}".replace(".", ",") + " cm"
+
+
+def medidas_txt(p):
+    """«25 cm de alto × 12 cm de ancho × 10 cm de fondo» con lo que haya."""
+    m = p.get("medidas") or {}
+    return " × ".join(f"{cm(m[k])} de {k}" for k in ("alto", "ancho", "fondo") if k in m)
 
 
 def precio_txt(p):
@@ -299,16 +323,29 @@ def generar_paginas(raiz: Path, cat: dict):
                 f'<span class="p">{"<small>Desde</small> S/ " + h(x["precio"]) if x.get("precio") is not None else "A cotizar"}</span></div></article>'
                 for x in otros) + "</div></section>"
         url = f"{SITIO}/productos/{p['id']}/"
-        desc = (p.get("detalle") or "") + " Amigurumi hecho a mano en Puno, Perú. Envíos a todo el país."
+        desc = ((p.get("detalle") or "") + (f" Mide {medidas_txt(p)}." if p.get("medidas") else "")
+                + " Amigurumi hecho a mano en Puno, Perú. Envíos a todo el país.")
         ld = {"@context": "https://schema.org", "@type": "Product", "name": p["nombre"], "description": desc.strip(),
               "image": [f"{SITIO}/{m['src']}" for m in medios if m["tipo"] == "imagen"] or [f"{SITIO}/{img}"],
               "category": p["categoria"], "brand": {"@type": "Brand", "name": "Nudo de SEN"}, "url": url}
+        med = p.get("medidas") or {}
+        for k, campo in (("alto", "height"), ("ancho", "width"), ("fondo", "depth")):
+            if k in med: ld[campo] = {"@type": "QuantitativeValue", "value": med[k], "unitCode": "CMT"}
+        if p.get("materiales"): ld["material"] = ", ".join(p["materiales"])
+        ficha = ""
+        if med or p.get("materiales"):
+            ficha = '<dl class="ficha">'
+            if med: ficha += f'<div><dt><svg class="i"><use href="#i-regla"/></svg>Medidas</dt><dd>{h(medidas_txt(p))}</dd></div>'
+            if p.get("materiales"):
+                ficha += ('<div><dt><svg class="i"><use href="#i-ovillo"/></svg>Materiales</dt><dd><ul class="mats">'
+                          + "".join(f"<li>{h(x)}</li>" for x in p["materiales"]) + "</ul></dd></div>")
+            ficha += "</dl>"
         if p.get("precio") is not None:
             ld["offers"] = {"@type": "Offer", "priceCurrency": "PEN", "price": p["precio"], "availability": "https://schema.org/MadeToOrder", "url": url}
         valores = {
             "NOMBRE": h(p["nombre"]), "DESCRIPCION": h(desc.strip()), "PRECIO_TXT": h(precio_txt(p)), "URL": h(url),
             "IMAGEN_ABS": h(f"{SITIO}/{img}"), "ID": h(p["id"]), "CATEGORIA": h(p["categoria"]), "CATEGORIA_URL": h(quote(p["categoria"])),
-            "DETALLE": h(p.get("detalle") or ""), "PRIMER_MEDIO": primer, "MINIATURAS": mini, "RELACIONADOS": rel,
+            "DETALLE": h(p.get("detalle") or ""), "PRIMER_MEDIO": primer, "FICHA": ficha, "MINIATURAS": mini, "RELACIONADOS": rel,
             "PRECIO_HTML": ('<small>Desde</small> S/ ' + h(p["precio"])) if p.get("precio") is not None else "A cotizar",
             "WA_GENERAL": h(wa("Hola, vi su página y quiero información sobre sus amigurumis.")),
             "WA_PRODUCTO": h(wa(f"Hola, vi en su página el producto «{p['nombre']}» ({url}) y quiero más información.")),
@@ -337,11 +374,60 @@ def generar_paginas(raiz: Path, cat: dict):
     return len(hechos)
 
 
+# ---------------------------------------------------------------- historial y métricas
+class Conflicto(Exception):
+    """El catálogo cambió desde otro dispositivo después de que este lo abrió."""
+
+
+EVENTOS = {"inicio", "vista", "interes", "whatsapp"}
+METRICAS_DIAS = 400
+ACTIVIDAD_MAX = 2000
+
+
+def resumen_cambios(a: dict, b: dict) -> list:
+    """Describe en palabras qué cambió entre dos versiones del catálogo (para el registro de actividad)."""
+    cambios = []
+    pa = {p["id"]: p for p in a.get("productos", [])}
+    pb = {p["id"]: p for p in b.get("productos", [])}
+    for i in [x["id"] for x in b.get("productos", []) if x["id"] not in pa]: cambios.append(f"Agregó «{pb[i]['nombre']}»")
+    for i in [x["id"] for x in a.get("productos", []) if x["id"] not in pb]: cambios.append(f"Eliminó «{pa[i]['nombre']}»")
+    nombres = {"nombre": "nombre", "categoria": "categoría", "detalle": "descripción", "medios": "fotos, videos o 3D",
+               "medidas": "medidas", "materiales": "materiales"}
+    for i in [x["id"] for x in b.get("productos", []) if x["id"] in pa]:
+        x, y = pa[i], pb[i]
+        partes = []
+        if x.get("precio") != y.get("precio"):
+            f = lambda v: "a cotizar" if v is None else f"S/ {v}"
+            partes.append(f"precio {f(x.get('precio'))} → {f(y.get('precio'))}")
+        if x.get("visible", True) != y.get("visible", True): partes.append("lo mostró" if y.get("visible", True) else "lo ocultó")
+        partes += [n for k, n in nombres.items() if (x.get(k) or None) != (y.get(k) or None)]
+        if partes: cambios.append(f"Editó «{y['nombre']}»: " + ", ".join(partes))
+    oa = [p["id"] for p in a.get("productos", []) if p["id"] in pb]
+    ob = [p["id"] for p in b.get("productos", []) if p["id"] in pa]
+    if oa != ob: cambios.append("Cambió el orden de los productos")
+    if a.get("categorias") != b.get("categorias"): cambios.append("Cambió las categorías")
+    if a.get("telefono") != b.get("telefono"): cambios.append("Cambió el número de WhatsApp")
+    if a.get("portada") != b.get("portada"): cambios.append("Cambió el 3D de la portada")
+    return cambios or ["Guardó sin cambios"]
+
+
+def leer_json_archivo(ruta: Path, defecto):
+    try: return json.loads(ruta.read_text("utf-8"))
+    except Exception: return defecto
+
+
+def escribir_json(ruta: Path, datos):
+    tmp = ruta.with_suffix(ruta.suffix + ".tmp")
+    tmp.write_text(json.dumps(datos, ensure_ascii=False), "utf-8")
+    os.replace(tmp, ruta)
+
+
 # ---------------------------------------------------------------- servidor
 class Panel(BaseHTTPRequestHandler):
     server_version = "NudoPanel/1"
     sys_version = ""
     intentos: dict = {}
+    eventos_ip: dict = {}
 
     # utilidades
     def ip(self):
@@ -429,11 +515,22 @@ class Panel(BaseHTTPRequestHandler):
                    "script-src 'self' 'unsafe-inline'; connect-src 'self' blob: data:; worker-src 'self' blob:; "
                    + ("" if self.server.dev else "frame-ancestors 'none'; ") + "base-uri 'none'; form-action 'self'")
             return self.enviar(200, html, "text/html; charset=utf-8", {"Content-Security-Policy": csp, "Cache-Control": "no-cache"})
+        # archivos de la app del panel (instalable): JS, manifiesto y service worker
+        if p in ("/panel.js", "/sw.js", "/manifest.webmanifest"):
+            tipo = "application/manifest+json" if p.endswith(".webmanifest") else "text/javascript; charset=utf-8"
+            return self.enviar(200, (APP / p.lstrip("/")).read_bytes(), tipo, {"Cache-Control": "no-cache"})
         if p == "/api/sesion":
             return self.enviar(200, {"ok": self.sesion()})
+        if p.startswith("/api/") and not self.sesion(): return self.error(401, "Inicia sesión")
         if p == "/api/catalogo":
-            if not self.sesion(): return self.error(401, "Inicia sesión")
             return self.enviar(200, self.server.leer_catalogo(), extra={"Cache-Control": "no-store"})
+        if p == "/api/historial":
+            return self.enviar(200, {"ok": True, "versiones": self.server.historial()}, extra={"Cache-Control": "no-store"})
+        if p == "/api/actividad":
+            return self.enviar(200, {"ok": True, "actividad": self.server.actividad()}, extra={"Cache-Control": "no-store"})
+        if p == "/api/metricas":
+            dias = int((parse_qs(urlsplit(self.path).query).get("dias") or ["30"])[0])
+            return self.enviar(200, {"ok": True, **self.server.metricas(max(1, min(dias, 365)))}, extra={"Cache-Control": "no-store"})
         if p.startswith("/media/") or p.startswith("/assets/"):
             return self.estatico(self.server.raiz, p.lstrip("/"), "public, max-age=3600")
         self.error(404, "No encontrado")
@@ -441,6 +538,9 @@ class Panel(BaseHTTPRequestHandler):
     def do_POST(self):
         u = urlsplit(self.path)
         p = self.camino()
+        if p == "/api/e": return self.evento()          # público: contador de visitas y clics de la web
+        if p == "/compartir":                            # «Compartir» desde el celular sin service worker activo
+            return self.enviar(303, b"", "text/plain", {"Location": PREFIJO + "/"})
         if not self.mutacion_ok(): return self.error(403, "Petición no permitida")
         if p == "/api/entrar":
             ahora = time.time()
@@ -456,9 +556,20 @@ class Panel(BaseHTTPRequestHandler):
             return self.enviar(200, {"ok": True}, extra={"Set-Cookie": self.cookie(self.server.privado.token(), SESION_DIAS * 86400)})
         if p == "/api/salir":
             return self.enviar(200, {"ok": True}, extra={"Set-Cookie": self.cookie("", 0)})
+        if not self.sesion(): return self.error(401, "Inicia sesión")
         if p == "/api/subir":
-            if not self.sesion(): return self.error(401, "Inicia sesión")
             return self.subir(parse_qs(u.query))
+        if p == "/api/restaurar":
+            try:
+                nombre = str(self.leer_json().get("nombre", ""))
+                if not re.fullmatch(r"catalogo-[0-9\-]+\.json", nombre): raise ValueError("Versión no válida")
+                viejo = leer_json_archivo(self.server.privado.carpeta / "respaldos" / nombre, None)
+                if viejo is None: raise ValueError("Esa versión ya no existe")
+                limpio = validar(viejo)
+                c = self.server.guardar_catalogo(limpio, None, self.ip(), "Restauró una versión anterior")
+            except (ValueError, TypeError, AttributeError) as e:
+                return self.error(400, str(e))
+            return self.enviar(200, {"ok": True, "catalogo": c})
         self.error(404, "No encontrado")
 
     def do_PUT(self):
@@ -466,11 +577,36 @@ class Panel(BaseHTTPRequestHandler):
         if self.camino() != "/api/catalogo": return self.error(404, "No encontrado")
         if not self.sesion(): return self.error(401, "Inicia sesión")
         try:
-            limpio = validar(self.leer_json())
+            cuerpo = self.leer_json()
+            limpio = validar(cuerpo)
+            c = self.server.guardar_catalogo(limpio, cuerpo.get("rev"), self.ip())
+        except Conflicto:
+            return self.enviar(409, {"ok": False, "conflicto": True,
+                                     "error": "Alguien guardó cambios desde otro dispositivo mientras editabas.",
+                                     "catalogo": self.server.leer_catalogo()})
         except (ValueError, TypeError, AttributeError, json.JSONDecodeError) as e:
             return self.error(400, str(e) or "Datos no válidos")
-        self.server.guardar_catalogo(limpio)
-        self.enviar(200, {"ok": True, "catalogo": limpio})
+        self.enviar(200, {"ok": True, "catalogo": c})
+
+    def evento(self):
+        """Cuenta una visita o un clic de la web pública. No guarda IP, cookies ni datos de la persona:
+        solo suma 1 al contador del día. Llega por navigator.sendBeacon (texto plano, sin preflight)."""
+        ua = (self.headers.get("User-Agent") or "").lower()
+        n = int(self.headers.get("Content-Length") or 0)
+        if n <= 0 or n > 300 or any(b in ua for b in ("bot", "crawl", "spider", "preview", "headless", "facebookexternalhit", "whatsapp")):
+            return self.enviar(204, b"", "text/plain")
+        ahora = time.time()
+        lista = [t for t in Panel.eventos_ip.get(self.ip(), []) if ahora - t < 60]
+        if len(lista) >= 40: return self.enviar(204, b"", "text/plain")
+        lista.append(ahora); Panel.eventos_ip[self.ip()] = lista
+        if len(Panel.eventos_ip) > 5000: Panel.eventos_ip.clear()
+        try:
+            d = json.loads(self.rfile.read(n))
+            t, pid = str(d.get("t", "")), str(d.get("p") or "")
+        except Exception:
+            return self.enviar(204, b"", "text/plain")
+        if t in EVENTOS and (not pid or pid in self.server.ids): self.server.contar(t, pid)
+        self.enviar(204, b"", "text/plain")
 
     def subir(self, q):
         tipo = (q.get("tipo") or [""])[0]
@@ -630,28 +766,95 @@ class Servidor(ThreadingHTTPServer):
         (raiz / "media").mkdir(exist_ok=True)
         if not self.archivo.exists():
             shutil.copyfile(APP / "catalogo-inicial.json", self.archivo)
+        self.candado = threading.Lock()       # un guardado a la vez (control de versiones)
+        self.mcandado = threading.Lock()      # métricas
+        self.f_metricas = privado.carpeta / "metricas.json"
+        self.f_actividad = privado.carpeta / "actividad.jsonl"
+        self.met = leer_json_archivo(self.f_metricas, {})
+        self.ids = set()
         self.paginas()
 
     def paginas(self):
         try:
-            n = generar_paginas(self.raiz, self.leer_catalogo())
+            cat = self.leer_catalogo()
+            self.ids = {p["id"] for p in cat.get("productos", [])}
+            n = generar_paginas(self.raiz, cat)
             print(f"Páginas de producto generadas: {n}", flush=True)
         except Exception as e:  # una página rota no debe impedir guardar el catálogo
             print(f"ERROR generando páginas: {e!r}", file=sys.stderr, flush=True)
 
     def leer_catalogo(self):
-        return json.loads(self.archivo.read_text("utf-8"))
+        c = json.loads(self.archivo.read_text("utf-8"))
+        c.setdefault("rev", 0)
+        return c
 
-    def guardar_catalogo(self, c):
-        resp = self.privado.carpeta / "respaldos"
-        resp.mkdir(exist_ok=True)
-        if self.archivo.exists():
-            shutil.copyfile(self.archivo, resp / f"catalogo-{datetime.now():%Y%m%d-%H%M%S}.json")
+    def guardar_catalogo(self, c, rev_cliente=None, ip="", accion=None):
+        """Guarda una versión nueva. Si rev_cliente no coincide con la versión actual, otro
+        dispositivo guardó antes: se rechaza (Conflicto) para no pisar sus cambios."""
+        with self.candado:
+            actual = self.leer_catalogo()
+            if rev_cliente is not None and int(rev_cliente) != actual["rev"]: raise Conflicto()
+            c = dict(c, rev=actual["rev"] + 1)
+            resp = self.privado.carpeta / "respaldos"
+            resp.mkdir(exist_ok=True)
+            shutil.copyfile(self.archivo, resp / f"catalogo-{datetime.now():%Y%m%d-%H%M%S-%f}.json")
             for viejo in sorted(resp.glob("catalogo-*.json"))[:-RESPALDOS]: viejo.unlink()
-        tmp = self.archivo.with_suffix(".tmp")
-        tmp.write_text(json.dumps(c, ensure_ascii=False, indent=1), "utf-8")
-        os.replace(tmp, self.archivo)
+            tmp = self.archivo.with_suffix(".tmp")
+            tmp.write_text(json.dumps(c, ensure_ascii=False, indent=1), "utf-8")
+            os.replace(tmp, self.archivo)
+            self.registrar(accion or "Guardó", resumen_cambios(actual, c), ip)
         self.paginas()
+        return c
+
+    # --- historial y actividad
+    def historial(self):
+        out = []
+        for f in sorted((self.privado.carpeta / "respaldos").glob("catalogo-*.json"), reverse=True):
+            r = re.match(r"catalogo-(\d{8})-(\d{6})", f.name)
+            c = leer_json_archivo(f, {})
+            out.append({"nombre": f.name, "fecha": datetime.strptime(r.group(1) + r.group(2), "%Y%m%d%H%M%S").isoformat() if r else "",
+                        "productos": len(c.get("productos", [])), "visibles": sum(1 for p in c.get("productos", []) if p.get("visible", True))})
+        return out
+
+    def registrar(self, accion, cambios, ip=""):
+        linea = json.dumps({"fecha": datetime.now().isoformat(timespec="seconds"), "accion": accion, "cambios": cambios[:30], "ip": ip}, ensure_ascii=False)
+        with self.f_actividad.open("a", encoding="utf-8") as f: f.write(linea + "\n")
+        if self.f_actividad.stat().st_size > 2 * 2**20:   # recorta el registro cuando crece mucho
+            lineas = self.f_actividad.read_text("utf-8").splitlines()[-ACTIVIDAD_MAX:]
+            self.f_actividad.write_text("\n".join(lineas) + "\n", "utf-8")
+
+    def actividad(self, n=150):
+        try: lineas = self.f_actividad.read_text("utf-8").splitlines()[-n:]
+        except FileNotFoundError: return []
+        return [json.loads(x) for x in reversed(lineas) if x.strip()]
+
+    # --- métricas propias (sin cookies ni IP)
+    def contar(self, t, pid):
+        hoy = datetime.now().strftime("%Y-%m-%d")
+        with self.mcandado:
+            d = self.met.setdefault(hoy, {})
+            k = d.setdefault(t, {})
+            k["_"] = k.get("_", 0) + 1
+            if pid: k[pid] = k.get(pid, 0) + 1
+            if len(self.met) > METRICAS_DIAS:
+                for viejo in sorted(self.met)[:-METRICAS_DIAS]: del self.met[viejo]
+            escribir_json(self.f_metricas, self.met)
+
+    def metricas(self, dias):
+        from datetime import timedelta
+        hoy = datetime.now().date()
+        serie, por = [], {}
+        with self.mcandado:
+            for i in range(dias - 1, -1, -1):
+                f = (hoy - timedelta(days=i)).isoformat()
+                d = self.met.get(f, {})
+                serie.append({"fecha": f, **{t: d.get(t, {}).get("_", 0) for t in EVENTOS}})
+                for t in ("vista", "interes", "whatsapp"):
+                    for pid, n in d.get(t, {}).items():
+                        if pid != "_": por.setdefault(pid, {"vista": 0, "interes": 0, "whatsapp": 0})[t] += n
+        media = self.raiz / "media"
+        archivos = [f for f in media.rglob("*") if f.is_file()] if media.exists() else []
+        return {"serie": serie, "productos": por, "almacenamiento": {"archivos": len(archivos), "bytes": sum(f.stat().st_size for f in archivos)}}
 
 
 def main():

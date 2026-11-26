@@ -1,0 +1,29 @@
+{
+  "name": "Nudo de SEN · Panel",
+  "short_name": "Panel SEN",
+  "description": "Administra los productos, fotos, videos y 3D de nudodesen.com",
+  "lang": "es-PE",
+  "id": "/admin/",
+  "start_url": "/admin/",
+  "scope": "/admin/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f1ef",
+  "theme_color": "#8e2a3c",
+  "icons": [
+    { "src": "/assets/panel-icono-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/panel-icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "share_target": {
+    "action": "/admin/compartir",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "titulo",
+      "text": "texto",
+      "files": [
+        { "name": "archivos", "accept": ["image/*", "video/*", ".glb", ".zip", "application/zip", ".html", "text/html"] }
+      ]
+    }
+  }
+}
