@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es-PE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nudo de SEN · Amigurumis personalizados en Puno, Perú</title>
+<meta name="description" content="Convierte a quien más quieres en un amigurumi. Muñecos tejidos a crochet y hechos a pedido en Puno: tu mini versión, danzas típicas, ramos tejidos y llaveros. Envíos a todo el Perú.">
+<meta name="theme-color" content="#8e2a3c">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_PE">
+<meta property="og:site_name" content="Nudo de SEN">
+<meta property="og:title" content="Nudo de SEN · Amigurumis personalizados">
+<meta property="og:description" content="Donde los recuerdos se tejen para siempre. Hechos a pedido en Puno, con envíos a todo el Perú.">
+<!-- Si cambias de dominio, actualiza estas dos direcciones -->
+<meta property="og:url" content="https://vl4dimr.github.io/nudo-de-sen/">
+<meta property="og:image" content="https://vl4dimr.github.io/nudo-de-sen/assets/logo.png">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="apple-touch-icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
+<script type="module" src="assets/model-viewer.min.js"></script>
+<script src="productos.js"></script>
+<style>
+/* VOZ: cálida y segura; habla de regalar recuerdos, no de vender muñecos.
+   IDEA: el sello del logo (crema, rosas rojo vino, hojas salvia) llevado a una tienda editorial y limpia.
+   IMAGEN: la muñeca real en 3D, girable, como pieza central.
+   COLOR y LETRA: crema de fondo, rojo vino para títulos y acciones, salvia de apoyo; Playfair Display + Plus Jakarta Sans.
+   ESTRUCTURA: portada con gancho → confianza → categorías → catálogo → ocasiones → cómo funciona → formulario → TikTok → nosotros y preguntas. */
+:root{color-scheme:light dark;
+--bg:light-dark(#fbf6f0,#191214);--card:light-dark(#fffdfa,#261b1e);--ink:light-dark(#2f1c20,#f4e9e4);--soft:light-dark(#6d5458,#c8b3ae);
+--wine:light-dark(#8e2a3c,#eda5b0);--wine-deep:light-dark(#6f1e2d,#f6c3ca);--on-wine:light-dark(#fff8f2,#2a1216);
+--blush:light-dark(#f7e3de,#33201f);--sage:light-dark(#55733f,#a9c497);--sage-soft:light-dark(#e6eedc,#232d1d);
+--line:light-dark(#ecdbd4,#473236);--wa:#17804a;
+--shadow:0 1px 2px rgba(80,30,40,.06),0 12px 32px -12px rgba(80,30,40,.22);--r:22px}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:88px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Plus Jakarta Sans",system-ui,sans-serif;overflow-x:clip;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Playfair Display",Georgia,serif;font-weight:700;line-height:1.08;text-wrap:balance;margin:0;color:var(--wine);letter-spacing:-.01em}
+h1{font-size:clamp(38px,5.6vw,68px)}h2{font-size:clamp(30px,3.8vw,46px)}h3{font-size:19px;line-height:1.25;font-weight:600;letter-spacing:0}
+h1 em,h2 em{font-style:italic;font-weight:600;color:var(--sage)}
+p{margin:0;text-wrap:pretty}a{color:inherit}img{max-width:100%;display:block}
+.band{padding:clamp(56px,8vw,104px) max(5vw,18px)}
+.wrap{max-width:1180px;margin:0 auto}
+.eyebrow{font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--sage);margin-bottom:14px}
+.sechead{text-align:center;max-width:640px;margin:0 auto clamp(28px,4vw,48px)}
+.sechead p:last-child{color:var(--soft);margin-top:14px;font-size:17px}
+button,.btn{font:700 16px "Plus Jakarta Sans",sans-serif;min-height:50px;padding:12px 26px;border-radius:999px;border:1.5px solid var(--wine);background:var(--wine);color:var(--on-wine);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:10px;justify-content:center;transition:transform .2s,box-shadow .2s,background .2s}
+.btn:hover,button:hover{transform:translateY(-2px);box-shadow:0 10px 24px -10px var(--wine)}
+.ghost{background:transparent;color:var(--wine)}
+.wa{background:var(--wa);border-color:var(--wa);color:#fff}.wa:hover{box-shadow:0 10px 24px -10px var(--wa)}
+svg.i{width:20px;height:20px;flex:none;fill:currentColor}
+:focus-visible{outline:3px solid var(--sage);outline-offset:3px;border-radius:8px}
+/* aparición al hacer scroll (solo si hay JS y el usuario acepta movimiento) */
+.js .rv{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+.js .rv.in{opacity:1;transform:none}
+/* navegación */
+nav{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(14px) saturate(1.4);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:14px;padding:10px max(5vw,18px)}
+.logo{font:700 22px "Playfair Display",serif;color:var(--wine);text-decoration:none;display:flex;align-items:center;gap:10px;margin-right:auto;white-space:nowrap}
+.logo img{width:46px;height:46px;border-radius:50%;box-shadow:0 0 0 1px var(--line)}
+.links{display:flex;gap:2px}.links a{text-decoration:none;padding:9px 14px;border-radius:999px;font-weight:600;font-size:15px;transition:background .2s}
+.links a:hover{background:var(--blush)}
+.cartbtn{min-height:46px;padding:8px 18px}
+.cartbtn b{background:var(--on-wine);color:var(--wine);border-radius:999px;font-size:13px;padding:1px 8px;min-width:24px;display:inline-block}
+.cartbtn b.bump{animation:bump .4s}
+@keyframes bump{40%{transform:scale(1.45)}}
+/* portada */
+.hero{position:relative;padding-top:clamp(32px,5vw,64px);padding-bottom:clamp(40px,6vw,80px);background:radial-gradient(60% 70% at 85% 35%,var(--sage-soft),transparent 70%),radial-gradient(55% 60% at 5% 0%,var(--blush),transparent 70%)}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,1fr);gap:clamp(20px,4vw,64px);align-items:center}
+.pill{display:inline-flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 16px 7px 12px;font-weight:600;font-size:14px;margin-bottom:22px;box-shadow:var(--shadow)}
+.pill i{width:9px;height:9px;border-radius:50%;background:var(--sage);box-shadow:0 0 0 4px color-mix(in srgb,var(--sage) 25%,transparent)}
+.hero .lead{font-size:clamp(17px,1.5vw,20px);color:var(--soft);margin:22px 0 30px;max-width:32em}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.lema{font:italic 500 18px "Playfair Display",serif;color:var(--wine);margin-top:30px;display:flex;align-items:center;gap:14px}
+.lema::before{content:"";width:44px;height:1.5px;background:var(--sage);flex:none}
+.stage{position:relative;aspect-ratio:1/1.12;max-height:680px;width:100%}
+.stage .disc{position:absolute;inset:9% 3% 3%;border-radius:50%;background:radial-gradient(circle at 35% 28%,var(--card),var(--sage-soft) 55%,light-dark(#c9dab9,#182113));box-shadow:inset 0 -30px 60px -30px rgba(60,90,40,.25)}
+.stage .disc::after{content:"";position:absolute;inset:-4%;border-radius:50%;border:1.5px dashed var(--sage);opacity:.45;animation:spin 60s linear infinite}
+@keyframes spin{to{transform:rotate(1turn)}}
+model-viewer{position:absolute;inset:0;width:100%;height:100%;--poster-color:transparent;background:transparent}
+model-viewer::part(default-progress-bar){display:none}
+.float{position:absolute;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);font-weight:600;font-size:14px}
+.hint{left:2%;top:7%;padding:9px 14px;display:flex;align-items:center;gap:8px;animation:bob 5s ease-in-out infinite}
+.tag{right:1%;bottom:10%;padding:12px 18px;max-width:215px;animation:bob 6s ease-in-out -2s infinite}
+.tag small{display:block;color:var(--soft);font-size:12.5px;font-weight:500}.tag strong{font:600 18px "Playfair Display",serif;color:var(--wine);display:block}
+@keyframes bob{50%{transform:translateY(-8px)}}
+/* confianza */
+.trust{padding:0 max(5vw,18px);margin-top:-8px}
+.trust ul{list-style:none;margin:0 auto;padding:0;max-width:1180px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.trust li{padding:20px 22px;display:flex;gap:14px;align-items:center;font-weight:600;font-size:15px;line-height:1.3}
+.trust li+li{border-left:1px solid var(--line)}
+.trust span{font-size:26px}
+.trust small{display:block;font-weight:400;color:var(--soft);font-size:13.5px}
+/* cinta */
+.tape{background:var(--wine);color:var(--on-wine);overflow:hidden;margin-top:clamp(48px,7vw,88px);padding:16px 0;font:italic 500 clamp(18px,2.2vw,24px) "Playfair Display",serif;white-space:nowrap}
+.tape div{display:inline-flex;gap:38px;padding-right:38px;animation:tape 36s linear infinite}
+.tape span::after{content:"✦";margin-left:38px;font-style:normal;opacity:.6;font-size:.7em}
+@keyframes tape{to{transform:translateX(-50%)}}
+/* categorías */
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.tile{position:relative;aspect-ratio:3/4;border-radius:var(--r);overflow:hidden;padding:0;border:0;min-height:0;display:block;background:var(--blush);text-align:left;color:#fff;box-shadow:var(--shadow)}
+.tile:hover{transform:translateY(-6px)}
+.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tile:hover img{transform:scale(1.07)}
+.tile::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 38%,rgba(50,12,22,.88))}
+.tile div{position:absolute;inset:auto 0 0;padding:20px;z-index:1}
+.tile strong{font:700 23px/1.15 "Playfair Display",serif;display:block}
+.tile small{display:block;font:500 14px/1.4 "Plus Jakarta Sans",sans-serif;opacity:.92;margin-top:6px}
+.tile b{display:inline-block;margin-top:12px;font:700 13px "Plus Jakarta Sans",sans-serif;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);border-radius:999px;padding:5px 12px}
+/* catálogo */
+.catalog{background:linear-gradient(var(--bg),var(--blush) 30%,var(--bg))}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:30px}
+.chips button{background:var(--card);color:var(--ink);border-color:var(--line);min-height:44px;padding:8px 18px;font-size:15px;font-weight:600}
+.chips button[aria-pressed=true]{background:var(--wine);color:var(--on-wine);border-color:var(--wine)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,235px),1fr));gap:22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:transform .3s,box-shadow .3s}
+.card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.card .pic{position:relative;overflow:hidden;aspect-ratio:7/8;background:var(--blush)}
+.card img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.card:hover img{transform:scale(1.06)}
+.card .cat{position:absolute;left:12px;top:12px;background:color-mix(in srgb,var(--card) 90%,transparent);backdrop-filter:blur(6px);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;color:var(--sage)}
+.card .body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
+.card .desc{color:var(--soft);font-size:14px}
+.card .row{display:flex;justify-content:space-between;align-items:end;gap:10px;margin-top:auto;padding-top:14px}
+.price small{display:block;font-size:12px;color:var(--soft);font-weight:500;line-height:1.2}
+.price strong{font:700 22px "Playfair Display",serif;color:var(--ink);white-space:nowrap}
+.card button{min-height:44px;padding:8px 16px;font-size:14.5px}
+.card button.on{background:var(--sage-soft);border-color:var(--sage);color:var(--sage)}
+.note{font-size:14px;color:var(--soft);margin-top:26px;text-align:center}
+/* ocasiones */
+.occ{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.occ button{flex-direction:column;align-items:flex-start;text-align:left;gap:6px;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);padding:22px;min-height:0;font-weight:400;height:100%;justify-content:flex-start}
+.occ button:hover{border-color:var(--wine);box-shadow:var(--shadow)}
+.occ span{font-size:30px;line-height:1}
+.occ strong{font:600 19px "Playfair Display",serif;color:var(--wine);margin-top:8px}
+.occ small{color:var(--soft);font-size:14px;line-height:1.45}
+/* cómo funciona + formulario */
+.custom{background:var(--sage-soft);border-radius:clamp(24px,4vw,48px);margin:0 max(2vw,10px)}
+.custom .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(28px,5vw,72px);align-items:start}
+.custom .intro{font-size:18px;color:var(--soft);margin-top:16px}
+.steps{display:grid;gap:22px;margin:32px 0 0;padding:0;list-style:none;counter-reset:paso}
+.steps li{counter-increment:paso;display:grid;grid-template-columns:52px minmax(0,1fr);gap:16px;align-items:start}
+.steps li::before{content:counter(paso);font:700 22px "Playfair Display",serif;width:52px;height:52px;border-radius:50%;background:var(--card);border:1.5px solid var(--sage);color:var(--sage);display:grid;place-items:center}
+.steps p{color:var(--soft);margin-top:2px}
+.form{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:clamp(20px,3vw,34px);display:grid;gap:16px;box-shadow:var(--shadow)}
+.form h3{font-size:24px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+label{font-weight:600;font-size:14px;display:grid;gap:6px}
+label small{font-weight:400;color:var(--soft)}
+input,textarea,select{font:16px "Plus Jakarta Sans",sans-serif;padding:11px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);width:100%;min-height:50px;transition:border-color .2s}
+input:focus,textarea:focus,select:focus{border-color:var(--wine);outline:0;box-shadow:0 0 0 4px color-mix(in srgb,var(--wine) 14%,transparent)}
+input[type=file]{padding:10px;font-size:14px}
+.preview{display:none;align-items:center;gap:12px;font-size:14px;color:var(--soft)}
+.preview.on{display:flex}.preview img{width:64px;height:64px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+.msg{font-size:14px;color:var(--soft)}
+/* tiktok */
+.tiktok{background:var(--wine);color:var(--on-wine);text-align:center;margin-top:clamp(56px,8vw,104px)}
+.tiktok h2{color:var(--on-wine)}.tiktok h2 em{color:light-dark(#f3c9a8,#7a3b1e)}
+.tiktok p{opacity:.9;max-width:34em;margin:16px auto 28px;font-size:17px}
+.tiktok .btn{background:var(--on-wine);color:var(--wine);border-color:var(--on-wine)}
+/* nosotros + preguntas */
+.about .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(28px,5vw,72px)}
+.about p{margin-top:16px;color:var(--soft);font-size:17px}
+.about .quote{font:italic 500 clamp(22px,2.4vw,28px)/1.35 "Playfair Display",serif;color:var(--wine);border-left:3px solid var(--sage);padding-left:20px;margin-top:28px}
+details{border-bottom:1px solid var(--line);padding:18px 0}
+summary{font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:16px;align-items:center;font-size:17px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font:400 26px/1 "Playfair Display",serif;color:var(--wine);transition:transform .25s;flex:none}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--soft);margin-top:10px}
+/* pie */
+footer{background:light-dark(#2f1c20,#120c0d);color:#f4e9e4;padding-bottom:clamp(88px,10vw,104px)}
+footer .wrap{display:grid;grid-template-columns:1.4fr 1fr 1.2fr;gap:32px}
+footer .logo{color:#fff8f2;margin:0 0 12px}
+footer .logo img{background:#fbf6f0}
+footer p,footer li{opacity:.82;font-size:15px}
+footer h3{color:#fff8f2;font:700 14px "Plus Jakarta Sans",sans-serif;letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+footer a{text-decoration:none}footer a:hover{text-decoration:underline}
+.copy{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.14);padding-top:20px;font-size:13.5px;opacity:.7}
+/* WhatsApp flotante + aviso */
+.fab{position:fixed;right:18px;bottom:18px;z-index:25;width:60px;height:60px;min-height:0;padding:0;border-radius:50%;box-shadow:0 12px 28px -8px rgba(15,90,50,.6)}
+.fab svg{width:30px;height:30px}
+.toast{position:fixed;left:50%;bottom:24px;translate:-50% 0;z-index:26;background:var(--ink);color:var(--bg);border-radius:999px;padding:8px 8px 8px 20px;display:flex;align-items:center;gap:14px;font-weight:600;font-size:15px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transform:translateY(20px);transition:opacity .3s,transform .3s;max-width:calc(100% - 100px);white-space:nowrap}
+.toast.on{opacity:1;pointer-events:auto;transform:none}
+.toast button{min-height:38px;padding:6px 16px;font-size:14px;background:var(--bg);color:var(--ink);border-color:var(--bg)}
+/* lista lateral */
+.drawer{position:fixed;inset:0 0 0 auto;width:min(440px,100%);background:var(--card);z-index:40;transform:translateX(105%);transition:transform .35s cubic-bezier(.2,.7,.2,1);display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.22);visibility:hidden}
+.drawer.open{transform:none;visibility:visible}
+.shade{position:fixed;inset:0;background:rgba(40,15,20,.5);backdrop-filter:blur(3px);z-index:30;display:none}.shade.on{display:block}
+.drawer header{display:flex;justify-content:space-between;align-items:center;padding:16px 22px;border-bottom:1px solid var(--line)}
+.drawer header h3{font-size:22px}
+.drawer header button{min-height:42px;padding:6px 16px;font-size:14px}
+.drawer .items{flex:1;overflow:auto;padding:6px 22px}
+.line{display:grid;grid-template-columns:60px minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.line img{width:60px;height:60px;object-fit:cover;border-radius:12px}
+.line small{display:block;color:var(--soft);font-size:13px}
+.qty{display:flex;align-items:center;gap:8px;font-weight:700}
+.qty button{min-height:36px;width:36px;padding:0;background:transparent;color:var(--wine);border-color:var(--line)}
+.empty{color:var(--soft);padding:40px 0;text-align:center}
+.drawer form{padding:18px 22px;border-top:1px solid var(--line);display:grid;gap:12px;background:var(--bg)}
+.total{display:flex;justify-content:space-between;align-items:baseline;font-weight:600}
+.total strong{font:700 24px "Playfair Display",serif;color:var(--wine)}
+@media(max-width:940px){.links{display:none}.hero .wrap,.custom .wrap,.about .wrap{grid-template-columns:minmax(0,1fr)}.stage{max-height:480px;margin-top:8px}.tag{right:auto;left:0;bottom:0;max-width:132px;padding:9px 13px}.tag strong{font-size:15px}.hint{left:0;top:2%}
+ .trust ul{grid-template-columns:repeat(2,minmax(0,1fr))}.trust li:nth-child(3){border-left:0}.trust li:nth-child(n+3){border-top:1px solid var(--line)}.trust li{padding:16px}
+ .tiles,.occ{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tile strong{font-size:19px}.tile div{padding:14px}
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card .body{padding:12px}.card h3{font-size:16px}.card .row{flex-direction:column;align-items:stretch}.card button{width:100%}.price strong{font-size:20px}
+ footer .wrap{grid-template-columns:minmax(0,1fr)}.logo{font-size:19px}.logo img{width:42px;height:42px}.custom{margin:0}}
+@media(max-width:520px){.two{grid-template-columns:minmax(0,1fr)}.trust li{flex-direction:column;align-items:flex-start;gap:6px}.occ button{padding:16px}.cta .btn{flex:1 1 100%}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}.js .rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-wa" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.700 6.700 0 0 1-3.300-2.900c-.2-.4.2-.4.6-1.200.1-.2 0-.3 0-.5l-.8-1.800c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.300-.900.900-1 2.100-.400 3.300a11 11 0 0 0 4.600 4.300c1.700.7 2.400.8 3.200.6.500-.1 1.500-.6 1.700-1.200.2-.6.2-1.100.1-1.200l-.3-.200z"/></symbol>
+  <symbol id="i-tt" viewBox="0 0 24 24"><path d="M16.500 3c.3 2.100 1.500 3.600 3.500 3.900v3c-1.300 0-2.500-.4-3.500-1v6.300a5.800 5.800 0 1 1-5.800-5.800c.3 0 .6 0 .9.1v3.100a2.800 2.800 0 1 0 1.900 2.600V3h3z"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M7 8V7a5 5 0 0 1 10 0v1h3l-1 13H5L4 8h3zm2 0h6V7a3 3 0 0 0-6 0v1z"/></symbol>
+</defs></svg>
+
+<nav aria-label="Principal"><div class="wrap">
+  <a class="logo" href="#inicio"><img src="assets/logo.png" alt="" width="46" height="46">Nudo de SEN</a>
+  <div class="links"><a href="#categorias">Categorías</a><a href="#catalogo">Catálogo</a><a href="#personalizados">Personalizados</a><a href="#nosotros">Nosotros</a><a href="#preguntas">Preguntas</a></div>
+  <button class="cartbtn" id="openCart" aria-label="Ver mi lista"><svg class="i"><use href="#i-bag"/></svg>Mi lista <b id="count">0</b></button>
+</div></nav>
+
+<header class="band hero" id="inicio"><div class="wrap">
+  <div class="rv">
+    <span class="pill"><i></i>Hecho a mano en Puno · Envíos a todo el Perú</span>
+    <h1>Convierte a quien más quieres en un <em>amigurumi</em></h1>
+    <p class="lead">Tejemos a crochet su mini versión, con su ropa, su peinado y sus detalles. Un regalo único que no existe en ninguna tienda.</p>
+    <div class="cta"><a class="btn" href="#personalizados">Crear el mío</a><a class="btn ghost" href="#catalogo">Ver catálogo</a></div>
+    <p class="lema">Donde los recuerdos se tejen para siempre</p>
+  </div>
+  <div class="stage rv">
+    <div class="disc"></div>
+    <model-viewer id="mv" src="assets/muneca.glb" alt="Muñeca amigurumi en 3D sobre base de madera; puedes girarla" camera-controls auto-rotate auto-rotate-delay="800" rotation-per-second="18deg" shadow-intensity="1" shadow-softness=".8" exposure="1" camera-orbit="20deg 80deg auto" interaction-prompt="none" loading="eager"></model-viewer>
+    <span class="float hint">↻ Gírala en 3D</span>
+    <div class="float tag"><small>Pieza real, tejida a pedido</small><strong>Muñeca personalizada</strong><small>Mírala por todos lados</small></div>
+  </div>
+</div></header>
+
+<section class="trust rv" aria-label="Por qué elegirnos"><ul>
+  <li><span>🧶</span><div>Tejido a mano<small>Punto por punto, en Puno</small></div></li>
+  <li><span>📸</span><div>A partir de tu foto<small>Con su ropa y sus detalles</small></div></li>
+  <li><span>🚚</span><div>Envíos a todo el Perú<small>Desde Puno hasta tu ciudad</small></div></li>
+  <li><span>💬</span><div>Cotización sin compromiso<small>Te respondemos por WhatsApp</small></div></li>
+</ul></section>
+
+<div class="tape" aria-hidden="true"><div id="tape"></div></div>
+
+<main>
+<section class="band" id="categorias"><div class="wrap">
+  <div class="sechead rv"><p class="eyebrow">Qué tejemos</p><h2>Elige por dónde <em>empezar</em></h2><p>Cuatro formas de regalar un recuerdo hecho a mano.</p></div>
+  <div class="tiles rv" id="tiles"></div>
+</div></section>
+
+<section class="band catalog" id="catalogo"><div class="wrap">
+  <div class="sechead rv"><p class="eyebrow">Catálogo</p><h2>Trabajos que puedes <em>pedir hoy</em></h2><p>Marca los que te gustan con «Me interesa» y pide tu cotización de una sola vez por WhatsApp.</p></div>
+  <div class="chips" id="chips" role="group" aria-label="Filtrar por categoría"></div>
+  <div class="grid" id="grid"></div>
+  <p class="note">Precios referenciales en soles. El precio final depende del tamaño y de los detalles; te lo confirmamos por WhatsApp.</p>
+</div></section>
+
+<section class="band" id="ocasiones"><div class="wrap">
+  <div class="sechead rv"><p class="eyebrow">Para cada ocasión</p><h2>Un regalo que <em>sí</em> van a guardar</h2><p>Elige la ocasión y te ayudamos a darle forma.</p></div>
+  <div class="occ rv" id="occ">
+    <button data-occ="San Valentín o aniversario"><span>💘</span><strong>San Valentín y aniversarios</strong><small>La pareja en versión amigurumi o un ramo que no se marchita.</small></button>
+    <button data-occ="Graduación"><span>🎓</span><strong>Graduaciones</strong><small>Con toga, birrete y los colores de su promoción.</small></button>
+    <button data-occ="Día de la Policía"><span>👮</span><strong>Día de la Policía</strong><small>Su mini versión con uniforme, lista para regalar.</small></button>
+    <button data-occ="Cumpleaños"><span>🎂</span><strong>Cumpleaños</strong><small>Su mini versión con lo que más le gusta.</small></button>
+  </div>
+</div></section>
+
+<section class="band custom" id="personalizados"><div class="wrap">
+  <div class="rv">
+    <p class="eyebrow">Pedido personalizado</p>
+    <h2>Así nace <em>tu</em> amigurumi</h2>
+    <p class="intro">Tejemos a una persona, una pareja, una familia o un traje típico a partir de tu foto o de tu idea.</p>
+    <ol class="steps">
+      <li><div><h3>Cuéntanos tu idea</h3><p>Llena el formulario con el tamaño, los colores y la fecha en que lo necesitas.</p></div></li>
+      <li><div><h3>Envíanos la foto por WhatsApp</h3><p>Se abre el chat con tu pedido ya escrito; ahí adjuntas la foto de referencia.</p></div></li>
+      <li><div><h3>Recibe tu cotización</h3><p>Te confirmamos precio, fecha de entrega y envío antes de empezar a tejer.</p></div></li>
+    </ol>
+  </div>
+  <form class="form rv" id="customForm">
+    <h3>Pide tu cotización</h3>
+    <div class="two">
+      <label>Tu nombre<input id="cName" autocomplete="name" required></label>
+      <label>Tu ciudad<input id="cCity" autocomplete="address-level2" placeholder="Para calcular el envío"></label>
+    </div>
+    <div class="two">
+      <label>¿Qué quieres que tejamos?
+        <select id="cType"><option>Mini versión de una persona</option><option>Pareja o familia</option><option>Danza típica</option><option>Ramo tejido</option><option>Llavero</option><option>Otra idea</option></select></label>
+      <label>¿Para qué ocasión?
+        <select id="cOcc"><option value="">Sin ocasión especial</option><option>San Valentín o aniversario</option><option>Graduación</option><option>Día de la Policía</option><option>Cumpleaños</option><option>Otra</option></select></label>
+    </div>
+    <label>Colores y detalles<textarea id="cDetails" rows="3" placeholder="Ropa, peinado, accesorios, colores…" required></textarea></label>
+    <div class="two">
+      <label>Tamaño
+        <select id="cSize"><option>Que me recomienden</option><option>Llavero</option><option>Pequeño</option><option>Mediano</option><option>Grande</option></select></label>
+      <label>¿Para qué fecha lo necesitas?<input id="cDate" type="date"></label>
+    </div>
+    <label>Texto para la base <small>(opcional)</small><input id="cBase" maxlength="60" placeholder="Un nombre, una fecha…"></label>
+    <label>Foto de referencia <small>(opcional)</small><input id="cPhoto" type="file" accept="image/*"></label>
+    <div class="preview" id="cPreview"><img alt="Vista previa de tu foto" id="cImg"><span>WhatsApp no permite adjuntar la foto desde esta página: envíala en el chat apenas se abra.</span></div>
+    <button class="wa" type="submit"><svg class="i"><use href="#i-wa"/></svg>Pedir cotización por WhatsApp</button>
+    <button class="ghost" type="button" id="cCopy">Copiar mensaje</button>
+    <p class="msg" id="cMsg" aria-live="polite"></p>
+  </form>
+</div></section>
+
+<section class="band tiktok"><div class="wrap rv">
+  <h2>Mira cómo se teje <em>cada puntada</em></h2>
+  <p>En TikTok publicamos el proceso y los trabajos más recientes. Síguenos para ver el tuyo cuando esté listo.</p>
+  <a class="btn" href="https://www.tiktok.com/@nudodesen" target="_blank" rel="noopener"><svg class="i"><use href="#i-tt"/></svg>@nudodesen en TikTok</a>
+</div></section>
+
+<section class="band about" id="nosotros"><div class="wrap">
+  <div class="rv">
+    <p class="eyebrow">Nosotros</p>
+    <h2>Detrás de cada <em>puntada</em></h2>
+    <p>Nudo de SEN es un emprendimiento de amigurumis personalizados de Puno, Perú. Cada muñeco se teje a crochet, punto por punto y a pedido, para que se parezca a quien lo va a recibir.</p>
+    <p class="quote">«Donde los recuerdos se tejen para siempre»</p>
+  </div>
+  <div id="preguntas" class="rv">
+    <p class="eyebrow">Preguntas frecuentes</p>
+    <details open><summary>¿Cuánto cuesta un amigurumi?</summary><p>En el catálogo verás precios referenciales. El precio final depende del tamaño y de los detalles; escríbenos con tu idea y te lo confirmamos sin compromiso.</p></details>
+    <details><summary>¿Con cuánta anticipación debo pedir?</summary><p>Cada pieza se teje a pedido, así que te recomendamos escribir con anticipación. La fecha de entrega te la confirmamos al cotizar.</p></details>
+    <details><summary>¿Hacen envíos?</summary><p>Sí, enviamos desde Puno a todo el Perú. El costo del envío depende de tu ciudad y te lo indicamos en la cotización.</p></details>
+    <details><summary>¿Pueden tejer a una persona a partir de una foto?</summary><p>Sí. Envíanos la foto por WhatsApp y cuéntanos qué detalles quieres resaltar: ropa, peinado, uniforme o accesorios.</p></details>
+    <details><summary>¿Cómo se paga?</summary><p>Las formas de pago te las indicamos por WhatsApp al confirmar tu pedido.</p></details>
+  </div>
+</div></section>
+</main>
+
+<footer class="band"><div class="wrap">
+  <div>
+    <div class="logo"><img src="assets/logo.png" alt="" width="46" height="46" loading="lazy">Nudo de SEN</div>
+    <p>Amigurumis personalizados, tejidos a mano en Puno. Donde los recuerdos se tejen para siempre.</p>
+  </div>
+  <div><h3>Explora</h3><ul><li><a href="#categorias">Categorías</a></li><li><a href="#catalogo">Catálogo</a></li><li><a href="#personalizados">Pedido personalizado</a></li><li><a href="#preguntas">Preguntas frecuentes</a></li></ul></div>
+  <div><h3>Contacto</h3><ul><li><a id="waFooter" href="#" target="_blank" rel="noopener">WhatsApp <span id="phoneTxt"></span></a></li><li><a href="https://www.tiktok.com/@nudodesen" target="_blank" rel="noopener">TikTok @nudodesen</a></li><li>Puno, Perú · Envíos a todo el país</li></ul></div>
+  <p class="copy">© <span id="year"></span> Nudo de SEN. Todos los derechos reservados.</p>
+</div></footer>
+
+<a class="btn wa fab" id="fab" href="#" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><svg class="i"><use href="#i-wa"/></svg></a>
+<div class="toast" id="toast" role="status"><span id="toastTxt"></span><button id="toastBtn">Ver lista</button></div>
+
+<div class="shade" id="shade"></div>
+<aside class="drawer" id="drawer" aria-label="Mi lista para cotizar">
+  <header><h3>Mi lista</h3><button class="ghost" id="closeCart">Cerrar</button></header>
+  <div class="items" id="items"></div>
+  <form id="order">
+    <div class="total"><span>Total referencial</span><strong id="total">S/ 0</strong></div>
+    <label>Tu nombre<input id="name" autocomplete="name" required></label>
+    <label>Notas <small>(ciudad, tamaño, colores, fecha)</small><textarea id="notes" rows="2"></textarea></label>
+    <button class="wa" type="submit"><svg class="i"><use href="#i-wa"/></svg>Pedir cotización por WhatsApp</button>
+    <button class="ghost" type="button" id="copy">Copiar mensaje</button>
+    <p class="msg" id="msg" aria-live="polite"></p>
+  </form>
+</aside>
+
+<script>
+{
+// Los productos, precios y el número de WhatsApp se editan en productos.js
+const {telefono:PHONE,categorias,productos:products}=window.NUDO;
+document.documentElement.classList.add('js');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=id=>document.getElementById(id);
+const src=p=>'assets/productos/'+p.foto+'.jpg';
+const find=id=>products.find(p=>p.id===id);
+const money=n=>'S/ '+Number(n).toLocaleString('es-PE');
+let filter='Todos',cart={};
+try{cart=JSON.parse(localStorage.getItem('lista-nudodesen')||'{}')||{}}catch(e){cart={}}
+const save=()=>{try{localStorage.setItem('lista-nudodesen',JSON.stringify(cart))}catch(e){}};
+const ids=()=>Object.keys(cart).filter(id=>cart[id]>0&&find(id));
+const total=()=>ids().reduce((t,id)=>t+(find(id).precio||0)*cart[id],0);
+const cats=['Todos',...categorias.map(c=>c.nombre)];
+
+$('tape').innerHTML=[0,1].map(()=>['Mini versión de ti','Danzas de Puno','Ramos tejidos','Llaveros','Parejas y familias','Graduaciones','Hecho a mano en Puno','Envíos a todo el Perú'].map(t=>'<span>'+t+'</span>').join('')).join('');
+$('tiles').innerHTML=categorias.map(c=>{const ps=products.filter(p=>p.categoria===c.nombre);if(!ps.length)return '';
+  return '<button class="tile" data-c="'+esc(c.nombre)+'" data-go="1"><img src="'+esc(src(ps[0]))+'" alt="" loading="lazy"><div><strong>'+esc(c.nombre)+'</strong><small>'+esc(c.frase)+'</small><b>'+ps.length+(ps.length===1?' modelo':' modelos')+' →</b></div></button>'}).join('');
+const renderChips=()=>{$('chips').innerHTML=cats.map(c=>'<button aria-pressed="'+(c===filter)+'" data-c="'+esc(c)+'">'+esc(c)+'</button>').join('')};
+const renderGrid=()=>{$('grid').innerHTML=products.filter(p=>filter==='Todos'||p.categoria===filter).map(p=>{const on=cart[p.id]>0;
+  return '<article class="card"><div class="pic"><img src="'+esc(src(p))+'" alt="'+esc(p.nombre)+'" width="304" height="344" loading="lazy"><span class="cat">'+esc(p.categoria)+'</span></div><div class="body"><h3>'+esc(p.nombre)+'</h3><span class="desc">'+esc(p.detalle)+'</span><div class="row"><div class="price">'+(p.precio?'<small>Desde</small><strong>'+money(p.precio)+'</strong>':'<strong>A cotizar</strong>')+'</div><button class="'+(on?'on':'')+'" data-add="'+esc(p.id)+'">'+(on?'En tu lista ✓':'Me interesa')+'</button></div></div></article>'}).join('')};
+const renderCart=()=>{const list=ids();
+  $('count').textContent=list.reduce((n,id)=>n+cart[id],0);
+  $('items').innerHTML=list.length?list.map(id=>{const p=find(id);return '<div class="line"><img src="'+esc(src(p))+'" alt=""><div><strong>'+esc(p.nombre)+'</strong><small>'+(p.precio?'Desde '+money(p.precio)+' c/u':'A cotizar')+'</small></div><div class="qty"><button data-dec="'+esc(id)+'" aria-label="Quitar uno de '+esc(p.nombre)+'">−</button><span>'+cart[id]+'</span><button data-inc="'+esc(id)+'" aria-label="Agregar uno de '+esc(p.nombre)+'">+</button></div></div>'}).join(''):'<p class="empty">Tu lista está vacía.<br>Toca «Me interesa» en el catálogo.</p>';
+  $('total').textContent=money(total());save()};
+const listText=()=>'Hola, soy '+($('name').value.trim()||'—')+'. Vi su página y quiero cotizar:\n'+ids().map(id=>{const p=find(id);return '• '+cart[id]+' x '+p.nombre+(p.precio?' (desde '+money(p.precio)+' c/u)':'')}).join('\n')+(total()?'\nTotal referencial: '+money(total()):'')+($('notes').value.trim()?'\nNotas: '+$('notes').value.trim():'')+'\n¿Me confirman el precio final y el tiempo de entrega?';
+const fecha=v=>{const[a,m,d]=v.split('-');return d+'/'+m+'/'+a};
+const customText=()=>{const v=id=>$(id).value.trim();
+  return 'Hola, soy '+(v('cName')||'—')+(v('cCity')?' de '+v('cCity'):'')+'. Quiero cotizar un amigurumi personalizado:\n• Qué quiero: '+v('cType')+(v('cOcc')?'\n• Ocasión: '+v('cOcc'):'')+'\n• Tamaño: '+v('cSize')+'\n• Colores y detalles: '+(v('cDetails')||'—')+(v('cBase')?'\n• Texto para la base: '+v('cBase'):'')+(v('cDate')?'\n• Lo necesito para el: '+fecha(v('cDate')):'')+($('cPhoto').files.length?'\n• Te envío la foto de referencia por este chat.':'')+'\n¿Me pueden indicar precio y tiempo de entrega?'};
+const wa=t=>'https://wa.me/'+PHONE+'?text='+encodeURIComponent(t);
+const openWa=t=>{const a=document.createElement('a');a.href=wa(t);a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove()};
+const copy=async(t,out)=>{try{await navigator.clipboard.writeText(t);out.textContent='Mensaje copiado. Pégalo en WhatsApp al +'+PHONE.slice(0,2)+' '+PHONE.slice(2)+'.'}catch(e){out.textContent='No se pudo copiar automáticamente.'}};
+const openC=()=>{$('drawer').classList.add('open');$('shade').classList.add('on');$('toast').classList.remove('on');$('closeCart').focus()},closeC=()=>{$('drawer').classList.remove('open');$('shade').classList.remove('on')};
+let toastT;const toast=t=>{$('toastTxt').textContent=t;$('toast').classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>$('toast').classList.remove('on'),3500)};
+const bump=()=>{const b=$('count');b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump')};
+document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.c){filter=t.dataset.c;renderChips();renderGrid();if(t.dataset.go)$('catalogo').scrollIntoView()}
+  if(t.dataset.add){const id=t.dataset.add;if(cart[id]>0){openC();return}cart[id]=1;renderCart();renderGrid();bump();toast('Agregado a tu lista')}
+  if(t.dataset.inc){cart[t.dataset.inc]++;renderCart();renderGrid()}
+  if(t.dataset.dec){cart[t.dataset.dec]--;renderCart();renderGrid()}
+  if(t.dataset.occ){$('cOcc').value=t.dataset.occ;$('personalizados').scrollIntoView();setTimeout(()=>$('cName').focus({preventScroll:true}),600)}});
+$('openCart').onclick=openC;$('closeCart').onclick=closeC;$('shade').onclick=closeC;$('toastBtn').onclick=openC;
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeC()});
+$('order').addEventListener('submit',e=>{e.preventDefault();if(!ids().length){$('msg').textContent='Agrega al menos un producto a tu lista.';return}
+  openWa(listText());$('msg').textContent='Se abrió WhatsApp con tu mensaje. Si no se abrió, usa «Copiar mensaje».'});
+$('copy').onclick=()=>copy(listText(),$('msg'));
+$('customForm').addEventListener('submit',e=>{e.preventDefault();openWa(customText());
+  $('cMsg').textContent='Se abrió WhatsApp con tu pedido.'+($('cPhoto').files.length?' No olvides adjuntar la foto en el chat.':'')+' Si no se abrió, usa «Copiar mensaje».'});
+$('cCopy').onclick=()=>copy(customText(),$('cMsg'));
+$('cPhoto').addEventListener('change',()=>{const f=$('cPhoto').files[0];$('cPreview').classList.toggle('on',!!f);if(f)$('cImg').src=URL.createObjectURL(f)});
+{const d=new Date();$('cDate').min=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');$('year').textContent=d.getFullYear()}
+$('waFooter').href=$('fab').href=wa('Hola, vi su página y quiero información sobre sus amigurumis.');
+$('phoneTxt').textContent='+'+PHONE.slice(0,2)+' '+PHONE.slice(2,5)+' '+PHONE.slice(5,8)+' '+PHONE.slice(8);
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}}),{rootMargin:'0px 0px -8% 0px'});document.querySelectorAll('.rv').forEach(el=>io.observe(el))}
+else document.querySelectorAll('.rv').forEach(el=>el.classList.add('in'));
+renderChips();renderGrid();renderCart();
+}
+</script>
+</body>
+</html>
