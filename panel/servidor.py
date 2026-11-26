@@ -13,7 +13,7 @@ Uso:
   python servidor.py --raiz C:\\sitios\\nudodesen --privado C:\\sitios\\nudodesen-panel
   python servidor.py --privado C:\\sitios\\nudodesen-panel --clave "nueva contraseña"   (cambia la contraseña y sale)
 """
-import argparse, base64, hashlib, hmac, json, mimetypes, os, re, secrets, shutil, sys, time, unicodedata
+import argparse, base64, hashlib, hmac, json, mimetypes, os, re, secrets, shutil, struct, sys, time, unicodedata, zipfile
 from datetime import datetime
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -23,12 +23,16 @@ from urllib.parse import parse_qs, urlsplit
 APP = Path(__file__).resolve().parent
 PREFIJO = "/admin"
 SESION_DIAS = 30
-LIMITES = {"imagen": 15 * 2**20, "video": 90 * 2**20, "modelo": 50 * 2**20}
-EXT = {"imagen": {".jpg", ".jpeg", ".png", ".webp"}, "video": {".mp4", ".webm", ".mov"}, "modelo": {".glb"}}
+LIMITES = {"imagen": 15 * 2**20, "video": 90 * 2**20, "modelo": 50 * 2**20, "zip": 95 * 2**20}
+EXT = {"imagen": {".jpg", ".jpeg", ".png", ".webp"}, "video": {".mp4", ".webm", ".mov"}, "modelo": {".glb"}, "zip": {".zip"}}
+ZIP_MAX_ARCHIVOS = 60
+ZIP_MAX_TOTAL = 300 * 2**20          # tamaño descomprimido máximo (evita "bombas zip")
+GLTF_EXT = {".gltf", ".bin", ".png", ".jpg", ".jpeg", ".webp"}  # archivos que acompañan a un .gltf
 MAX_JSON = 2 * 2**20
 RESPALDOS = 40
 
 mimetypes.add_type("model/gltf-binary", ".glb")
+mimetypes.add_type("model/gltf+json", ".gltf")
 mimetypes.add_type("image/webp", ".webp")
 mimetypes.add_type("text/javascript", ".js")
 
@@ -41,7 +45,34 @@ def firma_ok(data: bytes, ext: str) -> bool:
     if ext in (".mp4", ".mov"): return data[4:8] == b"ftyp"
     if ext == ".webm": return data[:4] == b"\x1a\x45\xdf\xa3"
     if ext == ".glb": return data[:4] == b"glTF"
+    if ext == ".zip": return data[:4] == b"PK\x03\x04"
     return False
+
+
+def es_relieve(gltf_json: dict) -> bool:
+    """True si el modelo es casi plano (un "relieve" hecho desde una sola foto):
+    su profundidad (eje Z, hacia el frente en glTF) es menos de un quinto de su alto o ancho."""
+    try:
+        acc = gltf_json["accessors"]
+        mn, mx = [1e9] * 3, [-1e9] * 3
+        for malla in gltf_json.get("meshes", []):
+            for prim in malla.get("primitives", []):
+                a = acc[prim["attributes"]["POSITION"]]
+                for i in range(3):
+                    mn[i] = min(mn[i], a["min"][i]); mx[i] = max(mx[i], a["max"][i])
+        dx, dy, dz = (mx[i] - mn[i] for i in range(3))
+        return dz < 0.2 * max(dx, dy)
+    except Exception:
+        return False
+
+
+def json_de_glb(ruta: Path):
+    with ruta.open("rb") as f:
+        cab = f.read(20)
+        if len(cab) < 20 or cab[:4] != b"glTF": return None
+        largo, tipo = struct.unpack("<II", cab[12:20])
+        if tipo != 0x4E4F534A or largo > 64 * 2**20: return None
+        return json.loads(f.read(largo))
 
 
 def slug(txt: str, maximo=40) -> str:
@@ -120,6 +151,7 @@ def validar(c):
     p = c.get("portada") or {}
     out["portada"] = {"modelo": ruta_medio(p.get("modelo") or "assets/muneca.glb")}
     if p.get("poster"): out["portada"]["poster"] = ruta_medio(p["poster"])
+    if p.get("relieve"): out["portada"]["relieve"] = True
     cats = c.get("categorias")
     if not isinstance(cats, list) or not cats or len(cats) > 30: raise ValueError("Debe haber entre 1 y 30 categorías")
     out["categorias"] = []
@@ -148,9 +180,10 @@ def validar(c):
         medios = []
         for m in (x.get("medios") or [])[:30]:
             tipo = m.get("tipo")
-            if tipo not in LIMITES: raise ValueError("Tipo de archivo no válido")
+            if tipo not in ("imagen", "video", "modelo"): raise ValueError("Tipo de archivo no válido")
             mm = {"tipo": tipo, "src": ruta_medio(m.get("src"))}
             if m.get("poster"): mm["poster"] = ruta_medio(m["poster"])
+            if tipo == "modelo" and m.get("relieve"): mm["relieve"] = True
             medios.append(mm)
         out["productos"].append({
             "id": pid, "nombre": texto(x.get("nombre"), 80, True), "categoria": cat, "precio": precio,
@@ -174,6 +207,14 @@ def foto_de(p):
     for x in m:
         if x.get("poster"): return x["poster"]
     return "assets/og-imagen.png"
+
+
+def giro(m):
+    """Atributos del visor 3D. Un modelo en relieve (casi plano) solo se deja girar ±40°
+    y se balancea suave (lo hace el script de la página); uno completo gira entero."""
+    if m.get("relieve"):
+        return 'data-relieve camera-orbit="0deg 85deg auto" min-camera-orbit="-40deg 70deg auto" max-camera-orbit="40deg 100deg auto"'
+    return 'auto-rotate camera-orbit="20deg 80deg auto"'
 
 
 def precio_txt(p):
@@ -205,7 +246,7 @@ def generar_paginas(raiz: Path, cat: dict):
             pos = f' poster="/{h(primero["poster"])}"' if primero.get("poster") else ""
             primer = f'<video src="/{h(primero["src"])}"{pos} controls playsinline preload="metadata"></video>'
         else:
-            primer = (f'<model-viewer src="/{h(primero["src"])}" camera-controls auto-rotate shadow-intensity="1" camera-orbit="20deg 80deg auto" '
+            primer = (f'<model-viewer src="/{h(primero["src"])}" camera-controls shadow-intensity="1" {giro(primero)} '
                       f'interaction-prompt="none" alt="{h(p["nombre"])} en 3D"></model-viewer><small class="hint3d">Gíralo con el dedo</small>')
         mini = ""
         if len(medios) > 1:
@@ -424,7 +465,87 @@ class Panel(BaseHTTPRequestHandler):
             tmp.unlink(missing_ok=True)
             return self.error(400, str(e))
         rel = final.relative_to(self.server.raiz).as_posix()
-        self.enviar(200, {"ok": True, "src": rel, "bytes": n})
+        if tipo == "zip":
+            creados = []
+            try:
+                medios, omitidos = self.abrir_zip(final, carpeta, creados)
+            except Exception as e:
+                # borra solo lo que este ZIP alcanzó a sacar antes de fallar
+                for x in creados:
+                    shutil.rmtree(x, ignore_errors=True) if x.is_dir() else x.unlink(missing_ok=True)
+                return self.error(400, f"No se pudo abrir el ZIP: {e}")
+            finally:
+                final.unlink(missing_ok=True)
+            if not medios: return self.error(400, "El ZIP no trae fotos ni modelos 3D que se puedan usar")
+            return self.enviar(200, {"ok": True, "medios": medios, "omitidos": omitidos})
+        r = {"ok": True, "src": rel, "bytes": n}
+        if tipo == "modelo":
+            j = json_de_glb(final)
+            if j is not None and es_relieve(j): r["relieve"] = True
+        self.enviar(200, r)
+
+    def abrir_zip(self, zpath: Path, carpeta: Path, creados: list):
+        """Saca de un ZIP los modelos 3D (.glb o .gltf con sus archivos) y las fotos.
+        Devuelve la lista de medios (el modelo primero) y los nombres que se ignoraron."""
+        medios, fotos, omitidos = [], [], []
+        with zipfile.ZipFile(zpath) as z:
+            entradas = [i for i in z.infolist() if not i.is_dir() and not i.filename.startswith("__MACOSX/")
+                        and not Path(i.filename).name.startswith(".")]
+            if len(entradas) > ZIP_MAX_ARCHIVOS: raise ValueError(f"trae más de {ZIP_MAX_ARCHIVOS} archivos")
+            if sum(i.file_size for i in entradas) > ZIP_MAX_TOTAL: raise ValueError("descomprimido pesa demasiado")
+            gltfs = [i for i in entradas if i.filename.lower().endswith(".gltf")]
+            usados = set()
+            # 1) modelos .gltf: se copian con sus archivos (.bin y texturas) a una carpeta propia
+            for g in gltfs:
+                raiz_zip = g.filename.rsplit("/", 1)[0] + "/" if "/" in g.filename else ""
+                destino = carpeta / f"{slug(Path(g.filename).stem)}-{secrets.token_hex(3)}"
+                destino.mkdir(); creados.append(destino)
+                for i in entradas:
+                    if not i.filename.startswith(raiz_zip): continue
+                    relz = i.filename[len(raiz_zip):]
+                    if Path(relz).suffix.lower() not in GLTF_EXT: continue
+                    partes = [p for p in relz.split("/") if p]
+                    if any(p in ("..", ".") or not re.fullmatch(r"[A-Za-z0-9_\-. ]+", p) for p in partes):
+                        omitidos.append(i.filename); continue
+                    salida = destino.joinpath(*[p.replace(" ", "_") for p in partes])
+                    if destino.resolve() not in salida.resolve().parents: continue
+                    salida.parent.mkdir(parents=True, exist_ok=True)
+                    with z.open(i) as src, salida.open("wb") as dst: shutil.copyfileobj(src, dst)
+                    usados.add(i.filename)
+                # las referencias dentro del .gltf usan los nombres originales: se ajustan los espacios
+                gpath = destino.joinpath(*[p.replace(" ", "_") for p in g.filename[len(raiz_zip):].split("/") if p])
+                datos = json.loads(gpath.read_text("utf-8"))
+                for lista in ("buffers", "images"):
+                    for b in datos.get(lista, []):
+                        u = b.get("uri", "")
+                        if u and not u.startswith("data:"):
+                            if "://" in u or u.startswith("/") or ".." in u: raise ValueError("el .gltf apunta a archivos de fuera")
+                            b["uri"] = u.replace("%20", "_").replace(" ", "_")
+                gpath.write_text(json.dumps(datos), "utf-8")
+                m = {"tipo": "modelo", "src": gpath.relative_to(self.server.raiz).as_posix()}
+                if es_relieve(datos): m["relieve"] = True
+                medios.append(m)
+            # 2) modelos .glb y fotos sueltas
+            for i in entradas:
+                if i.filename in usados: continue
+                ext = Path(i.filename).suffix.lower()
+                tipo = "modelo" if ext == ".glb" else "imagen" if ext in EXT["imagen"] else None
+                if not tipo or i.file_size > LIMITES[tipo]:
+                    omitidos.append(i.filename); continue
+                final = carpeta / f"{slug(Path(i.filename).stem)}-{secrets.token_hex(3)}{'.jpg' if ext == '.jpeg' else ext}"
+                creados.append(final)
+                with z.open(i) as src, final.open("wb") as dst: shutil.copyfileobj(src, dst)
+                with final.open("rb") as f: cab = f.read(16)
+                if not firma_ok(cab, ext):
+                    final.unlink(); omitidos.append(i.filename); continue
+                m = {"tipo": tipo, "src": final.relative_to(self.server.raiz).as_posix()}
+                if tipo == "modelo":
+                    j = json_de_glb(final)
+                    if j is not None and es_relieve(j): m["relieve"] = True
+                    medios.append(m)
+                else:
+                    fotos.append(m)
+        return medios + fotos, omitidos
 
 
 class Servidor(ThreadingHTTPServer):

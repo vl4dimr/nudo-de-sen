@@ -80,10 +80,17 @@ const $=id=>document.getElementById(id);
 const M=JSON.parse($('medios').textContent),N=%%NOMBRE_JS%%;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ver=m=>m.tipo==='video'?'<video src="/'+esc(m.src)+'"'+(m.poster?' poster="/'+esc(m.poster)+'"':'')+' controls playsinline preload="metadata"></video>'
-  :m.tipo==='modelo'?'<model-viewer src="/'+esc(m.src)+'" camera-controls auto-rotate shadow-intensity="1" camera-orbit="20deg 80deg auto" interaction-prompt="none" alt="'+esc(N)+' en 3D"></model-viewer><small class="hint3d">Gíralo con el dedo</small>'
+  :m.tipo==='modelo'?'<model-viewer src="/'+esc(m.src)+'" camera-controls shadow-intensity="1" '+(m.relieve?'data-relieve camera-orbit="0deg 85deg auto" min-camera-orbit="-40deg 70deg auto" max-camera-orbit="40deg 100deg auto"':'auto-rotate camera-orbit="20deg 80deg auto"')+' interaction-prompt="none" alt="'+esc(N)+' en 3D"></model-viewer><small class="hint3d">Gíralo con el dedo</small>'
   :'<img src="/'+esc(m.src)+'" alt="'+esc(N)+'">';
+// Modelos en relieve (hechos desde una sola foto): se balancean suave de lado a lado
+// en vez de dar la vuelta entera, y paran en cuanto la persona los mueve.
+const balancear=()=>{const mv=$('fStage').querySelector('model-viewer[data-relieve]');if(!mv)return;
+  let quieto=false,t0=performance.now();mv.addEventListener('camera-change',e=>{if(e.detail&&e.detail.source==='user-interaction')quieto=true});
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const paso=t=>{if(quieto||!mv.isConnected)return;mv.cameraOrbit=(28*Math.sin((t-t0)/1400))+'deg 85deg auto';requestAnimationFrame(paso)};requestAnimationFrame(paso)};
 $('fThumbs').addEventListener('click',e=>{const b=e.target.closest('[data-fi]');if(!b)return;
-  $('fStage').innerHTML=ver(M[+b.dataset.fi]);$('fThumbs').querySelectorAll('button').forEach(x=>x.setAttribute('aria-current',x===b))});
+  $('fStage').innerHTML=ver(M[+b.dataset.fi]);balancear();$('fThumbs').querySelectorAll('button').forEach(x=>x.setAttribute('aria-current',x===b))});
+balancear();
 // Mi lista: la misma que usa la página principal
 let cart={};try{cart=JSON.parse(localStorage.getItem('lista-nudodesen')||'{}')||{}}catch(e){}
 const id=$('fAdd').dataset.id;

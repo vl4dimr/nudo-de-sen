@@ -439,7 +439,12 @@ const $=id=>document.getElementById(id);
 const src=p=>{const m=p.medios||[];const im=m.find(x=>x.tipo==='imagen');if(im)return im.src;const v=m.find(x=>x.poster);return v?v.poster:'assets/logo.png'};
 const tiene=(p,t)=>(p.medios||[]).some(m=>m.tipo===t);
 const pagina=p=>(D.respaldo?'https://nudodesen.com':'')+'/productos/'+encodeURIComponent(p.id)+'/';
-if(D.portada&&D.portada.modelo&&D.portada.modelo!=='assets/muneca.glb'){const mv=$('mv');if(D.portada.poster)mv.poster=D.portada.poster;else mv.removeAttribute('poster');mv.src=D.portada.modelo}
+if(D.portada&&D.portada.modelo&&D.portada.modelo!=='assets/muneca.glb'){const mv=$('mv');if(D.portada.poster)mv.poster=D.portada.poster;else mv.removeAttribute('poster');
+  if(D.portada.relieve){// modelo casi plano: se balancea de frente en vez de girar entero
+    mv.removeAttribute('auto-rotate');mv.minCameraOrbit='-40deg 70deg auto';mv.maxCameraOrbit='40deg 100deg auto';mv.cameraOrbit='0deg 85deg auto';
+    let quieto=false;mv.addEventListener('camera-change',e=>{if(e.detail&&e.detail.source==='user-interaction')quieto=true});
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches){const t0=performance.now();const paso=t=>{if(quieto)return;mv.cameraOrbit=(28*Math.sin((t-t0)/1400))+'deg 85deg auto';requestAnimationFrame(paso)};requestAnimationFrame(paso)}}
+  mv.src=D.portada.modelo}
 const find=id=>products.find(p=>p.id===id);
 const money=n=>'S/ '+Number(n).toLocaleString('es-PE');
 let filter='Todos',cart={};

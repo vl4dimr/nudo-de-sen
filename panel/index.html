@@ -102,6 +102,8 @@ dialog::backdrop{background:rgba(20,10,14,.6)}
 .tile .tb{display:flex;justify-content:space-between;padding:4px}
 .tile .tb button{width:34px;min-height:34px;padding:0;background:transparent;border:0;color:var(--head)}
 .tile .tb button.danger{color:var(--bad)}
+.rel{display:flex;flex-direction:row;align-items:center;gap:8px;font-size:13px;font-weight:500;padding:6px 8px 0;cursor:pointer}
+.rel input{width:18px;height:18px;min-height:0;accent-color:var(--wine)}
 .add{border:2px dashed var(--line);background:transparent;color:var(--wine);aspect-ratio:auto;min-height:150px;flex-direction:column;gap:6px;font-weight:600;box-shadow:none}
 .add small{color:var(--soft);font-weight:400;font-size:12.5px;line-height:1.35;text-align:center;padding:0 8px}
 .add:hover{border-color:var(--wine);box-shadow:none}
@@ -242,7 +244,7 @@ dialog::backdrop{background:rgba(20,10,14,.6)}
   </form>
 </dialog>
 
-<input type="file" id="fMed" accept="image/jpeg,image/png,image/webp,image/heic,video/mp4,video/webm,video/quicktime,.glb,.mov" multiple hidden>
+<input type="file" id="fMed" accept="image/jpeg,image/png,image/webp,image/heic,video/mp4,video/webm,video/quicktime,.glb,.mov,.zip,application/zip" multiple hidden>
 <input type="file" id="fGlb" accept=".glb" hidden>
 <div class="toast" id="toast" role="status"></div>
 
@@ -277,7 +279,7 @@ function subir(blob,nombre,tipo,onp){
     x.upload.onprogress=e=>{if(e.lengthComputable&&onp)onp(e.loaded/e.total)};
     x.onload=()=>{let j={};try{j=JSON.parse(x.responseText)}catch(e){}
       if(x.status===401){mostrarLogin();return mal(new Error('Tu sesión terminó.'))}
-      x.status===200&&j.ok?ok(j.src):mal(new Error(j.error||('Error '+x.status)))};
+      x.status===200&&j.ok?ok(j):mal(new Error(j.error||('Error '+x.status)))};
     x.onerror=()=>mal(new Error('Se cortó la conexión.'));x.send(blob)})}
 const aBlob=(cv,q=.86)=>new Promise(r=>cv.toBlob(b=>b?r(b):cv.toBlob(r,'image/jpeg',q),'image/webp',q));
 async function achicar(file,max=1600){
@@ -294,7 +296,7 @@ function portadaVideo(file){
     v.onloadedmetadata=()=>{v.currentTime=Math.min(1,(v.duration||2)/3)};
     v.onseeked=async()=>{try{const k=Math.min(1,900/Math.max(v.videoWidth,v.videoHeight));const cv=document.createElement('canvas');cv.width=Math.round(v.videoWidth*k);cv.height=Math.round(v.videoHeight*k);cv.getContext('2d').drawImage(v,0,0,cv.width,cv.height);fin(await aBlob(cv,.8))}catch(e){fin(null)}};
     v.onerror=()=>fin(null);setTimeout(()=>fin(null),15000)})}
-const tipoDe=f=>{const n=f.name.toLowerCase();if(n.endsWith('.glb'))return'modelo';if(f.type.startsWith('video/')||/\.(mp4|webm|mov)$/.test(n))return'video';if(f.type.startsWith('image/')||/\.(jpe?g|png|webp|heic)$/.test(n))return'imagen';return null};
+const tipoDe=f=>{const n=f.name.toLowerCase();if(n.endsWith('.zip'))return'zip';if(n.endsWith('.glb'))return'modelo';if(f.type.startsWith('video/')||/\.(mp4|webm|mov)$/.test(n))return'video';if(f.type.startsWith('image/')||/\.(jpe?g|png|webp|heic)$/.test(n))return'imagen';return null};
 
 /* ---------- vistas ---------- */
 const portadaDe=p=>{const m=p.medios||[];const im=m.find(x=>x.tipo==='imagen');if(im)return im.src;const v=m.find(x=>x.poster);return v?v.poster:null};
@@ -333,29 +335,36 @@ function abrir(i){
 function vista(m){
   if(m.tipo==='imagen')return'<img src="'+esc(url(m.src))+'" alt="" loading="lazy">';
   if(m.tipo==='video')return'<video src="'+esc(url(m.src))+'"'+(m.poster?' poster="'+esc(url(m.poster))+'"':'')+' muted playsinline preload="metadata" controls></video>';
-  return'<model-viewer src="'+esc(url(m.src))+'" camera-controls auto-rotate interaction-prompt="none"></model-viewer>'}
+  return'<model-viewer src="'+esc(url(m.src))+'" camera-controls interaction-prompt="none" '+(m.relieve?'camera-orbit="0deg 85deg auto" min-camera-orbit="-40deg 70deg auto" max-camera-orbit="40deg 100deg auto"':'auto-rotate')+'></model-viewer>'}
 function pintarMed(){
   const primeraImg=edMed.findIndex(m=>m.tipo==='imagen');
-  $('eMed').innerHTML=edMed.map((m,i)=>'<div class="tile"><div class="pv"><span class="kind">'+ic(TIPOS[m.tipo][0])+TIPOS[m.tipo][1]+'</span>'+(i===primeraImg?'<span class="main">Principal</span>':'')+vista(m)+'</div>'
+  $('eMed').innerHTML=edMed.map((m,i)=>'<div class="tile"><div class="pv"><span class="kind">'+ic(TIPOS[m.tipo][0])+TIPOS[m.tipo][1]+(m.relieve?' relieve':'')+'</span>'+(i===primeraImg?'<span class="main">Principal</span>':'')+vista(m)+'</div>'
+    +(m.tipo==='modelo'?'<label class="rel" title="Para modelos casi planos hechos desde una foto: en la web solo giran un poco, para que no se vean de costado"><input type="checkbox" data-rel="'+i+'"'+(m.relieve?' checked':'')+'>Solo de frente</label>':'')
     +'<div class="tb"><button type="button" data-ml="'+i+'" aria-label="Mover antes"'+(i?'':' disabled')+'>'+ic('izq')+'</button>'
     +(m.tipo==='imagen'&&i!==primeraImg?'<button type="button" data-mp="'+i+'" aria-label="Usar como foto principal" title="Usar como principal">'+ic('estrella')+'</button>':'')
     +'<button type="button" class="danger" data-mx="'+i+'" aria-label="Quitar">'+ic('basura')+'</button>'
     +'<button type="button" data-mr="'+i+'" aria-label="Mover después"'+(i<edMed.length-1?'':' disabled')+'>'+ic('der')+'</button></div></div>').join('')
-   +'<div id="subs" style="display:contents"></div><button type="button" class="add" id="bAdd">'+ic('subir')+'Agregar<small>Fotos, videos (MP4) o modelos 3D (.glb)</small></button>';
+   +'<div id="subs" style="display:contents"></div><button type="button" class="add" id="bAdd">'+ic('subir')+'Agregar<small>Fotos, videos (MP4), modelos 3D (.glb) o un ZIP con modelo y fotos</small></button>';
   $('bAdd').onclick=()=>$('fMed').click()}
 async function agregar(files){
   for(const f of files){const tipo=tipoDe(f);
-    if(!tipo){toast('«'+f.name+'» no es una foto, video ni modelo .glb',true);continue}
-    const t=document.createElement('div');t.className='tile uploading';t.innerHTML='<div class="pv" data-msg="Preparando…">'+ic(TIPOS[tipo][0])+'</div><div class="prog"><i></i></div>';
+    if(!tipo){toast('«'+f.name+'» no es una foto, video, modelo .glb ni ZIP',true);continue}
+    const t=document.createElement('div');t.className='tile uploading';t.innerHTML='<div class="pv" data-msg="Preparando…">'+ic(tipo==='zip'?'3d':TIPOS[tipo][0])+'</div><div class="prog"><i></i></div>';
     $('subs').appendChild(t);const pv=t.querySelector('.pv'),bar=t.querySelector('.prog i');subiendo++;$('eOk').disabled=true;
     try{let blob=f,nombre=f.name,extra={};
       if(tipo==='imagen'){try{({blob,nombre}=await achicar(f))}catch(e){if(/heic/i.test(f.name+f.type))throw new Error('Este celular guardó la foto en HEIC. Cambia la cámara a «Más compatible» o envíala por WhatsApp y súbela desde allí.')}}
       if(tipo==='video'){if(f.size>90*2**20)throw new Error('El video pesa más de 90 MB. Recórtalo o envíalo por WhatsApp para que se comprima.');
-        const pb=await portadaVideo(f);if(pb){pv.dataset.msg='Subiendo portada…';extra.poster=await subir(pb,f.name.replace(/\.[^.]+$/,'')+'-portada.webp','imagen')}}
+        const pb=await portadaVideo(f);if(pb){pv.dataset.msg='Subiendo portada…';extra.poster=(await subir(pb,f.name.replace(/\.[^.]+$/,'')+'-portada.webp','imagen')).src}}
       if(tipo==='modelo'&&f.size>50*2**20)throw new Error('El modelo 3D pesa más de 50 MB.');
+      if(tipo==='zip'&&f.size>95*2**20)throw new Error('El ZIP pesa más de 95 MB.');
       pv.dataset.msg='Subiendo… 0%';
-      const src=await subir(blob,nombre,tipo,k=>{bar.style.width=(k*100)+'%';pv.dataset.msg='Subiendo… '+Math.round(k*100)+'%'});
-      edMed.push({tipo,src,...extra});t.remove();pintarMed()}
+      const r=await subir(blob,nombre,tipo,k=>{bar.style.width=(k*100)+'%';pv.dataset.msg=k<1?'Subiendo… '+Math.round(k*100)+'%':'Abriendo…'});
+      if(tipo==='zip'){edMed.push(...r.medios);
+        const n=t=>r.medios.filter(m=>m.tipo===t).length;
+        toast('Del ZIP: '+[n('modelo')&&n('modelo')+' modelo 3D',n('imagen')&&n('imagen')+' foto(s)'].filter(Boolean).join(' y ')+(r.medios.some(m=>m.relieve)?' (relieve: se verá de frente)':'')+(r.omitidos.length?'. Se ignoró: '+r.omitidos.join(', '):''))}
+      else edMed.push({tipo,src:r.src,...(r.relieve?{relieve:true}:{}),...extra});
+      if(tipo==='modelo'&&r.relieve)toast('Este modelo es un relieve (casi plano): en la web se verá de frente, con un giro suave.');
+      t.remove();pintarMed()}
     catch(e){t.remove();toast(e.message,true)}
     finally{subiendo--;$('eOk').disabled=subiendo>0}}}
 const slug=s=>s.normalize('NFKD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,50)||'producto';
@@ -389,10 +398,12 @@ $('gTel').onclick=async()=>{const t=$('tel').value.replace(/\D/g,'');if(t.length
 $('bPortada').onclick=()=>$('fGlb').click();
 $('fGlb').onchange=async()=>{const f=$('fGlb').files[0];$('fGlb').value='';if(!f)return;
   if(!f.name.toLowerCase().endsWith('.glb'))return toast('El modelo debe ser un archivo .glb',true);
-  try{$('pMsg').textContent='Subiendo…';const src=await subir(f,f.name,'modelo',k=>$('pMsg').textContent='Subiendo… '+Math.round(k*100)+'%');
-    const viejo={...C.portada};C.portada={modelo:src};try{await guardar('Modelo 3D de la portada cambiado.')}catch(e){C.portada=viejo;throw e}$('pMsg').textContent=''}
+  try{$('pMsg').textContent='Subiendo…';const r=await subir(f,f.name,'modelo',k=>$('pMsg').textContent='Subiendo… '+Math.round(k*100)+'%');
+    const viejo={...C.portada};C.portada={modelo:r.src,...(r.relieve?{relieve:true}:{})};try{await guardar('Modelo 3D de la portada cambiado.')}catch(e){C.portada=viejo;throw e}$('pMsg').textContent=''}
   catch(e){$('pMsg').textContent='';toast(e.message,true)}};
 $('fMed').onchange=()=>{const fs=[...$('fMed').files];$('fMed').value='';agregar(fs)};
+$('eMed').addEventListener('change',e=>{const c=e.target.closest('[data-rel]');if(!c)return;const m=edMed[+c.dataset.rel];
+  if(c.checked)m.relieve=true;else delete m.relieve;pintarMed()});
 $('bNuevo').onclick=()=>abrir(-1);
 const cerrar=()=>{if(subiendo&&!confirm('Hay archivos subiéndose. ¿Cerrar igual?'))return;$('ed').close()};
 $('edX').onclick=cerrar;$('eCan').onclick=cerrar;
