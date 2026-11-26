@@ -164,6 +164,10 @@ model-viewer::part(default-progress-bar){display:none}
 .fstage img,.fstage video{width:100%;height:100%;object-fit:contain;background:#000}
 .fstage img{background:transparent;object-fit:cover}
 .fstage model-viewer{width:100%;height:100%;--poster-color:transparent}
+.g360{position:absolute;inset:0;display:grid;place-items:center;background:#fff;cursor:grab;touch-action:pan-y;outline-offset:-3px}
+.fthumbs svg.pl.g{color:var(--wine);filter:none;inset:auto 2px 2px auto;translate:none;width:18px;height:18px;background:#fff;border-radius:50%}
+.g360:active{cursor:grabbing}
+.fstage .g360 img,.g360 img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;user-select:none;-webkit-user-drag:none}
 .hint3d{position:absolute;right:10px;top:10px;font-size:12.5px;font-weight:500;background:var(--card);color:var(--soft);padding:4px 11px;border-radius:99px;box-shadow:var(--sh)}
 .fthumbs{display:flex;gap:8px;padding:10px;overflow-x:auto}
 .fthumbs:empty{display:none}
@@ -276,6 +280,7 @@ footer .chipsf a{background:var(--tint);border-radius:3px;padding:8px 14px;font-
   <symbol id="i-cam" viewBox="0 0 24 24"><path d="M8.500 5l1.200-2h4.600l1.200 2H20a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4.500zM12 16.500a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></symbol>
   <!-- Iconos de línea (mismo trazo redondeado del logo) -->
   <symbol id="i-play" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.6v6.8l5.6-3.4z" fill="currentColor"/></g></symbol>
+  <symbol id="i-360" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15.6C4.3 14.9 2.5 13.6 2.5 12c0-2.2 4.3-4 9.5-4s9.5 1.8 9.5 4c0 1.9-3.1 3.4-7.4 3.9"/><path d="m11.6 13.4 2.6 2.5-2.6 2.5"/></g></symbol>
   <symbol id="i-cubo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></g></symbol>
   <symbol id="i-fotos" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="14" height="12" rx="2"/><path d="M7 3.5h12a2 2 0 0 1 2 2V15M3.5 15.5l4-4 3.5 3.5 2-2 3.5 3.5"/></g></symbol>
   <symbol id="i-cerrar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
@@ -436,7 +441,7 @@ function iniciar(D){
 const PHONE=D.telefono,categorias=D.categorias,products=D.productos.filter(p=>p.visible!==false);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $=id=>document.getElementById(id);
-const src=p=>{const m=p.medios||[];const im=m.find(x=>x.tipo==='imagen');if(im)return im.src;const v=m.find(x=>x.poster);return v?v.poster:'assets/logo.png'};
+const src=p=>{const m=p.medios||[];const im=m.find(x=>x.tipo==='imagen');if(im)return im.src;const v=m.find(x=>x.poster||x.tipo==='giro');return v?(v.poster||v.src):'assets/logo.png'};
 const tiene=(p,t)=>(p.medios||[]).some(m=>m.tipo===t);
 const pagina=p=>(D.respaldo?'https://nudodesen.com':'')+'/productos/'+encodeURIComponent(p.id)+'/';
 if(D.portada&&D.portada.modelo&&D.portada.modelo!=='assets/muneca.glb'){const mv=$('mv');if(D.portada.poster)mv.poster=D.portada.poster;else mv.removeAttribute('poster');
@@ -458,7 +463,7 @@ $('cats').innerHTML=categorias.map(c=>{const p=products.find(x=>x.categoria===c.
   +'<button class="cat" data-form="1"><img src="assets/productos/deportista.jpg" alt="" loading="lazy"><strong>A tu medida</strong></button>';
 const renderChips=()=>{$('chips').innerHTML=cats.map(c=>'<button aria-pressed="'+(c===filter)+'" data-c="'+esc(c)+'">'+esc(c)+'</button>').join('')};
 const renderGrid=()=>{$('grid').innerHTML=products.filter(p=>filter==='Todos'||p.categoria===filter).map(p=>{const on=cart[p.id]>0;
-  const marcas=(tiene(p,'video')?'<span><svg class="i"><use href="#i-play"/></svg>Video</span>':'')+(tiene(p,'modelo')?'<span><svg class="i"><use href="#i-cubo"/></svg>3D</span>':'')+((p.medios||[]).length>1&&!tiene(p,'video')&&!tiene(p,'modelo')?'<span><svg class="i"><use href="#i-fotos"/></svg>'+p.medios.length+'</span>':'');
+  const marcas=(tiene(p,'giro')?'<span><svg class="i"><use href="#i-360"/></svg>360°</span>':'')+(tiene(p,'video')?'<span><svg class="i"><use href="#i-play"/></svg>Video</span>':'')+(tiene(p,'modelo')&&!tiene(p,'giro')?'<span><svg class="i"><use href="#i-cubo"/></svg>3D</span>':'')+((p.medios||[]).length>1&&!tiene(p,'video')&&!tiene(p,'modelo')&&!tiene(p,'giro')?'<span><svg class="i"><use href="#i-fotos"/></svg>'+p.medios.length+'</span>':'');
   return '<article class="card"><div class="pic"><a href="'+esc(pagina(p))+'" aria-label="Ver '+esc(p.nombre)+'"><img src="'+esc(src(p))+'" alt="'+esc(p.nombre)+'" width="304" height="344" loading="lazy">'+(marcas?'<span class="badges">'+marcas+'</span>':'')+'</a><button class="'+(on?'on':'')+'" data-add="'+esc(p.id)+'">'+(on?'En tu lista ✓':'Me interesa')+'</button></div><div class="body"><span class="k">'+esc(p.categoria)+'</span><h3><a href="'+esc(pagina(p))+'">'+esc(p.nombre)+'</a></h3><span class="d">'+esc(p.detalle)+'</span><span class="p">'+(p.precio?'<small>Desde</small> '+money(p.precio):'A cotizar')+'</span></div></article>'}).join('')};
 const renderCart=()=>{const list=ids();
   const n=list.reduce((t,id)=>t+cart[id],0);$('count').textContent=n;

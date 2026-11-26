@@ -23,8 +23,10 @@ from urllib.parse import parse_qs, urlsplit
 APP = Path(__file__).resolve().parent
 PREFIJO = "/admin"
 SESION_DIAS = 30
-LIMITES = {"imagen": 15 * 2**20, "video": 90 * 2**20, "modelo": 50 * 2**20, "zip": 95 * 2**20}
-EXT = {"imagen": {".jpg", ".jpeg", ".png", ".webp"}, "video": {".mp4", ".webm", ".mov"}, "modelo": {".glb"}, "zip": {".zip"}}
+LIMITES = {"imagen": 15 * 2**20, "video": 90 * 2**20, "modelo": 50 * 2**20, "zip": 95 * 2**20, "giro": 60 * 2**20}
+EXT = {"imagen": {".jpg", ".jpeg", ".png", ".webp"}, "video": {".mp4", ".webm", ".mov"}, "modelo": {".glb"}, "zip": {".zip"},
+       "giro": {".html", ".htm"}}
+GIRO_MIN, GIRO_MAX = 8, 72   # vistas de un giro 360°
 ZIP_MAX_ARCHIVOS = 60
 ZIP_MAX_TOTAL = 300 * 2**20          # tamaño descomprimido máximo (evita "bombas zip")
 GLTF_EXT = {".gltf", ".bin", ".png", ".jpg", ".jpeg", ".webp"}  # archivos que acompañan a un .gltf
@@ -46,7 +48,27 @@ def firma_ok(data: bytes, ext: str) -> bool:
     if ext == ".webm": return data[:4] == b"\x1a\x45\xdf\xa3"
     if ext == ".glb": return data[:4] == b"glTF"
     if ext == ".zip": return data[:4] == b"PK\x03\x04"
+    if ext in (".html", ".htm"): return data.lstrip(b"\xef\xbb\xbf \t\r\n")[:1] == b"<"
     return False
+
+
+def ext_de_firma(data: bytes):
+    for e in (".webp", ".png", ".jpg"):
+        if firma_ok(data, e): return e
+    return None
+
+
+def agrupar_giro(fotos):
+    """Si hay 8 o más fotos con el mismo nombre y un número al final (vista01, vista02…),
+    son las vistas de un giro 360°: las devuelve ordenadas. Si no, devuelve None."""
+    grupos = {}
+    for nombre, m in fotos:
+        r = re.fullmatch(r"(.*?)(\d+)", Path(nombre).stem)
+        if r: grupos.setdefault(r.group(1).lower(), []).append((int(r.group(2)), m))
+    if not grupos: return None
+    clave, lista = max(grupos.items(), key=lambda kv: len(kv[1]))
+    if not GIRO_MIN <= len(lista) <= GIRO_MAX: return None
+    return [m for _, m in sorted(lista, key=lambda x: x[0])]
 
 
 def es_relieve(gltf_json: dict) -> bool:
@@ -180,7 +202,14 @@ def validar(c):
         medios = []
         for m in (x.get("medios") or [])[:30]:
             tipo = m.get("tipo")
-            if tipo not in ("imagen", "video", "modelo"): raise ValueError("Tipo de archivo no válido")
+            if tipo not in ("imagen", "video", "modelo", "giro"): raise ValueError("Tipo de archivo no válido")
+            if tipo == "giro":
+                vistas = m.get("vistas")
+                if not isinstance(vistas, list) or not GIRO_MIN <= len(vistas) <= GIRO_MAX:
+                    raise ValueError(f"Un giro 360° necesita entre {GIRO_MIN} y {GIRO_MAX} vistas")
+                vistas = [ruta_medio(v) for v in vistas]
+                medios.append({"tipo": "giro", "src": vistas[0], "vistas": vistas})
+                continue
             mm = {"tipo": tipo, "src": ruta_medio(m.get("src"))}
             if m.get("poster"): mm["poster"] = ruta_medio(m["poster"])
             if tipo == "modelo" and m.get("relieve"): mm["relieve"] = True
@@ -206,6 +235,7 @@ def foto_de(p):
         if x["tipo"] == "imagen": return x["src"]
     for x in m:
         if x.get("poster"): return x["poster"]
+        if x["tipo"] == "giro": return x["src"]
     return "assets/og-imagen.png"
 
 
@@ -242,6 +272,8 @@ def generar_paginas(raiz: Path, cat: dict):
         primero = medios[0] if medios else {"tipo": "imagen", "src": img}
         if primero["tipo"] == "imagen":
             primer = f'<img src="/{h(primero["src"])}" alt="{h(p["nombre"])}">'
+        elif primero["tipo"] == "giro":  # sin JavaScript se ve la primera vista; con JS, giro360 la vuelve girable
+            primer = f'<div class="g360"><img src="/{h(primero["src"])}" alt="{h(p["nombre"])}"></div>'
         elif primero["tipo"] == "video":
             pos = f' poster="/{h(primero["poster"])}"' if primero.get("poster") else ""
             primer = f'<video src="/{h(primero["src"])}"{pos} controls playsinline preload="metadata"></video>'
@@ -251,10 +283,11 @@ def generar_paginas(raiz: Path, cat: dict):
         mini = ""
         if len(medios) > 1:
             for i, m in enumerate(medios):
-                etiqueta = {"video": "Video", "modelo": "Modelo 3D"}.get(m["tipo"], f"Foto {i + 1}")
+                etiqueta = {"video": "Video", "modelo": "Modelo 3D", "giro": "Giro 360°"}.get(m["tipo"], f"Foto {i + 1}")
                 if m["tipo"] == "modelo": dentro = '<svg class="i"><use href="#i-cubo"/></svg>'
                 else: dentro = f'<img src="/{h(m.get("poster") or "assets/logo.png") if m["tipo"] == "video" else h(m["src"])}" alt="" loading="lazy">'
                 if m["tipo"] == "video": dentro += '<svg class="i pl"><use href="#i-play"/></svg>'
+                if m["tipo"] == "giro": dentro += '<svg class="i pl g"><use href="#i-360"/></svg>'
                 mini += f'<button aria-label="{etiqueta}" aria-current="{"true" if i == 0 else "false"}" data-fi="{i}">{dentro}</button>'
         otros = [x for x in visibles if x["id"] != p["id"]]
         otros = ([x for x in otros if x["categoria"] == p["categoria"]] + [x for x in otros if x["categoria"] != p["categoria"]])[:4]
@@ -280,6 +313,7 @@ def generar_paginas(raiz: Path, cat: dict):
             "WA_GENERAL": h(wa("Hola, vi su página y quiero información sobre sus amigurumis.")),
             "WA_PRODUCTO": h(wa(f"Hola, vi en su página el producto «{p['nombre']}» ({url}) y quiero más información.")),
             "MODEL_VIEWER": '<script type="module" src="/assets/model-viewer.min.js"></script>' if any(m["tipo"] == "modelo" for m in medios) else "",
+            "GIRO_JS": '<script src="/assets/giro360.js"></script>' if any(m["tipo"] == "giro" for m in medios) else "",
             "JSONLD": json.dumps(ld, ensure_ascii=False).replace("</", "<\\/"),
             "MEDIOS_JSON": json.dumps(medios, ensure_ascii=False).replace("</", "<\\/"),
             "NOMBRE_JS": json.dumps(p["nombre"], ensure_ascii=False).replace("</", "<\\/"),
@@ -460,11 +494,13 @@ class Panel(BaseHTTPRequestHandler):
                     if len(cabeza) < 16: cabeza += trozo[:16]
                     f.write(trozo); resto -= len(trozo)
             if not firma_ok(cabeza, ext): raise ValueError("El contenido no corresponde al tipo de archivo")
-            os.replace(tmp, final)
+            # ZIP y HTML se procesan desde el temporal (.parcial, que IIS no sirve) y luego se borran
+            if tipo not in ("zip", "giro"): os.replace(tmp, final)
         except Exception as e:
             tmp.unlink(missing_ok=True)
             return self.error(400, str(e))
         rel = final.relative_to(self.server.raiz).as_posix()
+        if tipo in ("zip", "giro"): final = tmp
         if tipo == "zip":
             creados = []
             try:
@@ -478,11 +514,41 @@ class Panel(BaseHTTPRequestHandler):
                 final.unlink(missing_ok=True)
             if not medios: return self.error(400, "El ZIP no trae fotos ni modelos 3D que se puedan usar")
             return self.enviar(200, {"ok": True, "medios": medios, "omitidos": omitidos})
+        if tipo == "giro":
+            try:
+                return self.enviar(200, {"ok": True, "medios": [self.giro_de_html(final, carpeta, Path(nombre).stem)], "omitidos": []})
+            except Exception as e:
+                return self.error(400, f"No se pudieron sacar las vistas: {e}")
+            finally:
+                final.unlink(missing_ok=True)   # el HTML subido nunca se publica
         r = {"ok": True, "src": rel, "bytes": n}
         if tipo == "modelo":
             j = json_de_glb(final)
             if j is not None and es_relieve(j): r["relieve"] = True
         self.enviar(200, r)
+
+    def giro_de_html(self, hpath: Path, carpeta: Path, base: str):
+        """Saca, en orden, las imágenes incrustadas (data:image/...;base64) de una página de
+        «vistas 360°» y las guarda como archivos. Del HTML no se usa nada más."""
+        texto = hpath.read_text("utf-8", errors="ignore")
+        datos = re.findall(r"data:image/(?:webp|png|jpe?g);base64,([A-Za-z0-9+/=]+)", texto)
+        if not GIRO_MIN <= len(datos) <= GIRO_MAX:
+            raise ValueError(f"trae {len(datos)} imágenes; un giro necesita entre {GIRO_MIN} y {GIRO_MAX}")
+        destino = carpeta / f"{slug(base)}-{secrets.token_hex(3)}"
+        destino.mkdir()
+        try:
+            vistas = []
+            for i, b64 in enumerate(datos):
+                crudo = base64.b64decode(b64)
+                ext = ext_de_firma(crudo[:16])
+                if not ext or len(crudo) > LIMITES["imagen"]: raise ValueError(f"la vista {i + 1} no es una imagen válida")
+                f = destino / f"v{i:02d}{ext}"
+                f.write_bytes(crudo)
+                vistas.append(f.relative_to(self.server.raiz).as_posix())
+        except Exception:
+            shutil.rmtree(destino, ignore_errors=True)
+            raise
+        return {"tipo": "giro", "src": vistas[0], "vistas": vistas}
 
     def abrir_zip(self, zpath: Path, carpeta: Path, creados: list):
         """Saca de un ZIP los modelos 3D (.glb o .gltf con sus archivos) y las fotos.
@@ -544,8 +610,13 @@ class Panel(BaseHTTPRequestHandler):
                     if j is not None and es_relieve(j): m["relieve"] = True
                     medios.append(m)
                 else:
-                    fotos.append(m)
-        return medios + fotos, omitidos
+                    fotos.append((i.filename, m))
+        # 3) muchas fotos numeradas (vista01, vista02…) = un giro 360°
+        giro = agrupar_giro(fotos)
+        if giro:
+            medios.insert(0, {"tipo": "giro", "src": giro[0]["src"], "vistas": [m["src"] for m in giro]})
+            fotos = [(n, m) for n, m in fotos if m not in giro]
+        return medios + [m for _, m in fotos], omitidos
 
 
 class Servidor(ThreadingHTTPServer):

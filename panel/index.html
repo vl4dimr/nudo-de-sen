@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Outfit:wght@400..700&display=swap" rel="stylesheet">
 <script type="module" src="/assets/model-viewer.min.js"></script>
+<script src="/assets/giro360.js"></script>
 <style>
 :root{color-scheme:light;--sans:Outfit,"Segoe UI",system-ui,sans-serif;--serif:"Instrument Serif",Georgia,serif;
 --bg:#f4f1ef;--card:#fff;--ink:#444;--head:#2b2b2b;--soft:#6b6b6b;--wine:#8e2a3c;--on-wine:#fff;--line:#e4dedb;--sage:#55733f;--ok:#4a6a36;--bad:#b3261e;
@@ -96,6 +97,8 @@ dialog::backdrop{background:rgba(20,10,14,.6)}
 .tile .pv{aspect-ratio:1;background:var(--bg);display:grid;place-items:center;overflow:hidden;position:relative}
 .tile .pv img,.tile .pv video{width:100%;height:100%;object-fit:cover}
 .tile model-viewer{width:100%;height:100%;--poster-color:transparent}
+.g360{position:absolute;inset:0;display:grid;place-items:center;background:#fff;cursor:grab;touch-action:pan-y}
+.tile .pv .g360 img,.g360 img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
 .tile .kind{position:absolute;left:6px;top:6px;background:rgba(0,0,0,.62);color:#fff;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:2px;display:flex;gap:4px;align-items:center;z-index:1}
 .tile .kind svg.i{width:13px;height:13px}
 .tile .main{position:absolute;right:6px;top:6px;background:var(--wine);color:var(--on-wine);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:2px;z-index:1}
@@ -135,6 +138,7 @@ dialog::backdrop{background:rgba(20,10,14,.6)}
   <symbol id="i-etiqueta" viewBox="0 0 24 24"><path d="M3.5 12.3V4.5a1 1 0 0 1 1-1h7.8l8.2 8.2-8.8 8.8z"/><circle cx="8" cy="8" r="1.4"/></symbol>
   <symbol id="i-foto" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 16 4.8-4.8 4 4 2.7-2.7 5.5 5.5"/><circle cx="15.5" cy="9.5" r="1.5"/></symbol>
   <symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.3v5.4l4.6-2.7z"/></symbol>
+  <symbol id="i-360" viewBox="0 0 24 24"><path d="M7 15.6C4.3 14.9 2.5 13.6 2.5 12c0-2.2 4.3-4 9.5-4s9.5 1.8 9.5 4c0 1.9-3.1 3.4-7.4 3.9"/><path d="m11.6 13.4 2.6 2.5-2.6 2.5"/></symbol>
   <symbol id="i-3d" viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></symbol>
   <symbol id="i-mas" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-subir" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15"/></symbol>
@@ -244,7 +248,7 @@ dialog::backdrop{background:rgba(20,10,14,.6)}
   </form>
 </dialog>
 
-<input type="file" id="fMed" accept="image/jpeg,image/png,image/webp,image/heic,video/mp4,video/webm,video/quicktime,.glb,.mov,.zip,application/zip" multiple hidden>
+<input type="file" id="fMed" accept="image/jpeg,image/png,image/webp,image/heic,video/mp4,video/webm,video/quicktime,.glb,.mov,.zip,application/zip,.html,.htm,text/html" multiple hidden>
 <input type="file" id="fGlb" accept=".glb" hidden>
 <div class="toast" id="toast" role="status"></div>
 
@@ -255,7 +259,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const ic=(n,extra='')=>'<svg class="i" '+extra+'><use href="#i-'+n+'"/></svg>';
 const url=src=>'/'+src;
 const money=n=>'S/ '+Number(n).toLocaleString('es-PE');
-const TIPOS={imagen:['foto','Foto'],video:['video','Video'],modelo:['3d','3D']};
+const TIPOS={imagen:['foto','Foto'],video:['video','Video'],modelo:['3d','3D'],giro:['360','360°']};
 let C=null;            // catálogo
 let edIdx=-1,edMed=[]; // producto que se edita
 let subiendo=0;
@@ -296,10 +300,10 @@ function portadaVideo(file){
     v.onloadedmetadata=()=>{v.currentTime=Math.min(1,(v.duration||2)/3)};
     v.onseeked=async()=>{try{const k=Math.min(1,900/Math.max(v.videoWidth,v.videoHeight));const cv=document.createElement('canvas');cv.width=Math.round(v.videoWidth*k);cv.height=Math.round(v.videoHeight*k);cv.getContext('2d').drawImage(v,0,0,cv.width,cv.height);fin(await aBlob(cv,.8))}catch(e){fin(null)}};
     v.onerror=()=>fin(null);setTimeout(()=>fin(null),15000)})}
-const tipoDe=f=>{const n=f.name.toLowerCase();if(n.endsWith('.zip'))return'zip';if(n.endsWith('.glb'))return'modelo';if(f.type.startsWith('video/')||/\.(mp4|webm|mov)$/.test(n))return'video';if(f.type.startsWith('image/')||/\.(jpe?g|png|webp|heic)$/.test(n))return'imagen';return null};
+const tipoDe=f=>{const n=f.name.toLowerCase();if(n.endsWith('.zip'))return'zip';if(/\.html?$/.test(n))return'giro';if(n.endsWith('.glb'))return'modelo';if(f.type.startsWith('video/')||/\.(mp4|webm|mov)$/.test(n))return'video';if(f.type.startsWith('image/')||/\.(jpe?g|png|webp|heic)$/.test(n))return'imagen';return null};
 
 /* ---------- vistas ---------- */
-const portadaDe=p=>{const m=p.medios||[];const im=m.find(x=>x.tipo==='imagen');if(im)return im.src;const v=m.find(x=>x.poster);return v?v.poster:null};
+const portadaDe=p=>{const m=p.medios||[];const im=m.find(x=>x.tipo==='imagen');if(im)return im.src;const v=m.find(x=>x.poster||x.tipo==='giro');return v?(v.poster||v.src):null};
 function pintar(){
   const L=$('lista');
   L.innerHTML=C.productos.length?C.productos.map((p,i)=>{const th=portadaDe(p),m=p.medios||[];
@@ -307,7 +311,7 @@ function pintar(){
     return '<div class="row'+(p.visible?'':' off')+'">'
      +'<button class="th plain" data-ed="'+i+'" aria-label="Editar '+esc(p.nombre)+'">'+(th?'<img src="'+esc(url(th))+'" alt="" loading="lazy">':ic('ovillo'))+'</button>'
      +'<div><strong>'+esc(p.nombre)+'</strong><div class="meta"><span class="price">'+(p.precio!=null?money(p.precio):'A cotizar')+'</span><span>'+esc(p.categoria)+'</span>'
-     +(n('imagen')?'<span>'+ic('foto')+n('imagen')+'</span>':'')+(n('video')?'<span>'+ic('video')+n('video')+'</span>':'')+(n('modelo')?'<span>'+ic('3d')+n('modelo')+'</span>':'')
+     +(n('giro')?'<span>'+ic('360')+'360°</span>':'')+(n('imagen')?'<span>'+ic('foto')+n('imagen')+'</span>':'')+(n('video')?'<span>'+ic('video')+n('video')+'</span>':'')+(n('modelo')?'<span>'+ic('3d')+n('modelo')+'</span>':'')
      +(p.visible?'':'<span class="tag">Oculto</span>')+'</div></div>'
      +'<div class="rbtn"><button class="ico" data-up="'+i+'" aria-label="Subir"'+(i?'':' disabled')+'>'+ic('arriba')+'</button><button class="ico" data-down="'+i+'" aria-label="Bajar"'+(i<C.productos.length-1?'':' disabled')+'>'+ic('abajo')+'</button>'
      +'<button class="ico" data-vis="'+i+'" aria-label="'+(p.visible?'Ocultar':'Mostrar')+'" title="'+(p.visible?'Ocultar de la web':'Mostrar en la web')+'">'+ic(p.visible?'ojo':'ojo-no')+'</button>'
@@ -332,23 +336,25 @@ function abrir(i){
   $('eNom').value=p.nombre;$('ePre').value=p.precio??'';$('eDet').value=p.detalle||'';$('eVis').checked=p.visible!==false;
   $('eCat').innerHTML=C.categorias.map(c=>'<option'+(c.nombre===p.categoria?' selected':'')+'>'+esc(c.nombre)+'</option>').join('');
   $('eDel').hidden=i<0;pintarMed();$('ed').showModal();if(i<0)$('eNom').focus()}
-function vista(m){
+function vista(m,i){
+  if(m.tipo==='giro')return'<div class="g360" data-g="'+i+'"><img src="'+esc(url(m.src))+'" alt=""></div>';
   if(m.tipo==='imagen')return'<img src="'+esc(url(m.src))+'" alt="" loading="lazy">';
   if(m.tipo==='video')return'<video src="'+esc(url(m.src))+'"'+(m.poster?' poster="'+esc(url(m.poster))+'"':'')+' muted playsinline preload="metadata" controls></video>';
   return'<model-viewer src="'+esc(url(m.src))+'" camera-controls interaction-prompt="none" '+(m.relieve?'camera-orbit="0deg 85deg auto" min-camera-orbit="-40deg 70deg auto" max-camera-orbit="40deg 100deg auto"':'auto-rotate')+'></model-viewer>'}
 function pintarMed(){
   const primeraImg=edMed.findIndex(m=>m.tipo==='imagen');
-  $('eMed').innerHTML=edMed.map((m,i)=>'<div class="tile"><div class="pv"><span class="kind">'+ic(TIPOS[m.tipo][0])+TIPOS[m.tipo][1]+(m.relieve?' relieve':'')+'</span>'+(i===primeraImg?'<span class="main">Principal</span>':'')+vista(m)+'</div>'
+  $('eMed').innerHTML=edMed.map((m,i)=>'<div class="tile"><div class="pv"><span class="kind">'+ic(TIPOS[m.tipo][0])+TIPOS[m.tipo][1]+(m.relieve?' relieve':'')+'</span>'+(i===primeraImg?'<span class="main">Principal</span>':'')+vista(m,i)+'</div>'
     +(m.tipo==='modelo'?'<label class="rel" title="Para modelos casi planos hechos desde una foto: en la web solo giran un poco, para que no se vean de costado"><input type="checkbox" data-rel="'+i+'"'+(m.relieve?' checked':'')+'>Solo de frente</label>':'')
     +'<div class="tb"><button type="button" data-ml="'+i+'" aria-label="Mover antes"'+(i?'':' disabled')+'>'+ic('izq')+'</button>'
     +(m.tipo==='imagen'&&i!==primeraImg?'<button type="button" data-mp="'+i+'" aria-label="Usar como foto principal" title="Usar como principal">'+ic('estrella')+'</button>':'')
     +'<button type="button" class="danger" data-mx="'+i+'" aria-label="Quitar">'+ic('basura')+'</button>'
     +'<button type="button" data-mr="'+i+'" aria-label="Mover después"'+(i<edMed.length-1?'':' disabled')+'>'+ic('der')+'</button></div></div>').join('')
-   +'<div id="subs" style="display:contents"></div><button type="button" class="add" id="bAdd">'+ic('subir')+'Agregar<small>Fotos, videos (MP4), modelos 3D (.glb) o un ZIP con modelo y fotos</small></button>';
-  $('bAdd').onclick=()=>$('fMed').click()}
+   +'<div id="subs" style="display:contents"></div><button type="button" class="add" id="bAdd">'+ic('subir')+'Agregar<small>Fotos, videos (MP4), modelos 3D (.glb), un giro 360° (.html o ZIP de vistas) o un ZIP con modelo y fotos</small></button>';
+  $('bAdd').onclick=()=>$('fMed').click();
+  document.querySelectorAll('#eMed [data-g]').forEach(b=>{const m=edMed[+b.dataset.g];if(window.giro360&&m)giro360(b,m.vistas.map(url),{hint:false,alt:'Giro 360°'})})}
 async function agregar(files){
   for(const f of files){const tipo=tipoDe(f);
-    if(!tipo){toast('«'+f.name+'» no es una foto, video, modelo .glb ni ZIP',true);continue}
+    if(!tipo){toast('«'+f.name+'» no es una foto, video, modelo .glb, giro 360° ni ZIP',true);continue}
     const t=document.createElement('div');t.className='tile uploading';t.innerHTML='<div class="pv" data-msg="Preparando…">'+ic(tipo==='zip'?'3d':TIPOS[tipo][0])+'</div><div class="prog"><i></i></div>';
     $('subs').appendChild(t);const pv=t.querySelector('.pv'),bar=t.querySelector('.prog i');subiendo++;$('eOk').disabled=true;
     try{let blob=f,nombre=f.name,extra={};
@@ -359,9 +365,9 @@ async function agregar(files){
       if(tipo==='zip'&&f.size>95*2**20)throw new Error('El ZIP pesa más de 95 MB.');
       pv.dataset.msg='Subiendo… 0%';
       const r=await subir(blob,nombre,tipo,k=>{bar.style.width=(k*100)+'%';pv.dataset.msg=k<1?'Subiendo… '+Math.round(k*100)+'%':'Abriendo…'});
-      if(tipo==='zip'){edMed.push(...r.medios);
-        const n=t=>r.medios.filter(m=>m.tipo===t).length;
-        toast('Del ZIP: '+[n('modelo')&&n('modelo')+' modelo 3D',n('imagen')&&n('imagen')+' foto(s)'].filter(Boolean).join(' y ')+(r.medios.some(m=>m.relieve)?' (relieve: se verá de frente)':'')+(r.omitidos.length?'. Se ignoró: '+r.omitidos.join(', '):''))}
+      if(tipo==='zip'||tipo==='giro'){edMed.push(...r.medios);
+        const n=t=>r.medios.filter(m=>m.tipo===t).length,g=r.medios.find(m=>m.tipo==='giro');
+        toast((tipo==='giro'?'':'Del ZIP: ')+[g&&'giro 360° con '+g.vistas.length+' vistas',n('modelo')&&n('modelo')+' modelo 3D',n('imagen')&&n('imagen')+' foto(s)'].filter(Boolean).join(' y ')+(r.medios.some(m=>m.relieve)?' (relieve: se verá de frente)':'')+(r.omitidos.length?'. Se ignoró: '+r.omitidos.join(', '):''))}
       else edMed.push({tipo,src:r.src,...(r.relieve?{relieve:true}:{}),...extra});
       if(tipo==='modelo'&&r.relieve)toast('Este modelo es un relieve (casi plano): en la web se verá de frente, con un giro suave.');
       t.remove();pintarMed()}
