@@ -96,3 +96,22 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
     el.style.setProperty('--my', (e.clientY - r.top) + 'px');
   }, { passive: true });
 }
+
+/* Menú del celular: el botón de la cápsula abre una hoja de vidrio con las secciones, WhatsApp y TikTok. */
+function iniciarMenu() {
+  const mm = document.getElementById('menuM'), bm = document.getElementById('bMenu');
+  if (!mm || !bm) return;
+  const abrir = a => {
+    mm.hidden = !a;
+    bm.setAttribute('aria-expanded', a);
+    bm.setAttribute('aria-label', a ? 'Cerrar el menú' : 'Abrir el menú');
+    bm.querySelector('use').setAttribute('href', '#i-' + (a ? 'cerrar' : 'menu'));
+    document.documentElement.style.overflow = a ? 'hidden' : '';
+    if (a) { const p = mm.querySelector('a'); if (p) p.focus(); }
+  };
+  bm.addEventListener('click', () => abrir(mm.hidden));
+  mm.addEventListener('click', e => { if (e.target === mm || e.target.closest('a')) abrir(false); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && !mm.hidden) { abrir(false); bm.focus(); } });
+  matchMedia('(min-width: 901px)').addEventListener('change', e => { if (e.matches) abrir(false); });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciarMenu); else iniciarMenu();

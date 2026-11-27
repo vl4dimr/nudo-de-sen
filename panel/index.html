@@ -238,6 +238,22 @@ td a:hover{color:var(--wine)}
 .pmos .td i{font:italic 400 14px var(--serif)}
 .pmos .td .cl{display:flex;gap:4px;margin-top:6px}
 .pmos .td .cl span{background:rgba(0,0,0,.42);font-size:13px;font-weight:600;padding:3px 7px;border-radius:2px}
+.lugar{display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;align-items:start}
+.lt{display:block;font-size:14.5px;font-weight:500;color:var(--head);margin-bottom:8px}
+.pp3{display:grid;grid-template-columns:repeat(3,34px);gap:5px;padding:6px;background:var(--bg);border:1px solid var(--line);border-radius:12px;width:max-content}
+.pp3 button{width:34px;min-height:34px;padding:0;border-radius:8px;background:var(--card);border:1px solid var(--line);display:grid;place-items:center;box-shadow:none}
+.pp3 button i{display:block;width:14px;height:4px;border-radius:2px;background:var(--line)}
+.pp3 button:hover{border-color:var(--wine);box-shadow:none}
+.pp3 button[aria-pressed=true]{background:var(--wine);border-color:var(--wine)}.pp3 button[aria-pressed=true] i{background:var(--on-wine)}
+.seg3{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px}
+.seg3 button{min-height:38px;padding:4px 14px;font-size:14.5px;background:transparent;border:0;color:var(--soft);border-radius:9px;box-shadow:none}
+.seg3 button:hover{color:var(--wine);box-shadow:none}
+.seg3 button[aria-pressed=true]{background:var(--card);color:var(--wine);box-shadow:0 1px 4px rgba(0,0,0,.14)}
+.pmos .v-t{justify-content:flex-start}.pmos .v-m{justify-content:center}.pmos .v-b{justify-content:flex-end}
+.pmos .h-l{align-items:flex-start;text-align:left}.pmos .h-c{align-items:center;text-align:center}.pmos .h-r{align-items:flex-end;text-align:right}
+.pmos .tc.h-r::after{background:linear-gradient(270deg,rgba(255,255,255,.94) 45%,transparent 75%)}.pmos .tc.h-r img{left:0;right:auto}
+.pmos .tc.h-c::after{background:rgba(255,255,255,.72)}.pmos .tc.h-c img{width:100%}
+@media(max-width:560px){.lugar{grid-template-columns:1fr;gap:14px}}
 .imgsel{display:flex;align-items:center;gap:14px}
 .imgsel .ph{width:84px;height:84px;border-radius:10px;overflow:hidden;background:var(--bg);flex:none;display:grid;place-items:center;color:var(--soft);border:1px solid var(--line)}
 .imgsel .ph img{width:100%;height:100%;object-fit:cover}
@@ -557,12 +573,20 @@ dialog#ed::backdrop{background:rgba(20,10,14,.5);backdrop-filter:blur(2px)}
             </div>
             <div class="box" id="boxB"></div>
             <div class="box" id="boxC"></div>
+            <div class="box">
+              <h3><span class="ib"><svg class="i"><use href="#i-ovillo"/></svg></span>Sección «Nuestros trabajos»</h3>
+              <p class="sub">Los textos del catálogo de la tienda. Los productos se editan en la pestaña Productos.</p>
+              <label>Título<input id="tTit" maxlength="60"></label>
+              <label>Frase debajo del título <small>opcional</small><input id="tSub" maxlength="160" placeholder="Ej.: Cada pieza es única, tejida a mano en Puno"></label>
+              <label>Nota de precios <small>al final del catálogo</small><textarea id="tNota" rows="3" maxlength="240"></textarea></label>
+            </div>
           </div>
           <div>
             <div class="box">
               <h3><span class="ib">4</span>Cuenta regresiva</h3>
               <p class="sub">Muestra cuánto falta para la próxima fecha de esta lista (cuando faltan más de 7 días). Al tocarla, el formulario de pedido ya trae la ocasión elegida.</p>
               <label>Frase de acento<input id="dAcc" maxlength="60"></label>
+              <div id="dLugar"></div>
               <div class="fechas" id="fechas"></div>
               <button class="ghost" id="bFecha"><svg class="i"><use href="#i-mas"/></svg>Agregar fecha especial</button>
               <div class="sinfecha">

@@ -187,6 +187,10 @@ def validar_portada(p: dict, out: dict, categorias: set):
     d = cuenta regresiva hacia la próxima fecha especial de la lista `fechas`."""
     def img(v):
         return ruta_medio(v) if v else None
+    POS = {v + h for v in "tmb" for h in "lcr"}       # posición del texto: arriba/centro/abajo × izq./centro/der.
+    def lugar(x, r):
+        if x.get("pos") in POS: r["pos"] = x["pos"]
+        if x.get("foco") in ("top", "center", "bottom"): r["foco"] = x["foco"]
     a = p.get("a") or {}
     if a: out["a"] = {"acento": texto(a.get("acento"), 60), "titulo": texto(a.get("titulo"), 120), "boton": texto(a.get("boton"), 30)}
     for k in ("b", "c"):
@@ -196,11 +200,16 @@ def validar_portada(p: dict, out: dict, categorias: set):
         if cat and cat not in categorias: cat = ""
         r = {"titulo": texto(x.get("titulo"), 60), "boton": texto(x.get("boton"), 30), "categoria": cat}
         if x.get("imagen"): r["imagen"] = img(x["imagen"])
+        lugar(x, r)
         out[k] = r
     d = p.get("d") or {}
     if d:
         out["d"] = {"acento": texto(d.get("acento"), 60), "titulo": texto(d.get("titulo"), 80)}
         if d.get("imagen"): out["d"]["imagen"] = img(d["imagen"])
+        lugar(d, out["d"])
+    t = p.get("trabajos") or {}
+    if t:   # textos de la sección «Nuestros trabajos»
+        out["trabajos"] = {"titulo": texto(t.get("titulo"), 60), "sub": texto(t.get("sub"), 160), "nota": texto(t.get("nota"), 240)}
     fechas = p.get("fechas")
     if fechas is not None:
         if not isinstance(fechas, list) or len(fechas) > 12: raise ValueError("La portada admite hasta 12 fechas especiales")

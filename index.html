@@ -397,6 +397,53 @@ button,.btn{background-image:linear-gradient(180deg,rgba(255,255,255,.2),rgba(25
 .zoom .zb button{background:var(--lg-claro);border:1px solid rgba(255,255,255,.4);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:inset 0 1px 1px rgba(255,255,255,.4)}
 /* las tarjetas siguen sólidas, con un borde iluminado sutil */
 .card,.form,.ban.c,#preguntas{border:1px solid rgba(255,255,255,.75);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),var(--ios-sh)}
+/* ===== Bolsa de «Mi lista», menú de celular, posiciones de la portada y tarjetas (27/11/2026) ===== */
+.cart{display:flex;align-items:center;gap:12px}
+.cart .bolsa{position:relative;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--lg-bg-fuerte);border:1px solid var(--lg-brd);box-shadow:var(--lg-sh);color:var(--head);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.cart:hover .bolsa{transform:translateY(-1px);color:var(--wine)}
+.cart .bolsa svg.i{width:23px;height:23px}
+.cart i{position:absolute;top:-4px;right:-5px;min-width:21px;height:21px;padding:0 6px;border-radius:999px;background:var(--wine);color:var(--on-wine);font:700 11.5px/17px var(--sans);font-style:normal;text-align:center;display:block;border:2px solid var(--card);box-shadow:0 3px 8px -2px rgba(142,42,60,.6);transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+.cart i::before{display:none}
+.cart i[data-n="0"]{transform:scale(0)}
+.cart i.bump{animation:salta .45s cubic-bezier(.3,1.6,.5,1)}@keyframes salta{40%{transform:scale(1.35)}}
+.hamb{display:none;width:46px;min-height:46px;padding:0;border-radius:50%;background:var(--lg-bg-fuerte);border:1px solid var(--lg-brd);box-shadow:var(--lg-sh);color:var(--head)}
+.hamb svg.i{width:22px;height:22px}
+.menuM{position:fixed;inset:0;z-index:19;padding:calc(92px + env(safe-area-inset-top)) 12px 12px;background:rgba(20,10,14,.22);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.menuM nav{display:grid;background:var(--lg-bg-fuerte);-webkit-backdrop-filter:var(--lg-blur);backdrop-filter:var(--lg-blur);border:1px solid var(--lg-brd);border-radius:26px;box-shadow:var(--lg-sh),0 30px 60px -20px rgba(0,0,0,.35);padding:8px;animation:baja .34s cubic-bezier(.2,.8,.2,1)}
+@keyframes baja{from{opacity:0;transform:translateY(-14px) scale(.97)}}
+.menuM nav>a{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:16px;text-decoration:none;color:var(--head);font-size:18px;font-weight:500;letter-spacing:-.01em}
+.menuM nav>a+a{border-top:.5px solid var(--line)}
+.menuM nav>a:active,.menuM nav>a:hover{background:rgba(118,118,128,.12)}
+.menuM nav>a svg.i{width:18px;height:18px;color:var(--soft)}
+.menuM .redes{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 4px 4px}
+.menuM .redes a{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border-radius:999px;text-decoration:none;font-weight:600;background:rgba(118,118,128,.12);color:var(--head)}
+.menuM .redes a.waL{background:var(--wa);color:#fff}
+.menuM .redes svg.i{width:19px;height:19px}
+@media(max-width:900px){.hamb{display:grid;place-items:center}.cart{margin-left:auto}.cart .ctxt{display:none}.header .wrap{gap:8px}}
+/* posición del texto en los recuadros de la portada (la eligen desde el panel) */
+.ban.v-t{justify-content:flex-start;padding-top:48px}.ban.v-m{justify-content:center;padding-top:20px;padding-bottom:20px}.ban.v-b{justify-content:flex-end;padding-bottom:40px}
+.ban.h-l{align-items:flex-start;text-align:left;padding-left:36px;padding-right:20px}.ban.h-c{align-items:center;text-align:center}.ban.h-r{align-items:flex-end;text-align:right;padding-right:36px;padding-left:20px}
+@media(min-width:901px){.ban.c.h-r::after{background:linear-gradient(270deg,var(--fade) 45%,transparent 75%)}.ban.c.h-r>img{left:0;right:auto}
+ .ban.c.h-c::after{background:color-mix(in srgb,var(--card) 72%,transparent)}.ban.c.h-c>img{width:100%}}
+/* «Nuestros trabajos»: tarjetas parejas (nombre y descripción en 2 líneas), precio y botón abajo */
+#catalogo .sub{margin-top:-14px}
+.card{text-align:left}
+.card .pic{display:block;position:relative;overflow:hidden;background:var(--tint);border-radius:calc(var(--rad) - 8px);margin:8px 8px 0}
+.card .pic img{width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)}
+.card:hover .pic img{transform:scale(1.05)}
+.card .body{padding:14px 16px 16px;gap:4px}
+.card .k{font-size:11px}
+.card h3{font-size:17px;font-weight:600;line-height:1.28;letter-spacing:-.015em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .d{margin:2px 0 0;font-size:14px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .m{display:inline-flex;align-self:flex-start;margin-top:6px;font-size:12px;font-weight:500;background:rgba(118,118,128,.12);border-radius:999px;padding:2px 10px}
+.card .pie{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:14px}
+.card .pie .p{margin:0;padding:0;font-size:19px;line-height:1.15}
+.card .pie .p small{display:block;font-size:12px}
+.card .add{flex:none;min-height:42px;padding:8px 15px;font-size:14px;gap:6px}
+.card .add svg.i{width:18px;height:18px}
+.card .add.on{background-color:var(--ok);border-color:var(--ok);color:#fff}
+.badges{left:10px;top:10px}
+@media(max-width:900px){.card .pie{flex-direction:column;align-items:stretch;gap:10px}.card .add{width:100%}.card .body{padding:12px 12px 14px}.card h3{font-size:15.5px}.card .pic{margin:6px 6px 0}}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.header .wrap,.chips,.drawer,.ghost{background:var(--card)}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}.js .rv{opacity:1;transform:none}}
 </style>
@@ -412,6 +459,11 @@ button,.btn{background-image:linear-gradient(180deg,rgba(255,255,255,.2),rgba(25
   <symbol id="i-cam" viewBox="0 0 24 24"><path d="M8.500 5l1.200-2h4.600l1.200 2H20a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4.500zM12 16.500a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></symbol>
   <!-- Iconos de línea (mismo trazo redondeado del logo) -->
   <symbol id="i-play" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.6v6.8l5.6-3.4z" fill="currentColor"/></g></symbol>
+  <symbol id="i-bolsa" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.3 8.3h13.4l-1 11.4a1.6 1.6 0 0 1-1.6 1.5H7.9a1.6 1.6 0 0 1-1.6-1.5z"/><path d="M8.8 10.6V7.1a3.2 3.2 0 0 1 6.4 0v3.5"/></g></symbol>
+  <symbol id="i-bolsa-mas" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5.3 8.3h13.4l-1 11.4a1.6 1.6 0 0 1-1.6 1.5H7.9a1.6 1.6 0 0 1-1.6-1.5z"/><path d="M8.8 8.3V7.1a3.2 3.2 0 0 1 6.4 0v1.2M12 12.2v5.2M9.4 14.8h5.2"/></g></symbol>
+  <symbol id="i-ok" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4.5 8.5h15M4.5 15.5h15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-sig" viewBox="0 0 24 24"><path d="m9.5 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-ampliar" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5M10.5 7.5v6M7.5 10.5h6"/></g></symbol>
   <symbol id="i-regla" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8" width="19" height="8" rx="1.5"/><path d="M6.5 8v3M10 8v4.5M13.5 8v3M17 8v4.5"/></g></symbol>
   <symbol id="i-ovillo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7.5"/><path d="M4.3 8.6c3.6-.4 8 1.2 11.6 4.8M4 12.6c3.4.3 7 2 9.5 5.1M8.2 4.1c2.4 2.7 3.9 6.5 3.8 10.9M15.8 5.4c-1.5 2.3-2.1 5-1.8 8"/><path d="M16.6 16.6c1.6 1.6 2.7 3.6 4.9 3.4"/></g></symbol>
@@ -434,8 +486,10 @@ button,.btn{background-image:linear-gradient(180deg,rgba(255,255,255,.2),rgba(25
 <div class="header"><div class="wrap">
   <a class="logo" href="#inicio" aria-label="Nudo de SEN, inicio"><svg class="mk" aria-hidden="true"><use href="#i-logo"/></svg><span>Nudo<i> de </i><span>SEN</span></span></a>
   <nav class="menu" aria-label="Principal"><a href="#categorias">Categorías</a><a href="#catalogo">Catálogo</a><a href="#ocasiones">Ocasiones</a><a href="#personalizados">Personalizados</a><a href="#nosotros">Nosotros</a></nav>
-  <button class="cart" id="openCart"><span>Mi lista <b>/ <span id="cartTotal">S/ 0</span></b></span><i id="count">0</i></button>
+  <button class="cart" id="openCart"><span class="ctxt">Mi lista <b>/ <span id="cartTotal">S/ 0</span></b></span><span class="bolsa"><svg class="i" aria-hidden="true"><use href="#i-bolsa"/></svg><i id="count" data-n="0">0</i></span></button>
+  <button class="hamb" id="bMenu" aria-label="Abrir el menú" aria-expanded="false" aria-controls="menuM"><svg class="i" aria-hidden="true"><use href="#i-menu"/></svg></button>
 </div></div>
+<div class="menuM" id="menuM" hidden><nav aria-label="Menú"><a href="#categorias">Categorías<svg class="i"><use href="#i-sig"/></svg></a><a href="#catalogo">Catálogo<svg class="i"><use href="#i-sig"/></svg></a><a href="#ocasiones">Ocasiones<svg class="i"><use href="#i-sig"/></svg></a><a href="#personalizados">Pedido personalizado<svg class="i"><use href="#i-sig"/></svg></a><a href="#nosotros">Nosotros<svg class="i"><use href="#i-sig"/></svg></a><a href="#preguntas">Preguntas frecuentes<svg class="i"><use href="#i-sig"/></svg></a><div class="redes"><a class="waL" href="#" target="_blank" rel="noopener"><svg class="i"><use href="#i-wa"/></svg>WhatsApp</a><a href="https://www.tiktok.com/@nudodesen" target="_blank" rel="noopener"><svg class="i"><use href="#i-tt"/></svg>TikTok</a></div></nav></div>
 
 <header class="hero" id="inicio"><div class="wrap"><div class="mosaic">
   <div class="ban a">
@@ -464,10 +518,11 @@ button,.btn{background-image:linear-gradient(180deg,rgba(255,255,255,.2),rgba(25
 </div></section>
 
 <section class="sec" id="catalogo"><div class="wrap">
-  <h2 class="ttl rv"><span>Nuestros trabajos</span></h2>
+  <h2 class="ttl rv"><span id="tTit">Nuestros trabajos</span></h2>
+  <p class="sub" id="tSub" hidden></p>
   <div class="chips" id="chips" role="group" aria-label="Filtrar por categoría"></div>
   <div class="grid" id="grid"></div>
-  <p class="note">Precios referenciales en soles. El precio final depende del tamaño y de los detalles; te lo confirmamos por WhatsApp.</p>
+  <p class="note" id="tNota">Precios referenciales en soles. El precio final depende del tamaño y de los detalles; te lo confirmamos por WhatsApp.</p>
 </div></section>
 
 <section class="sec" id="ocasiones"><div class="wrap">
@@ -603,9 +658,9 @@ $('cats').innerHTML=categorias.map(c=>{const p=products.find(x=>x.categoria===c.
 const renderChips=()=>{$('chips').innerHTML=cats.map(c=>'<button aria-pressed="'+(c===filter)+'" data-c="'+esc(c)+'">'+esc(c)+'</button>').join('')};
 const renderGrid=()=>{$('grid').innerHTML=products.filter(p=>filter==='Todos'||p.categoria===filter).map(p=>{const on=cart[p.id]>0;
   const marcas=(tiene(p,'giro')?'<span><svg class="i"><use href="#i-360"/></svg>360°</span>':'')+(tiene(p,'video')?'<span><svg class="i"><use href="#i-play"/></svg>Video</span>':'')+(tiene(p,'modelo')&&!tiene(p,'giro')?'<span><svg class="i"><use href="#i-cubo"/></svg>3D</span>':'')+((p.medios||[]).length>1&&!tiene(p,'video')&&!tiene(p,'modelo')&&!tiene(p,'giro')?'<span><svg class="i"><use href="#i-fotos"/></svg>'+p.medios.length+'</span>':'');
-  return '<article class="card"><div class="pic"><a href="'+esc(pagina(p))+'" aria-label="Ver '+esc(p.nombre)+'"><img src="'+esc(src(p))+'" alt="'+esc(p.nombre)+'" width="304" height="344" loading="lazy">'+(marcas?'<span class="badges">'+marcas+'</span>':'')+'</a><button class="'+(on?'on':'')+'" data-add="'+esc(p.id)+'">'+(on?'En tu lista ✓':'Me interesa')+'</button></div><div class="body"><span class="k">'+esc(p.categoria)+'</span><h3><a href="'+esc(pagina(p))+'">'+esc(p.nombre)+'</a></h3><span class="d">'+esc(p.detalle)+'</span>'+(p.medidas&&p.medidas.alto?'<span class="m">'+String(p.medidas.alto).replace('.',',')+' cm de alto</span>':'')+'<span class="p">'+(p.precio?'<small>Desde</small> '+money(p.precio):'A cotizar')+'</span></div></article>'}).join('')};
+  return '<article class="card"><a class="pic" href="'+esc(pagina(p))+'" aria-label="Ver '+esc(p.nombre)+'"><img src="'+esc(src(p))+'" alt="'+esc(p.nombre)+'" width="304" height="380" loading="lazy">'+(marcas?'<span class="badges">'+marcas+'</span>':'')+'</a>'+'<div class="body"><span class="k">'+esc(p.categoria)+'</span><h3><a href="'+esc(pagina(p))+'">'+esc(p.nombre)+'</a></h3>'+(p.detalle?'<p class="d">'+esc(p.detalle)+'</p>':'')+(p.medidas&&p.medidas.alto?'<span class="m">'+String(p.medidas.alto).replace('.',',')+' cm de alto</span>':'')+'<div class="pie"><span class="p">'+(p.precio?'<small>Desde</small> '+money(p.precio):'A cotizar')+'</span>'+'<button class="add'+(on?' on':'')+'" data-add="'+esc(p.id)+'" aria-label="'+(on?'Ver mi lista':'Agregar '+esc(p.nombre)+' a mi lista')+'"><svg class="i" aria-hidden="true"><use href="#i-'+(on?'ok':'bolsa-mas')+'"/></svg><span>'+(on?'En tu lista':'Me interesa')+'</span></button></div></div></article>'}).join('')};
 const renderCart=()=>{const list=ids();
-  const n=list.reduce((t,id)=>t+cart[id],0);$('count').textContent=n;
+  const n=list.reduce((t,id)=>t+cart[id],0);$('count').textContent=n>99?'99+':n;$('count').dataset.n=n;
   $('openCart').setAttribute('aria-label','Ver mi lista: '+n+(n===1?' producto':' productos')+', total referencial '+money(total()));
   $('items').innerHTML=list.length?list.map(id=>{const p=find(id);return '<div class="line"><img src="'+esc(src(p))+'" alt=""><div><strong>'+esc(p.nombre)+'</strong><small>'+(p.precio?'Desde '+money(p.precio)+' c/u':'A cotizar')+'</small></div><div class="qty"><button data-dec="'+esc(id)+'" aria-label="Quitar uno de '+esc(p.nombre)+'">−</button><span>'+cart[id]+'</span><button data-inc="'+esc(id)+'" aria-label="Agregar uno de '+esc(p.nombre)+'">+</button></div></div>'}).join(''):'<p class="empty">Tu lista está vacía.<br>Toca «Me interesa» en el catálogo.</p>';
   $('total').textContent=$('cartTotal').textContent=money(total());save()};
@@ -640,10 +695,16 @@ $('cCopy').onclick=()=>copy(customText(),$('cMsg'));
 $('cPhoto').addEventListener('change',()=>{const f=$('cPhoto').files[0];$('cPreview').classList.toggle('on',!!f);if(f)$('cImg').src=URL.createObjectURL(f)});
 // Portada en mosaico: textos, imágenes y fechas se editan en el panel (pestaña «Portada»); si no hay, queda lo de siempre
 const P=D.portada||{};
+// posición del texto (3×3: arriba/centro/abajo × izquierda/centro/derecha) y encuadre de la foto de cada recuadro
+function posicion(el,x){if(/^[tmb][lcr]$/.test(x.pos||'')){el.classList.add('v-'+x.pos[0],'h-'+x.pos[1])}
+ if(['top','center','bottom'].includes(x.foco)){const im=el.querySelector('img');if(im)im.style.objectPosition='center '+x.foco}}
 {const a=P.a||{};if(a.acento)$('aAcc').textContent=a.acento;if(a.titulo)$('aTit').textContent=a.titulo;if(a.boton)$('aBtn').textContent=a.boton;
  for(const k of['b','c']){const x=P[k];if(!x)continue;const el=$(k==='b'?'banB':'banC');
   if(x.titulo)el.querySelector('h2').textContent=x.titulo;if(x.boton)el.querySelector('.btn').textContent=x.boton;if(x.imagen)el.querySelector('img').src=x.imagen;
-  if(x.categoria&&cats.includes(x.categoria))el.dataset.cat=x.categoria;else delete el.dataset.cat}}
+  if(x.categoria&&cats.includes(x.categoria))el.dataset.cat=x.categoria;else delete el.dataset.cat;posicion(el,x)}
+ posicion($('banD'),P.d||{});
+ // textos de la sección «Nuestros trabajos»
+ const T=P.trabajos||{};if(T.titulo)$('tTit').textContent=T.titulo;if(T.sub){$('tSub').textContent=T.sub;$('tSub').hidden=false}if(T.nota)$('tNota').textContent=T.nota}
 // Cuenta regresiva hacia la próxima fecha especial (se calcula sola cada año)
 {const now=new Date(),y=now.getFullYear();$('year').textContent=y;
  $('cDate').min=y+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');

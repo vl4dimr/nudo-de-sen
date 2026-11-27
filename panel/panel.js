@@ -495,9 +495,10 @@ $('fGlb').onchange = async () => { const f = $('fGlb').files[0]; $('fGlb').value
 // Lo mismo que muestra la tienda si nunca se editó (ver index.html). Se edita una copia (PO) y solo se publica al guardar.
 const POR_DEF = {
   a: { acento: 'Tu mini versión', titulo: 'Convierte a quien más quieres en un amigurumi', boton: 'Crear el mío' },
-  b: { titulo: 'Danzas de Puno', boton: 'Ver modelos', imagen: 'assets/productos/danza-plumas.jpg', categoria: 'Danzas de Puno' },
-  c: { titulo: 'Ramos que no se marchitan', boton: 'Ver ramos', imagen: 'assets/productos/ramo-crema.jpg', categoria: 'Ramos tejidos' },
-  d: { acento: 'Pide con anticipación', titulo: 'Hecho a pedido', imagen: 'assets/productos/ramo-rojo-pareja.jpg' },
+  b: { titulo: 'Danzas de Puno', boton: 'Ver modelos', imagen: 'assets/productos/danza-plumas.jpg', categoria: 'Danzas de Puno', pos: 'tc', foco: 'center' },
+  c: { titulo: 'Ramos que no se marchitan', boton: 'Ver ramos', imagen: 'assets/productos/ramo-crema.jpg', categoria: 'Ramos tejidos', pos: 'ml', foco: 'center' },
+  d: { acento: 'Pide con anticipación', titulo: 'Hecho a pedido', imagen: 'assets/productos/ramo-rojo-pareja.jpg', pos: 'mc', foco: 'center' },
+  trabajos: { titulo: 'Nuestros trabajos', sub: '', nota: 'Precios referenciales en soles. El precio final depende del tamaño y de los detalles; te lo confirmamos por WhatsApp.' },
   fechas: [
     { nombre: 'San Valentín', regla: 'fija', mes: 2, dia: 14, imagen: 'assets/productos/ramo-rojo-pareja.jpg', ocasion: 'San Valentín o aniversario' },
     { nombre: 'el Día de la Madre', regla: 'segundo-domingo', mes: 5, dia: 0, imagen: 'assets/productos/ramo-crema.jpg', ocasion: 'Día de la Madre' },
@@ -506,6 +507,15 @@ const POR_DEF = {
 const OCASIONES = ['San Valentín o aniversario', 'Graduación', 'Día de la Policía', 'Cumpleaños', 'Navidad', 'Día de la Madre', 'Otra'];
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 let PO = null, poSucio = false;
+const NOMBRE_POS = { tl: 'Arriba a la izquierda', tc: 'Arriba al centro', tr: 'Arriba a la derecha', ml: 'Al medio, a la izquierda', mc: 'Al centro',
+  mr: 'Al medio, a la derecha', bl: 'Abajo a la izquierda', bc: 'Abajo al centro', br: 'Abajo a la derecha' };
+// selector de posición del texto (cuadrícula 3×3) y encuadre de la foto de un recuadro
+const lugarHtml = k => { const x = PO[k];
+  return '<div class="lugar"><div><span class="lt">Posición del texto</span><div class="pp3" role="group" aria-label="Posición del texto">'
+    + Object.keys(NOMBRE_POS).map(p => '<button type="button" data-pos="' + k + ':' + p + '" aria-pressed="' + (x.pos === p) + '" aria-label="' + NOMBRE_POS[p] + '" title="' + NOMBRE_POS[p] + '"><i></i></button>').join('')
+    + '</div></div><div><span class="lt">Encuadre de la foto</span><div class="seg3" role="group" aria-label="Encuadre de la foto">'
+    + [['top', 'Arriba'], ['center', 'Centro'], ['bottom', 'Abajo']].map(([v, t]) => '<button type="button" data-foco="' + k + ':' + v + '" aria-pressed="' + ((x.foco || 'center') === v) + '">' + t + '</button>').join('')
+    + '</div><p class="hint" style="margin-top:8px;font-size:13.5px">Qué parte de la foto se ve cuando no entra completa.</p></div></div>'; };
 const fechaDe = (f, a) => { if (f.regla === 'segundo-domingo') { const d = new Date(a, f.mes - 1, 1); return new Date(a, f.mes - 1, 1 + (7 - d.getDay()) % 7 + 7); } return new Date(a, f.mes - 1, f.dia); };
 function proximaFecha(lista) {
   const hoy = new Date(), y = hoy.getFullYear();
@@ -517,18 +527,20 @@ function pintarPortada(reset) {
   if (!C) return;
   if (reset || !poSucio || !PO) {
     PO = clon(POR_DEF);
-    for (const k of ['a', 'b', 'c', 'd']) if (C.portada[k]) PO[k] = { ...PO[k], ...C.portada[k] };
+    for (const k of ['a', 'b', 'c', 'd', 'trabajos']) if (C.portada[k]) PO[k] = { ...PO[k], ...C.portada[k] };
     if (C.portada.fechas) PO.fechas = clon(C.portada.fechas);
     poSucio = false;
-    [['aAcc', 'a.acento'], ['aTit', 'a.titulo'], ['aBtn', 'a.boton'], ['dAcc', 'd.acento'], ['dTit', 'd.titulo']].forEach(([id, ruta]) => { $(id).dataset.po = ruta; $(id).value = leerRuta(ruta) ?? ''; });
+    [['aAcc', 'a.acento'], ['aTit', 'a.titulo'], ['aBtn', 'a.boton'], ['dAcc', 'd.acento'], ['dTit', 'd.titulo'], ['tTit', 'trabajos.titulo'], ['tSub', 'trabajos.sub'], ['tNota', 'trabajos.nota']].forEach(([id, ruta]) => { $(id).dataset.po = ruta; $(id).value = leerRuta(ruta) ?? ''; });
     for (const [k, n, t] of [['b', 2, 'Recuadro 2'], ['c', 3, 'Recuadro 3']]) {
       const x = PO[k];
       $('box' + k.toUpperCase()).innerHTML = '<h3><span class="ib">' + n + '</span>' + t + (k === 'b' ? ' (alto, al centro)' : ' (arriba a la derecha)') + '</h3>'
         + '<label>Título<input data-po="' + k + '.titulo" maxlength="60" value="' + esc(x.titulo) + '"></label>'
         + '<div class="two"><label>Texto del botón<input data-po="' + k + '.boton" maxlength="30" value="' + esc(x.boton) + '"></label>'
         + '<label>Al tocarlo muestra<select data-po="' + k + '.categoria"><option value="">Todo el catálogo</option>' + C.categorias.map(c => '<option' + (c.nombre === x.categoria ? ' selected' : '') + '>' + esc(c.nombre) + '</option>').join('') + '</select></label></div>'
-        + '<div class="imgsel"><div class="ph">' + (x.imagen ? '<img src="' + esc(url(x.imagen)) + '" alt="">' : ic('foto')) + '</div><button class="ghost" data-img="' + k + '.imagen">' + ic('foto') + 'Cambiar imagen</button></div>';
+        + '<div class="imgsel"><div class="ph">' + (x.imagen ? '<img src="' + esc(url(x.imagen)) + '" alt="">' : ic('foto')) + '</div><button class="ghost" data-img="' + k + '.imagen">' + ic('foto') + 'Cambiar imagen</button></div>'
+        + lugarHtml(k);
     }
+    $('dLugar').innerHTML = lugarHtml('d');
   }
   pintarFechas(); $('dImg').innerHTML = '<div class="ph">' + (PO.d.imagen ? '<img src="' + esc(url(PO.d.imagen)) + '" alt="">' : ic('foto')) + '</div><button class="ghost" data-img="d.imagen">' + ic('foto') + 'Cambiar imagen</button>';
   pintarPreview();
@@ -553,11 +565,12 @@ function pintarFechas() {
 }
 function pintarPreview() {
   const a = PO.a, b = PO.b, c = PO.c, d = PO.d, prox = proximaFecha(PO.fechas), fd = prox ? (prox.imagen || d.imagen) : d.imagen;
-  const im = s => s ? '<img src="' + esc(url(s)) + '" alt="">' : '';
+  const im = (s, x) => s ? '<img src="' + esc(url(s)) + '" alt=""' + (x && x.foco ? ' style="object-position:center ' + x.foco + '"' : '') + '>' : '';
+  const cl = x => x.pos ? ' v-' + x.pos[0] + ' h-' + x.pos[1] : '';
   $('pmos').innerHTML = '<div class="ta"><i>' + esc(a.acento) + '</i><b>' + esc(a.titulo) + '</b><span class="m3">' + ic('3d') + '</span><span class="pbtn">' + esc(a.boton) + '</span></div>'
-    + '<div class="tb ov">' + im(b.imagen) + '<b>' + esc(b.titulo) + '</b><span class="pbtn">' + esc(b.boton) + '</span></div>'
-    + '<div class="tc">' + im(c.imagen) + '<b>' + esc(c.titulo) + '</b><span class="pbtn">' + esc(c.boton) + '</span></div>'
-    + '<div class="td ov">' + im(fd) + '<i>' + esc(d.acento) + '</i><b>' + (prox ? 'Falta poco para ' + esc(prox.nombre) : esc(d.titulo)) + '</b>' + (prox ? '<div class="cl"><span>' + prox.dias + ' días</span></div>' : '') + '</div>';
+    + '<div class="tb ov' + cl(b) + '">' + im(b.imagen, b) + '<b>' + esc(b.titulo) + '</b><span class="pbtn">' + esc(b.boton) + '</span></div>'
+    + '<div class="tc' + cl(c) + '">' + im(c.imagen, c) + '<b>' + esc(c.titulo) + '</b><span class="pbtn">' + esc(c.boton) + '</span></div>'
+    + '<div class="td ov' + cl(d) + '">' + im(fd, d) + '<i>' + esc(d.acento) + '</i><b>' + (prox ? 'Falta poco para ' + esc(prox.nombre) : esc(d.titulo)) + '</b>' + (prox ? '<div class="cl"><span>' + prox.dias + ' días</span></div>' : '') + '</div>';
 }
 $('app').addEventListener('input', e => { const t = e.target.closest('[data-po]'); if (!t) return;
   let v = t.value; if (/\.(mes|dia)$/.test(t.dataset.po)) v = +v || 0;
@@ -640,6 +653,8 @@ document.addEventListener('click', async e => {
   if (d.lote) return lote(d.lote);
   if (d.rest) return restaurar(d.rest);
   if (d.img) return cambiarImagen(d.img);
+  if (d.pos || d.foco) { const [k, v] = (d.pos || d.foco).split(':'); PO[k][d.pos ? 'pos' : 'foco'] = v; poSucio = true;
+    b.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); return pintarPreview(); }
   if (d.fdel) { PO.fechas.splice(+d.fdel, 1); poSucio = true; pintarFechas(); return pintarPreview(); }
   if (d.ml || d.mr) { const i = +(d.ml ?? d.mr), j = d.ml ? i - 1 : i + 1; [edMed[i], edMed[j]] = [edMed[j], edMed[i]]; return pintarMed(); }
   if (d.mp) { const [m] = edMed.splice(+d.mp, 1); edMed.unshift(m); return pintarMed(); }

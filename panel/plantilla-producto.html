@@ -38,8 +38,10 @@
 <div class="header"><div class="wrap">
   <a class="logo" href="/" aria-label="Nudo de SEN, inicio"><svg class="mk" aria-hidden="true"><use href="#i-logo"/></svg><span>Nudo<i> de </i><span>SEN</span></span></a>
   <nav class="menu" aria-label="Principal"><a href="/#categorias">Categorías</a><a href="/#catalogo">Catálogo</a><a href="/#ocasiones">Ocasiones</a><a href="/#personalizados">Personalizados</a><a href="/#nosotros">Nosotros</a></nav>
-  <a class="cart" href="/#lista" style="text-decoration:none;display:flex;align-items:center"><span>Mi lista</span><i id="count">0</i></a>
+  <a class="cart" href="/#lista" style="text-decoration:none"><span class="ctxt">Mi lista</span><span class="bolsa"><svg class="i" aria-hidden="true"><use href="#i-bolsa"/></svg><i id="count" data-n="0">0</i></span></a>
+  <button class="hamb" id="bMenu" aria-label="Abrir el menú" aria-expanded="false" aria-controls="menuM"><svg class="i" aria-hidden="true"><use href="#i-menu"/></svg></button>
 </div></div>
+<div class="menuM" id="menuM" hidden><nav aria-label="Menú"><a href="/">Inicio<svg class="i"><use href="#i-sig"/></svg></a><a href="/#catalogo">Catálogo<svg class="i"><use href="#i-sig"/></svg></a><a href="/#categorias">Categorías<svg class="i"><use href="#i-sig"/></svg></a><a href="/#personalizados">Pedido personalizado<svg class="i"><use href="#i-sig"/></svg></a><a href="/#nosotros">Nosotros<svg class="i"><use href="#i-sig"/></svg></a><a href="/#preguntas">Preguntas frecuentes<svg class="i"><use href="#i-sig"/></svg></a><div class="redes"><a class="waL" href="%%WA_GENERAL%%" target="_blank" rel="noopener"><svg class="i"><use href="#i-wa"/></svg>WhatsApp</a><a href="https://www.tiktok.com/@nudodesen" target="_blank" rel="noopener"><svg class="i"><use href="#i-tt"/></svg>TikTok</a></div></nav></div>
 
 <main class="pagina-producto">
 <div class="wrap">
@@ -114,7 +116,7 @@ const ev=t=>{try{if(/nudodesen\.com$/.test(location.hostname)&&navigator.sendBea
 ev('vista');
 document.addEventListener('click',e=>{if(e.target.closest('a[href*="wa.me"]'))ev('whatsapp')},true);
 const pintar=()=>{const on=cart[id]>0;$('fAdd').textContent=on?'En tu lista · Ver lista':'Me interesa';$('fAdd').classList.toggle('on',on);
-  $('count').textContent=Object.values(cart).reduce((t,n)=>t+(n>0?n:0),0)};
+  const n=Object.values(cart).reduce((t,n)=>t+(n>0?n:0),0);$('count').textContent=n>99?'99+':n;$('count').dataset.n=n};
 $('fAdd').onclick=()=>{if(cart[id]>0){location.href='/#lista';return}ev('interes');cart[id]=1;try{localStorage.setItem('lista-nudodesen',JSON.stringify(cart))}catch(e){}pintar()};
 pintar();
 }
