@@ -337,6 +337,21 @@ def precio_txt(p):
     return f"Desde S/ {p['precio']:,}".replace(",", " ") if p.get("precio") is not None else "A cotizar"
 
 
+def version(ruta: Path) -> str:
+    """Huella corta del contenido de un archivo, para ponerla en su dirección (archivo.js?v=huella).
+    Si el archivo cambia, cambia la dirección y ni Cloudflare ni el navegador pueden usar una copia vieja."""
+    try: return hashlib.sha1(ruta.read_bytes()).hexdigest()[:10]
+    except OSError: return "0"
+
+
+def con_versiones(html: str, raiz: Path, rutas) -> str:
+    for r in rutas:   # r = "assets/zoom.js" -> "/assets/zoom.js?v=..." (con o sin barra inicial)
+        v = version(raiz / r)
+        patron = r"""(["'])(/?""" + re.escape(r) + r""")(\?v=[0-9a-f]+)?(["'])"""
+        html = re.sub(patron, lambda m, v=v: m.group(1) + m.group(2) + "?v=" + v + m.group(4), html)
+    return html
+
+
 def generar_paginas(raiz: Path, cat: dict):
     """Crea /productos/<id>/index.html para cada producto visible y /sitemap.xml.
     Reutiliza los estilos y los iconos de index.html para que todo combine."""
@@ -419,6 +434,7 @@ def generar_paginas(raiz: Path, cat: dict):
             "ESTILOS": estilos, "ICONOS": iconos,
         }
         html = re.sub(r"%%([A-Z_]+)%%", lambda m: valores[m.group(1)], plantilla)
+        html = con_versiones(html, raiz, ("assets/zoom.js", "assets/giro360.js"))
         carpeta = base / p["id"]
         carpeta.mkdir(exist_ok=True)
         tmp = carpeta / "index.html.tmp"
@@ -573,7 +589,8 @@ class Panel(BaseHTTPRequestHandler):
         if p == "":
             return self.enviar(301, b"", "text/plain", {"Location": PREFIJO + "/"})
         if p in ("/", "/index.html"):
-            html = (APP / "index.html").read_bytes()
+            html = con_versiones((APP / "index.html").read_text("utf-8"), self.server.raiz, ("assets/giro360.js",))
+            html = re.sub(r'(/admin/panel\.js)(\?v=[0-9a-f]+)?"', lambda m: m.group(1) + "?v=" + version(APP / "panel.js") + '"', html).encode()
             csp = ("default-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; "
                    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; "
                    # Cloudflare inyecta su script de estadísticas (Web Analytics): se permite solo ese origen
