@@ -85,3 +85,14 @@ window.zoomVer = function (lista, i) {
    y sin la pulsación larga del celular para guardarlas (esto último, con CSS). */
 document.addEventListener('contextmenu', e => { if (e.target.closest('img,picture,.g360,.fstage,.zoom,.pic,.ban,.cat,.fthumbs')) e.preventDefault(); });
 document.addEventListener('dragstart', e => { if (e.target.closest('img')) e.preventDefault(); });
+
+/* Liquid Glass: el brillo de los botones y superficies de vidrio sigue al dedo o al ratón (variables --mx y --my). */
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  document.addEventListener('pointermove', e => {
+    const el = e.target.closest && e.target.closest('button,.btn,.header .wrap,.chips,.clock div');
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+    el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  }, { passive: true });
+}

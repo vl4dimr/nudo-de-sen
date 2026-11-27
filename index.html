@@ -339,6 +339,65 @@ footer .chipsf a{border-radius:999px}
 .ficha{border-radius:var(--rad-s)}
 .ampliar{-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);background:var(--glass)}
 @media(max-width:800px){.fgal{border-radius:0}.fstage{border-radius:0}}
+/* ===== Liquid Glass (iOS 26), 27/11/2026: el vidrio es para los controles (cabecera, botones, filtros,
+   etiquetas sobre fotos, hojas); el contenido (fotos, tarjetas, textos) queda sólido y legible.
+   Vidrio = fondo translúcido + desenfoque y saturación de lo de atrás + borde iluminado + brillo especular
+   que sigue al dedo o al ratón (variables --mx/--my, las pone assets/zoom.js). ===== */
+:root{--lg-bg:linear-gradient(135deg,rgba(255,255,255,.62),rgba(255,255,255,.28));--lg-bg-fuerte:linear-gradient(135deg,rgba(255,255,255,.86),rgba(255,255,255,.66));
+ --lg-brd:rgba(255,255,255,.7);--lg-blur:blur(22px) saturate(190%);
+ --lg-sh:inset 0 1px 1px rgba(255,255,255,.95),inset 0 -1px 1px rgba(255,255,255,.3),0 12px 32px -12px rgba(40,20,25,.28);
+ --lg-claro:linear-gradient(135deg,rgba(255,255,255,.26),rgba(255,255,255,.08));--lg-brillo:rgba(255,255,255,.55)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--lg-bg:linear-gradient(135deg,rgba(70,52,56,.55),rgba(30,22,24,.35));--lg-bg-fuerte:linear-gradient(135deg,rgba(52,40,43,.9),rgba(30,22,24,.82));--lg-brd:rgba(255,255,255,.16);
+ --lg-sh:inset 0 1px 1px rgba(255,255,255,.22),inset 0 -1px 1px rgba(255,255,255,.06),0 12px 32px -12px rgba(0,0,0,.6);--lg-brillo:rgba(255,255,255,.22)}}
+:root[data-theme=dark]{--lg-bg:linear-gradient(135deg,rgba(70,52,56,.55),rgba(30,22,24,.35));--lg-bg-fuerte:linear-gradient(135deg,rgba(52,40,43,.9),rgba(30,22,24,.82));--lg-brd:rgba(255,255,255,.16);
+ --lg-sh:inset 0 1px 1px rgba(255,255,255,.22),inset 0 -1px 1px rgba(255,255,255,.06),0 12px 32px -12px rgba(0,0,0,.6);--lg-brillo:rgba(255,255,255,.22)}
+/* fondo con manchas suaves de los colores de la marca, para que el vidrio tenga qué refractar */
+body{background:radial-gradient(55vw 40vw at 92% 6%,color-mix(in srgb,var(--wine) 14%,transparent),transparent 62%),radial-gradient(50vw 38vw at -6% 58%,color-mix(in srgb,var(--sage) 13%,transparent),transparent 62%),radial-gradient(40vw 30vw at 60% 100%,color-mix(in srgb,var(--wine) 9%,transparent),transparent 60%),var(--bg);background-attachment:fixed}
+main>section:not(.custom){background:transparent}
+/* cabecera flotante: cápsula de vidrio separada de los bordes */
+.header{background:transparent;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;top:10px;padding:10px clamp(10px,2vw,24px) 0;margin-bottom:-6px}
+.header .wrap{position:relative;isolation:isolate;background:var(--lg-bg);-webkit-backdrop-filter:var(--lg-blur);backdrop-filter:var(--lg-blur);border:1px solid var(--lg-brd);border-radius:26px;box-shadow:var(--lg-sh);min-height:72px}
+@media(max-width:900px){.header .wrap{min-height:60px;border-radius:22px}}
+html{scroll-padding-top:104px}
+/* la portada empieza detrás de la cápsula, para que el vidrio quede sobre el fondo de la portada y no sobre una franja blanca */
+/* -84px = 10 de margen + 72 de cápsula + 2 de borde (celular: 10 + 60 + 2) */
+.header{margin-bottom:-84px}.hero{padding-top:114px}
+@media(max-width:900px){.header{margin-bottom:-72px}.hero{padding-top:94px}}
+.pagina-producto{padding-top:104px}@media(max-width:900px){.pagina-producto{padding-top:90px}}
+.ban.c .ghost{border-color:color-mix(in srgb,var(--wine) 38%,transparent);background:var(--lg-bg-fuerte)}
+/* brillo especular (detrás del texto, encima del fondo del elemento) */
+button,.btn,.chips,.clock div,.badges span{position:relative;isolation:isolate}
+button::before,.btn::before,.header .wrap::before,.chips::before,.clock div::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;
+ background:radial-gradient(170px circle at var(--mx,28%) var(--my,-30%),var(--lg-brillo),transparent 65%);opacity:.7;transition:opacity .3s}
+button:hover::before,.btn:hover::before{opacity:1}
+.cat::before,.card .pic button::before{display:none}
+/* botones: vino y verde de vidrio teñido; contorno = vidrio; sobre fotos = vidrio transparente */
+button,.btn{background-image:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,0) 55%);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(0,0,0,.12),0 8px 20px -10px color-mix(in srgb,var(--wine) 80%,transparent)}
+.ghost{background:var(--lg-bg);-webkit-backdrop-filter:var(--lg-blur);backdrop-filter:var(--lg-blur);border-color:var(--lg-brd);box-shadow:var(--lg-sh);color:var(--wine)}
+.ghost:hover{background:var(--lg-bg-fuerte);color:var(--wine)}
+.white,.ban .btn.white{background:var(--lg-claro);-webkit-backdrop-filter:blur(14px) saturate(170%);backdrop-filter:blur(14px) saturate(170%);border:1px solid rgba(255,255,255,.55);color:#fff;box-shadow:inset 0 1px 1px rgba(255,255,255,.5),0 10px 24px -12px rgba(0,0,0,.45)}
+.white:hover{background:rgba(255,255,255,.32);color:#fff}
+.wa{background-color:var(--wa);border-color:var(--wa);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.15),0 10px 24px -10px rgba(15,90,50,.7)}
+.fab{border:1px solid rgba(255,255,255,.45)}
+.cart{background:transparent;box-shadow:none}.cart::before{display:none}
+.card .pic button{box-shadow:none;background-image:none}
+.chips button{background-image:none;box-shadow:none}.chips button::before{display:none}
+/* filtros: tira de vidrio con la opción elegida como gota de vidrio blanco */
+.chips{background:var(--lg-bg);-webkit-backdrop-filter:var(--lg-blur);backdrop-filter:var(--lg-blur);border:1px solid var(--lg-brd);box-shadow:var(--lg-sh)}
+.chips button[aria-pressed=true]{background:var(--lg-bg-fuerte);box-shadow:inset 0 1px 1px rgba(255,255,255,.95),0 4px 14px -4px rgba(40,20,25,.3),0 0 0 .5px rgba(0,0,0,.04)}
+/* sobre las fotos: cuenta regresiva, etiquetas y botones de ampliar en vidrio transparente */
+.clock div{background:var(--lg-claro);border:1px solid rgba(255,255,255,.4);box-shadow:inset 0 1px 1px rgba(255,255,255,.45),0 12px 28px -14px rgba(0,0,0,.5)}
+.badges span{background:linear-gradient(135deg,rgba(40,24,28,.5),rgba(40,24,28,.3));border:1px solid rgba(255,255,255,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+.ban.a small,.hint3d,.ampliar{background:var(--lg-bg-fuerte);border:1px solid var(--lg-brd);box-shadow:var(--lg-sh)}
+.ttl span{background:var(--lg-bg);-webkit-backdrop-filter:var(--lg-blur);backdrop-filter:var(--lg-blur);border-color:var(--lg-brd);box-shadow:var(--lg-sh)}
+/* hojas y avisos de vidrio */
+.drawer{background:var(--lg-bg-fuerte);-webkit-backdrop-filter:var(--lg-blur);backdrop-filter:var(--lg-blur);border-left:1px solid var(--lg-brd)}
+.drawer form{background:transparent}
+.toast{background:linear-gradient(135deg,rgba(40,30,32,.78),rgba(28,20,22,.7));border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 16px 40px -12px rgba(0,0,0,.5)}
+.zoom .zb button{background:var(--lg-claro);border:1px solid rgba(255,255,255,.4);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:inset 0 1px 1px rgba(255,255,255,.4)}
+/* las tarjetas siguen sólidas, con un borde iluminado sutil */
+.card,.form,.ban.c,#preguntas{border:1px solid rgba(255,255,255,.75);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),var(--ios-sh)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.header .wrap,.chips,.drawer,.ghost{background:var(--card)}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}.js .rv{opacity:1;transform:none}}
 </style>
 </head>
