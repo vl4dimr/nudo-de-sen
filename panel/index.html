@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Panel · Nudo de SEN</title>
-<meta name="theme-color" content="#8e2a3c">
+<meta name="theme-color" content="#2b1519">
 <link rel="manifest" href="/admin/manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link rel="apple-touch-icon" href="/assets/panel-icono-192.png">
@@ -25,214 +25,313 @@
 <script src="/assets/vendor/cropper.min.js"></script>
 <script src="/assets/giro360.js"></script>
 <style>
+/* Diseño del panel: barra lateral oscura (computadora) o barra inferior tipo app (celular),
+   tarjetas blancas redondeadas, letra Outfit grande y legible, rojo vino de la marca como acento. */
 :root{color-scheme:light;--sans:Outfit,"Segoe UI",system-ui,sans-serif;--serif:"Instrument Serif",Georgia,serif;
---bg:#f4f1ef;--card:#fff;--ink:#444;--head:#2b2b2b;--soft:#6b6b6b;--wine:#8e2a3c;--on-wine:#fff;--line:#e4dedb;--sage:#55733f;--ok:#4a6a36;--bad:#b3261e;--warn:#8a5a00;
---bar:#8e2a3c;--grid:#ece7e4;
---sh:0 1px 3px rgba(0,0,0,.14),0 1px 2px rgba(0,0,0,.1);--sh2:0 12px 28px -8px rgba(0,0,0,.3)}
-@media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#161113;--card:#241b1e;--ink:#eee4e1;--head:#fff5f1;--soft:#b9a8a5;--wine:#e99aa7;--on-wine:#2a1216;--line:#43363a;--sage:#a9c497;--ok:#a9c497;--bad:#ff8a80;--warn:#f2c46b;--bar:#e0798d;--grid:#33282b}}
+--bg:#f5f2f0;--card:#fff;--ink:#3d3a39;--head:#1f1b1c;--soft:#6e6866;--line:#ebe4e1;--hover:#faf7f6;
+--wine:#8e2a3c;--wine-2:#a8384c;--on-wine:#fff;--tint:#f8eaec;--sage:#55733f;--ok:#2f7a4a;--ok-bg:#e6f3ea;--bad:#b3261e;--warn:#9a6400;
+--side:#2b1519;--side-2:#3a1d23;--side-ink:#f6eaec;--side-soft:#c4a3aa;--bar:#8e2a3c;--grid:#efe9e6;
+--r:12px;--sh:0 1px 2px rgba(31,27,28,.06),0 6px 20px -8px rgba(31,27,28,.12);--sh2:0 18px 40px -12px rgba(31,27,28,.35)}
+@media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#141011;--card:#1f191b;--ink:#ece3e1;--head:#fff7f4;--soft:#b3a5a2;--line:#352b2e;--hover:#272022;
+--wine:#e99aa7;--wine-2:#f0b0bb;--on-wine:#2a1216;--tint:#3a2228;--sage:#a9c497;--ok:#8fd3a5;--ok-bg:#1d3326;--bad:#ff8a80;--warn:#f2c46b;
+--side:#0e0b0c;--side-2:#1c1416;--bar:#e0798d;--grid:#2c2427}}
 *{box-sizing:border-box;min-width:0}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--sans);-webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom)}
-h1,h2,h3{margin:0;color:var(--head);font-weight:600;letter-spacing:-.02em;line-height:1.15}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16.5px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;color:var(--head);font-weight:600;letter-spacing:-.022em;line-height:1.15}
 p{margin:0}img{display:block;max-width:100%}
+a{color:inherit}
 svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-button,.btn{font:600 15px/1.2 var(--sans);min-height:44px;padding:9px 18px;border-radius:3px;border:2px solid var(--wine);background:var(--wine);color:var(--on-wine);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;transition:box-shadow .2s,background .2s,color .2s}
-button:hover,.btn:hover{box-shadow:var(--sh2)}
+button,.btn{font:600 15.5px/1.2 var(--sans);min-height:46px;padding:10px 20px;border-radius:10px;border:1.5px solid var(--wine);background:var(--wine);color:var(--on-wine);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;transition:box-shadow .2s,background .2s,color .2s,border-color .2s,transform .1s}
+button:hover,.btn:hover{box-shadow:0 8px 20px -8px color-mix(in srgb,var(--wine) 70%,transparent)}
+button:active{transform:translateY(1px)}
 button:disabled{opacity:.5;cursor:default;box-shadow:none}
-.ghost{background:transparent;color:var(--wine)}
-.danger-btn{background:transparent;color:var(--bad);border-color:var(--bad)}
-.plain{background:transparent;border-color:transparent;color:var(--ink);padding:8px}
-.ico{width:40px;min-height:40px;padding:0;background:transparent;border:1px solid var(--line);color:var(--head)}
+.ghost{background:var(--card);color:var(--wine);border-color:color-mix(in srgb,var(--wine) 45%,var(--line))}
+.ghost:hover{background:var(--tint)}
+.danger-btn{background:var(--card);color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+.plain{background:transparent;border-color:transparent;color:var(--ink);padding:8px 12px}
+.plain:hover{background:var(--hover);box-shadow:none}
+.ico{width:40px;min-height:40px;padding:0;background:transparent;border:1px solid transparent;color:var(--soft);border-radius:8px}
+.ico:hover{background:var(--hover);color:var(--wine);border-color:var(--line);box-shadow:none}
 .ico.danger{color:var(--bad)}
-:focus-visible{outline:3px solid var(--sage);outline-offset:2px}
-label{display:grid;gap:5px;font-weight:500;font-size:14.5px;color:var(--head)}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--wine) 45%,transparent);outline-offset:2px}
+label{display:grid;gap:6px;font-weight:500;font-size:15px;color:var(--head)}
 label small{font-weight:400;color:var(--soft)}
-input,textarea,select{font:400 16px var(--sans);padding:10px 12px;border-radius:3px;border:1px solid var(--line);background:var(--card);color:var(--ink);width:100%;min-height:46px}
-input:focus,textarea:focus,select:focus{border-color:var(--wine);outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--wine) 20%,transparent)}
-input[type=checkbox]{width:20px;height:20px;min-height:0;accent-color:var(--wine);margin:0}
-kbd{font:600 12px var(--sans);background:var(--bg);border:1px solid var(--line);border-bottom-width:2px;border-radius:3px;padding:1px 6px}
-.wrap{max-width:960px;margin:0 auto;padding:0 16px}
+input,textarea,select{font:400 16px var(--sans);padding:11px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);width:100%;min-height:48px;transition:border-color .15s,box-shadow .15s}
+input:hover,textarea:hover,select:hover{border-color:color-mix(in srgb,var(--wine) 25%,var(--line))}
+input:focus,textarea:focus,select:focus{border-color:var(--wine);outline:0;box-shadow:0 0 0 4px color-mix(in srgb,var(--wine) 16%,transparent)}
+input[type=checkbox]{width:20px;height:20px;min-height:0;accent-color:var(--wine);margin:0;cursor:pointer}
+kbd{font:600 12.5px var(--sans);background:var(--bg);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:2px 7px}
 .mk{width:30px;height:36px;color:var(--wine);flex:none}
-.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:20px;letter-spacing:-.025em;color:var(--head)}
-.brand i{font:italic 400 1.06em var(--serif);color:var(--wine)}
-.brand small{font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);border-left:1px solid var(--line);padding-left:10px;margin-left:2px}
-/* acceso */
-#login{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
-#login form{background:var(--card);box-shadow:var(--sh);padding:30px 24px;width:min(380px,100%);display:grid;gap:16px;text-align:center}
-#login .mk{width:54px;height:64px;margin:0 auto}
-#login h1{font-size:26px}
-#login p{color:var(--soft);font-size:15px}
-.err{color:var(--bad);font-size:14.5px;min-height:1.2em}
-/* cabecera y pestañas */
-header.top{background:var(--card);box-shadow:0 1px 0 var(--line);position:sticky;top:0;z-index:5}
-header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:62px}
-header.top .acts{display:flex;gap:2px;align-items:center}
-header.top .tabs{display:flex;justify-content:flex-start;gap:2px;border-top:1px solid var(--line);overflow-x:auto;min-height:0;scrollbar-width:none}
-.tabs button{flex:none;background:transparent;border:0;border-bottom:3px solid transparent;border-radius:0;color:var(--soft);font-weight:500;min-height:48px;padding:6px 12px;white-space:nowrap}
-.tabs button[aria-selected=true]{color:var(--wine);border-bottom-color:var(--wine);font-weight:600}
-.tabs button:hover{box-shadow:none;color:var(--wine)}
-.offline{background:var(--warn);color:#fff;text-align:center;font-size:14px;font-weight:600;padding:6px 12px}
-main{padding:20px 0 130px}
-.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
-.bar h2{font-size:22px}
-.hint{color:var(--soft);font-size:14.5px;margin:-6px 0 16px}
-/* tablero */
-.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
-.kpi{background:var(--card);box-shadow:var(--sh);padding:14px 16px;display:grid;gap:2px}
-.kpi span{font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);display:flex;gap:6px;align-items:center}
-.kpi span svg.i{width:16px;height:16px;color:var(--wine)}
-.kpi b{font-size:30px;font-weight:600;letter-spacing:-.03em;color:var(--head);font-variant-numeric:tabular-nums;line-height:1.1}
-.kpi small{font-size:13px;color:var(--soft)}
-.rango{display:flex;gap:4px;background:var(--card);box-shadow:var(--sh);padding:3px;border-radius:3px}
-.rango button{min-height:34px;padding:4px 12px;font-size:14px;background:transparent;border:0;color:var(--soft)}
+[hidden]{display:none!important}
+
+/* ===== acceso ===== */
+#login{min-height:100dvh;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
+.lmarca{background:radial-gradient(120% 80% at 10% 0%,#5a2330 0%,var(--side) 55%,#1b0d10 100%);color:var(--side-ink);display:flex;flex-direction:column;justify-content:space-between;padding:48px clamp(28px,5vw,72px)}
+.lmarca .mk{width:64px;height:76px;color:#f3a9b6}
+.lmarca h2{color:#fff;font-size:clamp(30px,3.6vw,46px);letter-spacing:-.03em;margin-top:28px}
+.lmarca h2 i{font:italic 400 1.05em var(--serif);color:#f3a9b6;letter-spacing:0}
+.lmarca p{color:var(--side-soft);font-size:18px;max-width:28em;margin-top:14px}
+.lmarca q{font:italic 400 24px/1.3 var(--serif);color:#f3c7cf}
+.lform{display:grid;place-items:center;padding:32px 20px}
+#login form{width:min(400px,100%);display:grid;gap:18px}
+#login form h1{font-size:30px}
+#login form p{color:var(--soft)}
+.err{color:var(--bad);font-size:15px;min-height:1.3em}
+@media(max-width:860px){#login{grid-template-columns:1fr}.lmarca{padding:28px 22px;gap:18px}.lmarca h2{font-size:28px;margin-top:14px}.lmarca p,.lmarca q{display:none}.lmarca .mk{width:48px;height:58px}}
+
+/* ===== estructura: barra lateral + contenido ===== */
+.shell{display:grid;grid-template-columns:264px minmax(0,1fr);min-height:100dvh}
+.lado{position:sticky;top:0;height:100dvh;background:linear-gradient(180deg,var(--side) 0%,var(--side-2) 100%);color:var(--side-ink);display:flex;flex-direction:column;padding:22px 14px}
+.marca{display:flex;align-items:center;gap:12px;padding:4px 10px 22px;font-weight:600;font-size:21px;letter-spacing:-.025em;color:#fff}
+.marca .mk{color:#f3a9b6;width:34px;height:40px}
+.marca i{font:italic 400 1.06em var(--serif);color:#f3a9b6}
+.marca small{display:block;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--side-soft);margin-top:2px}
+.nav{display:grid;gap:4px}
+.nav button{justify-content:flex-start;gap:12px;background:transparent;border:0;color:var(--side-soft);font-weight:500;font-size:16px;min-height:48px;padding:10px 14px;border-radius:10px;position:relative}
+.nav button svg.i{width:22px;height:22px}
+.nav button:hover{background:rgba(255,255,255,.06);color:#fff;box-shadow:none}
+.nav button[aria-selected=true]{background:rgba(243,169,182,.14);color:#fff;font-weight:600}
+.nav button[aria-selected=true]::before{content:"";position:absolute;left:-14px;top:10px;bottom:10px;width:4px;border-radius:0 4px 4px 0;background:#f3a9b6}
+.nav .cnt{margin-left:auto;background:rgba(255,255,255,.12);color:#fff;font-size:12.5px;font-weight:600;border-radius:99px;padding:1px 9px}
+.lado .pie{margin-top:auto;display:grid;gap:4px;border-top:1px solid rgba(255,255,255,.1);padding-top:14px}
+.lado .pie a,.lado .pie button{justify-content:flex-start;gap:12px;background:transparent;border:0;color:var(--side-soft);font-weight:500;min-height:44px;padding:8px 14px;border-radius:10px;text-decoration:none;display:flex;align-items:center;font-size:15px}
+.lado .pie a:hover,.lado .pie button:hover{background:rgba(255,255,255,.06);color:#fff;box-shadow:none}
+.contenido{min-width:0;display:flex;flex-direction:column}
+.movil,.abajo{display:none}
+.offline{background:var(--warn);color:#fff;text-align:center;font-size:14.5px;font-weight:600;padding:8px 12px}
+main{padding:30px clamp(18px,3.2vw,44px) 120px;max-width:1320px;width:100%}
+.cab{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.cab h1{font-size:clamp(26px,2.6vw,34px)}
+.cab p{color:var(--soft);margin-top:4px;font-size:16px}
+.cab .acc{display:flex;gap:10px;flex-wrap:wrap}
+
+/* ===== tarjetas ===== */
+.box{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:22px;display:grid;gap:16px;margin-bottom:20px;align-content:start}
+.box>h3{font-size:18px;display:flex;gap:10px;align-items:center}
+.box>h3 .ib{width:36px;height:36px;border-radius:10px;background:var(--tint);color:var(--wine);display:grid;place-items:center;flex:none}
+.box>h3 .ib svg.i{width:19px;height:19px}
+.box .sub{color:var(--soft);font-size:15px;margin-top:-8px}
+.duo{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:20px;align-items:start}
+.duo>*{min-width:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.hint{color:var(--soft);font-size:15px}
+
+/* ===== tablero ===== */
+.rango{display:inline-flex;gap:2px;background:var(--card);border:1px solid var(--line);padding:4px;border-radius:12px;box-shadow:var(--sh)}
+.rango button{min-height:38px;padding:6px 16px;font-size:15px;background:transparent;border:0;color:var(--soft);border-radius:8px}
+.rango button:hover{box-shadow:none;color:var(--wine)}
 .rango button[aria-pressed=true]{background:var(--wine);color:var(--on-wine)}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:20px;display:grid;gap:4px;position:relative;overflow:hidden}
+.kpi .ib{width:44px;height:44px;border-radius:12px;background:var(--tint);color:var(--wine);display:grid;place-items:center;margin-bottom:10px}
+.kpi .ib svg.i{width:22px;height:22px}
+.kpi span{font-size:15px;font-weight:500;color:var(--soft)}
+.kpi b{font-size:36px;font-weight:600;letter-spacing:-.035em;color:var(--head);font-variant-numeric:tabular-nums;line-height:1.05}
+.kpi small{font-size:13.5px;color:var(--soft);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.delta{font-weight:600;border-radius:99px;padding:1px 8px;font-size:12.5px}
+.delta.sube{background:var(--ok-bg);color:var(--ok)}.delta.baja{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad)}.delta.igual{background:var(--bg);color:var(--soft)}
 .grafico{position:relative}
-.grafico svg{display:block;width:100%;height:200px;overflow:visible}
-.grafico .eje{font:12px var(--sans);fill:var(--soft)}
-.grafico .tt{position:absolute;pointer-events:none;background:var(--head);color:var(--card);font-size:13px;line-height:1.45;padding:7px 10px;border-radius:3px;box-shadow:var(--sh2);white-space:nowrap;transform:translate(-50%,-100%);opacity:0;transition:opacity .12s}
+.grafico svg{display:block;width:100%;height:260px;overflow:visible}
+.grafico .eje{font:13px var(--sans);fill:var(--soft)}
+.grafico .tt{position:absolute;pointer-events:none;background:var(--head);color:var(--card);font-size:14px;line-height:1.45;padding:8px 12px;border-radius:8px;box-shadow:var(--sh2);white-space:nowrap;transform:translate(-50%,-100%);opacity:0;transition:opacity .12s}
 .grafico .tt.on{opacity:1}
-.grafico .tt b{display:block;font-size:12px;opacity:.75;font-weight:500}
-.duo{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px}
-table{width:100%;border-collapse:collapse;font-size:14.5px}
-th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
-th{font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
+.grafico .tt b{display:block;font-size:12.5px;opacity:.75;font-weight:500}
+table{width:100%;border-collapse:collapse;font-size:15.5px}
+th,td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+th{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
-.pend{display:grid;gap:6px}
-.pend button{justify-content:space-between;background:var(--bg);border:1px solid var(--line);color:var(--head);font-weight:500;min-height:42px;padding:6px 12px}
-.pend button b{background:var(--wine);color:var(--on-wine);border-radius:99px;padding:1px 9px;font-size:13px}
-.pend .ok{color:var(--ok);font-size:14.5px;display:flex;gap:6px;align-items:center}
-.act{list-style:none;margin:0;padding:0;display:grid;gap:0}
-.act li{padding:10px 0;border-bottom:1px solid var(--line);display:grid;gap:3px}
-.act li:last-child{border-bottom:0}
-.act time{font-size:12.5px;color:var(--soft)}
-.act ul{margin:2px 0 0;padding-left:18px;font-size:14.5px}
-.act ul li{display:list-item;padding:1px 0;border:0}
-/* herramientas de la lista */
-.tools{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:12px}
-.buscar{position:relative}
-.buscar svg.i{position:absolute;left:12px;top:13px;color:var(--soft)}
-.buscar input{padding-left:40px}
-.selbar{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--soft);margin-bottom:8px;min-height:30px}
-.selbar label{display:flex;flex-direction:row;align-items:center;gap:8px;font-weight:500;cursor:pointer}
-/* lista de productos */
-.list{display:grid;gap:10px}
-.row{background:var(--card);box-shadow:var(--sh);display:grid;grid-template-columns:auto auto 64px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px}
-.row.off{opacity:.62}
-.row.sel{box-shadow:0 0 0 2px var(--wine)}
-.row.fantasma{opacity:.35}
-.grip{cursor:grab;color:var(--soft);display:grid;place-items:center;width:22px;touch-action:none}
+td a{color:var(--head);text-decoration:none;font-weight:500;display:flex;align-items:center;gap:10px}
+td a img{width:38px;height:42px;object-fit:cover;border-radius:6px;background:var(--bg);flex:none}
+td a:hover{color:var(--wine)}
+.pend{display:grid;gap:8px}
+.pend button{justify-content:space-between;background:var(--card);border:1px solid var(--line);color:var(--head);font-weight:500;min-height:48px;padding:8px 14px}
+.pend button:hover{background:var(--hover);border-color:color-mix(in srgb,var(--wine) 35%,var(--line));box-shadow:none}
+.pend button b{background:var(--tint);color:var(--wine);border-radius:99px;padding:2px 10px;font-size:13.5px}
+.pend .ok{color:var(--ok);display:flex;gap:8px;align-items:center;font-weight:500}
+.act{list-style:none;margin:0;padding:0}
+.act>li{padding:12px 0 12px 22px;border-bottom:1px solid var(--line);position:relative}
+.act>li::before{content:"";position:absolute;left:4px;top:19px;width:9px;height:9px;border-radius:50%;background:var(--wine)}
+.act>li:last-child{border-bottom:0}
+.act time{font-size:13px;color:var(--soft);display:block}
+.act strong{font-weight:600;color:var(--head)}
+.act ul{margin:2px 0 0;padding-left:18px;font-size:15px}
+.act ul li{padding:1px 0}
+
+/* ===== productos ===== */
+.tools{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);gap:12px;margin-bottom:14px}
+.buscar{position:relative;display:block}
+.buscar svg.i{position:absolute;left:14px;top:14px;color:var(--soft)}
+.buscar input{padding-left:44px}
+.selbar{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--soft);margin-bottom:10px;min-height:30px;flex-wrap:wrap}
+.selbar label{display:flex;flex-direction:row;align-items:center;gap:10px;font-weight:500;cursor:pointer}
+.tabla{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.thead,.row{display:grid;grid-template-columns:28px 22px 60px minmax(0,2.4fr) minmax(90px,.8fr) minmax(110px,1fr) 104px 132px;gap:12px;align-items:center;padding:12px 16px}
+.thead{background:var(--hover);border-bottom:1px solid var(--line);font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);padding-top:10px;padding-bottom:10px}
+.row{border-bottom:1px solid var(--line);transition:background .15s}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--hover)}
+.row.sel{background:var(--tint)}
+.row.fantasma{opacity:.4}
+.grip{cursor:grab;color:var(--soft);display:grid;place-items:center;touch-action:none}
 .grip:active{cursor:grabbing}
 .sin-orden .grip{visibility:hidden}
-.th{width:64px;height:72px;min-height:0;padding:0;border:0;border-radius:2px;background:var(--bg);display:grid;place-items:center;color:var(--soft);overflow:hidden}
-.th svg.i{width:28px;height:28px}
+.th{width:60px;height:66px;min-height:0;padding:0;border:0;border-radius:8px;background:var(--bg);display:grid;place-items:center;color:var(--soft);overflow:hidden;box-shadow:none}
+.th svg.i{width:26px;height:26px}
 .th img{width:100%;height:100%;object-fit:cover}
-.row strong{display:block;color:var(--head);font-weight:500;line-height:1.3}
-.meta{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:13.5px;color:var(--soft);margin-top:3px;align-items:center}
+.info strong{display:block;color:var(--head);font-weight:600;font-size:16.5px;line-height:1.3}
+.info .cat{font-size:14px;color:var(--soft)}
+.precio{font-weight:600;color:var(--head);font-variant-numeric:tabular-nums}
+.precio.cot{color:var(--soft);font-weight:500}
+.meta{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:14px;color:var(--soft);align-items:center}
 .meta span{display:inline-flex;align-items:center;gap:4px}
-.meta svg.i{width:15px;height:15px}
-.price{color:var(--head);font-weight:600}
-.tag{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;background:var(--bg);padding:2px 7px;border-radius:2px}
-.rbtn{display:flex;gap:4px;align-items:center}
-.empty{color:var(--soft);text-align:center;padding:40px 10px;background:var(--card);box-shadow:var(--sh)}
-/* barra de acciones en lote */
-.lote{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));translate:-50% 0;z-index:8;background:var(--head);color:var(--card);border-radius:4px;box-shadow:var(--sh2);display:flex;align-items:center;gap:6px;padding:8px 8px 8px 16px;max-width:calc(100% - 24px);overflow-x:auto}
-.lote b{white-space:nowrap;font-weight:600;margin-right:6px}
-.lote button{min-height:38px;padding:6px 12px;font-size:14px;background:transparent;border:1px solid rgba(255,255,255,.35);color:inherit;white-space:nowrap}
-.lote button.del{border-color:#ff8a80;color:#ff8a80}
-@media(prefers-color-scheme:dark){.lote button{border-color:rgba(0,0,0,.25)}.lote button.del{border-color:#b3261e;color:#b3261e}}
-/* tarjetas de formularios */
-.box{background:var(--card);box-shadow:var(--sh);padding:18px;display:grid;gap:14px;margin-bottom:16px;align-content:start}
-.duo>.box{align-self:start}
-td a{color:var(--head);text-decoration:none;font-weight:500}td a:hover{color:var(--wine);text-decoration:underline}
-.box h3{font-size:18px;display:flex;gap:8px;align-items:center}
-.box h3 svg.i{color:var(--wine)}
-.box .sub{color:var(--soft);font-size:14px;margin-top:-8px}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.catrow{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1.6fr) auto;gap:8px;align-items:end;padding-bottom:12px;border-bottom:1px solid var(--line)}
-.catrow:last-child{border-bottom:0}
-.catrow .grip{align-self:center;padding-top:20px}
-.vers{display:grid;gap:8px}
-.ver{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.meta svg.i{width:16px;height:16px}
+.pill{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;border-radius:99px;padding:4px 11px;justify-self:start;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.on{background:var(--ok-bg);color:var(--ok)}.pill.off{background:var(--bg);color:var(--soft)}
+.rbtn{display:flex;gap:2px;align-items:center;justify-content:flex-end}
+.empty{color:var(--soft);text-align:center;padding:56px 16px}
+.lote{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));translate:-50% 0;z-index:30;background:#1f1b1c;color:#fff;border-radius:14px;box-shadow:var(--sh2);display:flex;align-items:center;gap:6px;padding:8px 8px 8px 18px;max-width:calc(100% - 24px);overflow-x:auto}
+.lote b{white-space:nowrap;font-weight:600;margin-right:8px}
+.lote button{min-height:40px;padding:6px 14px;font-size:14.5px;background:transparent;border:1px solid rgba(255,255,255,.22);color:#fff;white-space:nowrap;border-radius:9px}
+.lote button:hover{background:rgba(255,255,255,.1);box-shadow:none}
+.lote button.del{border-color:#ff8a80;color:#ffb0a8}
+
+/* ===== categorías, historial, ajustes ===== */
+.catrow{display:grid;grid-template-columns:24px minmax(0,1fr) minmax(0,1.6fr) auto;gap:12px;align-items:end;padding:14px 0;border-bottom:1px solid var(--line)}
+.catrow:first-child{padding-top:0}.catrow:last-child{border-bottom:0;padding-bottom:0}
+.catrow .grip{align-self:center;padding-top:24px}
+.catrow.fantasma{opacity:.4}
+.vers{display:grid}
+.ver{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
 .ver:last-child{border-bottom:0}
-.ver small{display:block;color:var(--soft);font-size:13px}
-.ver button{min-height:38px;padding:6px 14px;font-size:14px}
-.atajos{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:14.5px;align-items:center}
-/* editor */
-dialog{border:0;padding:0;width:min(780px,100%);max-height:100dvh;background:var(--bg);color:var(--ink);box-shadow:var(--sh2)}
-dialog::backdrop{background:rgba(20,10,14,.6)}
-@media(max-width:700px){dialog{width:100%;height:100dvh;max-width:none;margin:0}}
-.dhead{position:sticky;top:0;z-index:3;background:var(--card);display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--line)}
-.dhead h2{font-size:19px}
-.dbody{padding:16px;display:grid;gap:14px}
-.dfoot{position:sticky;bottom:0;z-index:3;background:var(--card);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom));display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap}
-.dfoot .l,.dfoot .r{display:flex;gap:8px;flex-wrap:wrap}
-.dfoot .r{margin-left:auto}
-.soltar{position:absolute;inset:0;z-index:4;background:color-mix(in srgb,var(--wine) 82%,transparent);color:#fff;display:grid;place-items:center;font-size:22px;font-weight:600;border:4px dashed #fff;pointer-events:none}
-.switch{display:flex;flex-direction:row;align-items:center;gap:10px;font-weight:500;cursor:pointer}
-.media{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-.tile{background:var(--card);box-shadow:var(--sh);display:flex;flex-direction:column;position:relative}
-.tile.fantasma{opacity:.35}
-.tile .pv{aspect-ratio:1;background:var(--bg);display:grid;place-items:center;overflow:hidden;position:relative;cursor:grab}
+.ver b{font-weight:600;color:var(--head)}
+.ver small{display:block;color:var(--soft);font-size:14px}
+.ver button{min-height:40px;padding:6px 14px;font-size:14.5px}
+.atajos{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;font-size:15.5px;align-items:center}
+.portada{display:grid;grid-template-columns:200px minmax(0,1fr);gap:20px;align-items:center}
+.portada .pv{aspect-ratio:3/4;background:linear-gradient(#fbeeea,#f1ead9);border-radius:10px;overflow:hidden}
+.portada model-viewer{width:100%;height:100%}
+
+/* ===== editor (panel lateral) ===== */
+dialog#ed{border:0;padding:0;margin:0 0 0 auto;width:min(820px,100%);height:100dvh;max-height:100dvh;max-width:100%;background:var(--bg);color:var(--ink);box-shadow:-30px 0 60px -20px rgba(0,0,0,.4);overflow:hidden}
+dialog#ed[open]{animation:entra .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes entra{from{transform:translateX(40px);opacity:.4}}
+dialog#ed::backdrop{background:rgba(20,10,14,.5);backdrop-filter:blur(2px)}
+#fEd{height:100%;display:flex;flex-direction:column}
+.dhead{background:var(--card);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 22px;border-bottom:1px solid var(--line)}
+.dhead h2{font-size:21px}
+.dhead small{display:block;color:var(--soft);font-size:14px;font-weight:400;letter-spacing:0}
+.dbody{flex:1;overflow:auto;padding:22px;display:grid;gap:18px;align-content:start}
+.secc{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:16px}
+.secc>h3{font-size:16px;display:flex;align-items:center;gap:10px}
+.secc>h3 .ib{width:32px;height:32px;border-radius:9px;background:var(--tint);color:var(--wine);display:grid;place-items:center}
+.secc>h3 .ib svg.i{width:17px;height:17px}
+.secc>h3 small{margin-left:auto;font-weight:400;font-size:13.5px;color:var(--soft)}
+.dfoot{background:var(--card);border-top:1px solid var(--line);padding:14px 22px calc(14px + env(safe-area-inset-bottom));display:flex;gap:10px;justify-content:space-between}
+.dfoot .l,.dfoot .r{display:flex;gap:8px}
+.soltar{position:absolute;inset:0;z-index:4;background:color-mix(in srgb,var(--wine) 84%,transparent);color:#fff;display:grid;place-items:center;font-size:24px;font-weight:600;border:4px dashed #fff;pointer-events:none}
+.switch{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;font-weight:500;cursor:pointer}
+.switch small{display:block;font-weight:400;color:var(--soft);font-size:14px}
+.toggle{appearance:none;-webkit-appearance:none;width:52px!important;height:30px!important;border-radius:99px;background:var(--line);position:relative;cursor:pointer;transition:background .2s;flex:none;border:0;padding:0;min-height:0}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.toggle:checked{background:var(--ok)}.toggle:checked::after{transform:translateX(22px)}
+.tres{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.mats{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.mats:empty::before{content:"Aún no hay materiales";color:var(--soft);font-size:15px}
+.mats li{display:flex;align-items:center;gap:2px;background:var(--tint);color:var(--wine);border-radius:99px;padding:3px 4px 3px 14px;font-size:15px;font-weight:500}
+.mats li button{width:28px;min-height:28px;padding:0;border:0;background:transparent;color:inherit;border-radius:50%}
+.mats li button svg.i{width:15px;height:15px}
+.matadd{display:flex;gap:8px}.matadd input{flex:1}
+.sug{display:flex;flex-wrap:wrap;gap:6px}
+.sug button{min-height:34px;padding:4px 12px;font-size:14px;font-weight:500;background:transparent;color:var(--soft);border:1px dashed var(--line);border-radius:99px}
+.sug button:hover{color:var(--wine);border-color:var(--wine);box-shadow:none}
+.sug button svg.i{width:14px;height:14px}
+.media{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.tile.fantasma{opacity:.4}
+.tile .pv{aspect-ratio:1;background:var(--bg);display:grid;place-items:center;overflow:hidden;position:relative}
+.tile .pv.arrastre{cursor:grab}
 .tile .pv img,.tile .pv video{width:100%;height:100%;object-fit:cover}
 .tile model-viewer{width:100%;height:100%;--poster-color:transparent}
 .g360{position:absolute;inset:0;display:grid;place-items:center;background:#fff;cursor:grab;touch-action:pan-y}
 .tile .pv .g360 img,.g360 img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
-.tile .kind{position:absolute;left:6px;top:6px;background:rgba(0,0,0,.62);color:#fff;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:2px;display:flex;gap:4px;align-items:center;z-index:1}
+.tile .kind{position:absolute;left:8px;top:8px;background:rgba(20,12,14,.72);color:#fff;font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:6px;display:flex;gap:5px;align-items:center;z-index:1;cursor:grab}
 .tile .kind svg.i{width:13px;height:13px}
-.tile .main{position:absolute;right:6px;top:6px;background:var(--wine);color:var(--on-wine);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:2px;z-index:1}
+.tile .main{position:absolute;right:8px;top:8px;background:var(--wine);color:var(--on-wine);font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:6px;z-index:1}
 .tile .tb{display:flex;justify-content:space-between;padding:4px}
-.tile .tb button{width:34px;min-height:34px;padding:0;background:transparent;border:0;color:var(--head)}
+.tile .tb button{width:32px;min-height:34px;padding:0;background:transparent;border:0;color:var(--soft);border-radius:7px}
+.tile .tb button:hover{background:var(--hover);color:var(--wine);box-shadow:none}
 .tile .tb button.danger{color:var(--bad)}
-.grupo{border:1px solid var(--line);border-radius:3px;padding:10px 14px 14px;margin:0;display:grid;gap:10px;background:var(--card)}
-.grupo legend{display:flex;align-items:center;gap:7px;font-weight:600;font-size:15px;color:var(--head);padding:0 6px}
-.grupo legend small{font-weight:400;color:var(--soft);font-size:13px}
-.grupo legend svg.i{color:var(--wine)}
-.tres{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.mats{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
-.mats:empty::before{content:"Aún no hay materiales";color:var(--soft);font-size:14px}
-.mats li{display:flex;align-items:center;gap:2px;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:2px 4px 2px 12px;font-size:14px}
-.mats li button{width:28px;min-height:28px;padding:0;border:0;background:transparent;color:var(--soft);border-radius:50%}
-.mats li button svg.i{width:15px;height:15px}
-.matadd{display:flex;gap:8px}.matadd input{flex:1}
-.sug{display:flex;flex-wrap:wrap;gap:6px}
-.sug button{min-height:32px;padding:3px 11px;font-size:13.5px;font-weight:500;background:transparent;color:var(--wine);border:1px dashed var(--wine);border-radius:99px}
-.sug button svg.i{width:14px;height:14px}
-.rel{display:flex;flex-direction:row;align-items:center;gap:8px;font-size:13px;font-weight:500;padding:6px 8px 0;cursor:pointer}
+.rel{display:flex;flex-direction:row;align-items:center;gap:8px;font-size:13.5px;font-weight:500;padding:8px 10px 0;cursor:pointer}
 .rel input{width:18px;height:18px}
-.add{border:2px dashed var(--line);background:transparent;color:var(--wine);min-height:150px;flex-direction:column;gap:6px;font-weight:600;box-shadow:none}
-.add small{color:var(--soft);font-weight:400;font-size:12.5px;line-height:1.35;text-align:center;padding:0 8px}
-.add:hover{border-color:var(--wine);box-shadow:none}
+.add{border:2px dashed var(--line);background:transparent;color:var(--wine);min-height:160px;flex-direction:column;gap:8px;font-weight:600;box-shadow:none;border-radius:10px}
+.add svg.i{width:26px;height:26px}
+.add small{color:var(--soft);font-weight:400;font-size:13px;line-height:1.35;text-align:center;padding:0 10px}
+.add:hover{border-color:var(--wine);background:var(--tint);box-shadow:none}
 .prog{position:absolute;inset:auto 0 0;height:5px;background:var(--line)}
 .prog i{display:block;height:100%;width:0;background:var(--wine);transition:width .2s}
-.uploading .pv::after{content:attr(data-msg);position:absolute;inset:0;display:grid;place-items:center;background:rgba(255,255,255,.78);color:#333;font-size:13px;font-weight:600;text-align:center;padding:8px}
-.portada{display:grid;grid-template-columns:180px minmax(0,1fr);gap:16px;align-items:center}
-.portada .pv{aspect-ratio:3/4;background:linear-gradient(#fbeeea,#f1ead9)}
-.portada model-viewer{width:100%;height:100%}
-/* SweetAlert2 con la marca */
+.uploading .pv::after{content:attr(data-msg);position:absolute;inset:0;display:grid;place-items:center;background:rgba(255,255,255,.8);color:#333;font-size:13.5px;font-weight:600;text-align:center;padding:8px}
+
+/* ===== SweetAlert2 con la marca ===== */
 .swal2-container{z-index:60}
-.swal2-popup{font-family:var(--sans)!important;background:var(--card)!important;color:var(--ink)!important;border-radius:4px!important}
-.swal2-title{color:var(--head)!important;font-weight:600!important;letter-spacing:-.02em;font-size:1.45em!important}
-.swal2-html-container{color:var(--ink)!important;font-size:1em!important}
-.swal2-actions{gap:8px}
-.swal2-input,.swal2-select{font-family:var(--sans)!important;border-color:var(--line)!important;background:var(--card)!important;color:var(--ink)!important;margin:12px auto 4px!important;width:calc(100% - 2em)!important;max-width:none!important}
+.swal2-popup{font-family:var(--sans)!important;background:var(--card)!important;color:var(--ink)!important;border-radius:16px!important;padding:1.6em 1.4em 1.4em!important}
+.swal2-title{color:var(--head)!important;font-weight:600!important;letter-spacing:-.02em;font-size:1.5em!important}
+.swal2-html-container{color:var(--ink)!important;font-size:1.02em!important;line-height:1.5!important}
+.swal2-actions{gap:10px}
+.swal2-input,.swal2-select{font-family:var(--sans)!important;border:1px solid var(--line)!important;border-radius:10px!important;background:var(--card)!important;color:var(--ink)!important;margin:14px auto 4px!important;width:calc(100% - 2em)!important;max-width:none!important;box-shadow:none!important}
 .swal2-validation-message{background:var(--bg)!important;color:var(--bad)!important}
-.swal2-toast{box-shadow:var(--sh2)!important;padding:10px 14px!important}
-.swal2-toast .swal2-title{font-size:15px!important;font-weight:500!important;margin:0 6px!important}
-.swal2-toast .swal2-actions{margin:0 0 0 6px}
-.swal2-toast button{min-height:34px;padding:4px 12px;font-size:14px}
+.swal2-toast{box-shadow:var(--sh2)!important;padding:12px 16px!important;border-radius:12px!important}
+.swal2-toast .swal2-title{font-size:15.5px!important;font-weight:500!important;margin:0 8px!important}
+.swal2-toast .swal2-actions{margin:0 0 0 8px}
+.swal2-toast button{min-height:36px;padding:4px 14px;font-size:14.5px}
 .swal2-timer-progress-bar{background:var(--wine)!important}
 .swal2-icon.swal2-success{border-color:var(--ok)!important;color:var(--ok)!important}
 .swal2-icon.swal2-success [class^=swal2-success-line]{background-color:var(--ok)!important}
 .swal2-icon.swal2-success .swal2-success-ring{border-color:color-mix(in srgb,var(--ok) 35%,transparent)!important}
-.crop{max-height:58vh;background:#222}.crop img{display:block;max-width:100%}
-.cropbar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:12px}
-.cropbar button{min-height:38px;padding:6px 12px;font-size:14px}
+.crop{max-height:58vh;background:#222;border-radius:10px;overflow:hidden}.crop img{display:block;max-width:100%}
+.cropbar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:14px}
+.cropbar button{min-height:40px;padding:6px 14px;font-size:14.5px}
 .cropbar button[aria-pressed=true]{background:var(--wine);color:var(--on-wine)}
-@media(max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.duo{grid-template-columns:minmax(0,1fr)}.tools{grid-template-columns:1fr 1fr}.tools .buscar{grid-column:1/3}}
-@media(max-width:560px){.two,.portada{grid-template-columns:1fr}.catrow{grid-template-columns:auto minmax(0,1fr) auto}.catrow label:nth-of-type(2){grid-column:2/3}.catrow .rbtn{grid-row:1/3;grid-column:3}.portada .pv{max-width:220px}
- .row{grid-template-columns:auto 56px minmax(0,1fr);grid-template-areas:"c t i" "g t i" ". a a"}.row>.ck{grid-area:c}.row>.grip{grid-area:g}.row>.th{grid-area:t;width:56px;height:64px}.row>.info{grid-area:i}.row .rbtn{grid-area:a;justify-content:flex-end;border-top:1px solid var(--line);padding-top:8px}
- .kpi b{font-size:26px}.hide-s{display:none}
- .dfoot{flex-wrap:nowrap;gap:6px;padding-left:12px;padding-right:12px}.dfoot .l,.dfoot .r{flex-wrap:nowrap;gap:6px}.dfoot button{padding:9px 12px}}
-[hidden]{display:none!important}
+
+/* ===== tamaños intermedios y celular ===== */
+@media(max-width:1180px){.thead,.row{grid-template-columns:28px 22px 56px minmax(0,2.2fr) minmax(84px,.8fr) 100px 124px}.c-medios{display:none!important}}
+@media(max-width:1000px){
+ .shell{grid-template-columns:1fr}
+ .lado{display:none}
+ .movil{display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;background:var(--side);color:#fff;padding:10px 12px 10px 16px;padding-top:calc(10px + env(safe-area-inset-top))}
+ .movil .marca{padding:0;font-size:19px}.movil .marca .mk{width:28px;height:34px}
+ .movil .acts{display:flex;gap:2px}
+ .movil .acts a,.movil .acts button{background:transparent;border:0;color:var(--side-soft);min-height:44px;width:44px;padding:0;display:grid;place-items:center;border-radius:10px}
+ .abajo{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px -12px rgba(0,0,0,.15)}
+ .abajo button{flex-direction:column;gap:3px;background:transparent;border:0;color:var(--soft);font-size:11.5px;font-weight:500;min-height:54px;padding:4px 2px;border-radius:10px}
+ .abajo button svg.i{width:23px;height:23px}
+ .abajo button:hover{box-shadow:none}
+ .abajo button[aria-selected=true]{color:var(--wine);font-weight:600}
+ .abajo button[aria-selected=true] svg.i{background:var(--tint);border-radius:99px;padding:3px 14px;width:52px;height:30px}
+ main{padding:20px 14px calc(110px + env(safe-area-inset-bottom))}
+ .lote{bottom:calc(84px + env(safe-area-inset-bottom))}
+ .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .duo{grid-template-columns:minmax(0,1fr)}
+ .tools{grid-template-columns:1fr 1fr}.tools .buscar{grid-column:1/3}
+ .thead{display:none}
+ .tabla{background:transparent;border:0;box-shadow:none;overflow:visible;display:grid;gap:10px}
+ .row{grid-template-columns:24px 62px minmax(0,1fr);grid-template-areas:"c t i" "g t p" "s s a";background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:12px;gap:6px 12px}
+ .row:last-child{border-bottom:1px solid var(--line)}
+ .row>.ck{grid-area:c}.row>.grip{grid-area:g;align-self:start}.row>.th{grid-area:t;width:62px;height:70px}.row>.info{grid-area:i;align-self:end}.row>.precio{grid-area:p;align-self:start;font-size:15.5px}
+ .row>.c-estado{grid-area:s;align-self:center;padding-top:8px;border-top:1px solid var(--line)}.row>.rbtn{grid-area:a;padding-top:8px;border-top:1px solid var(--line)}
+ dialog#ed{width:100%}
+}
+@media(max-width:560px){
+ .two,.portada{grid-template-columns:1fr}.portada .pv{max-width:220px}
+ .catrow{grid-template-columns:22px minmax(0,1fr) auto}.catrow label:nth-of-type(2){grid-column:2/3}.catrow .rbtn{grid-row:1/3;grid-column:3}
+ .kpi{padding:16px}.kpi b{font-size:30px}.kpi .ib{width:38px;height:38px;margin-bottom:6px}
+ .box{padding:18px}.dbody{padding:14px}.secc{padding:16px}
+ .dfoot{padding-left:14px;padding-right:14px}.dfoot button{padding:10px 14px}.hide-s{display:none}
+ .cab .acc button{flex:1}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
@@ -266,7 +365,6 @@ dialog::backdrop{background:rgba(20,10,14,.6)}
   <symbol id="i-mas" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-subir" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15"/></symbol>
   <symbol id="i-basura" viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5"/></symbol>
-  <symbol id="i-arriba" viewBox="0 0 24 24"><path d="M12 19V5M6.5 10.5 12 5l5.5 5.5"/></symbol>
   <symbol id="i-izq" viewBox="0 0 24 24"><path d="M14.5 6 8.5 12l6 6"/></symbol>
   <symbol id="i-der" viewBox="0 0 24 24"><path d="m9.5 6 6 6-6 6"/></symbol>
   <symbol id="i-estrella" viewBox="0 0 24 24"><path d="m12 3.6 2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></symbol>
@@ -279,201 +377,245 @@ dialog::backdrop{background:rgba(20,10,14,.6)}
   <symbol id="i-candado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5v-3a4 4 0 0 1 8 0v3"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-tel" viewBox="0 0 24 24"><path d="M5 4h3.5l1.5 4-2 1.5a11 11 0 0 0 6.5 6.5l1.5-2 4 1.5V19a1.5 1.5 0 0 1-1.6 1.5C10.5 20 4 13.5 3.5 5.6A1.5 1.5 0 0 1 5 4z"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.2"/></symbol>
 </defs></svg>
 
-<!-- Acceso -->
+<!-- ============ Acceso ============ -->
 <section id="login" hidden>
-  <form id="fLogin">
-    <svg class="mk" aria-hidden="true"><use href="#i-logo"/></svg>
-    <h1>Panel de Nudo de SEN</h1>
-    <p>Desde aquí cambias los productos, fotos, videos y modelos 3D de la web.</p>
-    <input type="text" name="usuario" autocomplete="username" value="nudodesen" hidden>
-    <label>Contraseña<input id="clave" type="password" autocomplete="current-password" required></label>
-    <button type="submit"><svg class="i"><use href="#i-candado"/></svg>Entrar</button>
-    <p class="err" id="lErr" role="alert"></p>
-  </form>
+  <div class="lmarca">
+    <div>
+      <svg class="mk" aria-hidden="true"><use href="#i-logo"/></svg>
+      <h2>Panel de <br>Nudo <i>de</i> SEN</h2>
+      <p>Tus productos, fotos, videos, giros 360° y modelos 3D en un solo lugar. Lo que guardes aquí se ve al instante en nudodesen.com.</p>
+    </div>
+    <q>Donde los recuerdos se tejen para siempre</q>
+  </div>
+  <div class="lform">
+    <form id="fLogin">
+      <div><h1>Bienvenida</h1><p>Escribe tu contraseña para entrar.</p></div>
+      <input type="text" name="usuario" autocomplete="username" value="nudodesen" hidden>
+      <label>Contraseña<input id="clave" type="password" autocomplete="current-password" required></label>
+      <button type="submit"><svg class="i"><use href="#i-candado"/></svg>Entrar al panel</button>
+      <p class="err" id="lErr" role="alert"></p>
+    </form>
+  </div>
 </section>
 
-<!-- Panel -->
-<div id="app" hidden>
-<div class="offline" id="offline" hidden>Sin conexión: puedes mirar, pero los cambios se guardarán cuando vuelva la señal.</div>
-<header class="top">
-  <div class="wrap">
-    <div class="brand"><svg class="mk" aria-hidden="true"><use href="#i-logo"/></svg><span>Nudo<i> de </i>SEN</span><small>Panel</small></div>
-    <div class="acts">
-      <button class="plain" id="bInstalar" hidden title="Instalar como app"><svg class="i"><use href="#i-celular"/></svg><span class="hide-s">Instalar</span></button>
-      <a class="btn plain" href="/" target="_blank" rel="noopener" title="Ver la web"><svg class="i"><use href="#i-web"/></svg><span class="hide-s">Ver la web</span></a>
-      <button class="plain" id="bSalir" title="Salir" aria-label="Salir"><svg class="i"><use href="#i-salir"/></svg></button>
+<!-- ============ Panel ============ -->
+<div id="app" class="shell" hidden>
+  <aside class="lado" aria-label="Menú">
+    <div class="marca"><svg class="mk" aria-hidden="true"><use href="#i-logo"/></svg><div>Nudo<i> de </i>SEN<small>Panel de la tienda</small></div></div>
+    <nav class="nav" role="tablist" aria-label="Secciones">
+      <button role="tab" data-tab="inicio" aria-selected="true"><svg class="i"><use href="#i-casa"/></svg>Inicio</button>
+      <button role="tab" data-tab="productos" aria-selected="false"><svg class="i"><use href="#i-ovillo"/></svg>Productos<span class="cnt" id="nProd"></span></button>
+      <button role="tab" data-tab="categorias" aria-selected="false"><svg class="i"><use href="#i-etiqueta"/></svg>Categorías</button>
+      <button role="tab" data-tab="historial" aria-selected="false"><svg class="i"><use href="#i-reloj"/></svg>Historial</button>
+      <button role="tab" data-tab="ajustes" aria-selected="false"><svg class="i"><use href="#i-carrete"/></svg>Ajustes</button>
+    </nav>
+    <div class="pie">
+      <button id="bInstalar" hidden><svg class="i"><use href="#i-celular"/></svg>Instalar como app</button>
+      <a href="/" target="_blank" rel="noopener"><svg class="i"><use href="#i-web"/></svg>Ver la tienda</a>
+      <button id="bSalir"><svg class="i"><use href="#i-salir"/></svg>Cerrar sesión</button>
     </div>
+  </aside>
+
+  <div class="contenido">
+    <header class="movil">
+      <div class="marca"><svg class="mk" aria-hidden="true"><use href="#i-logo"/></svg><div>Nudo<i> de </i>SEN</div></div>
+      <div class="acts">
+        <a href="/" target="_blank" rel="noopener" aria-label="Ver la tienda"><svg class="i"><use href="#i-web"/></svg></a>
+        <button id="bSalirM" aria-label="Cerrar sesión"><svg class="i"><use href="#i-salir"/></svg></button>
+      </div>
+    </header>
+    <div class="offline" id="offline" hidden>Sin conexión: puedes mirar, pero los cambios se guardarán cuando vuelva la señal.</div>
+
+    <main>
+      <!-- INICIO -->
+      <section data-panel="inicio">
+        <div class="cab">
+          <div><h1 id="saludo">Hola</h1><p id="resumenTxt">Así va tu tienda.</p></div>
+          <div class="rango" role="group" aria-label="Periodo"><button data-dias="7" aria-pressed="false">7 días</button><button data-dias="30" aria-pressed="true">30 días</button><button data-dias="90" aria-pressed="false">90 días</button></div>
+        </div>
+        <div class="kpis" id="kpis"></div>
+        <div class="box">
+          <h3><span class="ib"><svg class="i"><use href="#i-ojo-g"/></svg></span>Visitas por día</h3>
+          <p class="sub">Entradas a la portada y a las páginas de producto. Se cuentan sin cookies y sin guardar datos de nadie.</p>
+          <div class="grafico" id="grafico"></div>
+        </div>
+        <div class="duo">
+          <div class="box">
+            <h3><span class="ib"><svg class="i"><use href="#i-estrella"/></svg></span>Productos más vistos</h3>
+            <div id="top"></div>
+          </div>
+          <div>
+            <div class="box">
+              <h3><span class="ib"><svg class="i"><use href="#i-lapiz"/></svg></span>Por completar</h3>
+              <div class="pend" id="pend"></div>
+            </div>
+            <div class="box">
+              <h3><span class="ib"><svg class="i"><use href="#i-reloj"/></svg></span>Últimos cambios</h3>
+              <ul class="act" id="ultimos"></ul>
+              <button class="ghost" data-ir="historial">Ver todo el historial</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PRODUCTOS -->
+      <section data-panel="productos" hidden>
+        <div class="cab">
+          <div><h1>Productos</h1><p>Toca un producto para editarlo. Arrastra desde los puntitos para cambiar el orden en la tienda.</p></div>
+          <div class="acc"><button id="bNuevo"><svg class="i"><use href="#i-mas"/></svg>Nuevo producto</button></div>
+        </div>
+        <div class="tools">
+          <label class="buscar"><span hidden>Buscar</span><svg class="i"><use href="#i-buscar"/></svg><input id="q" type="search" placeholder="Buscar por nombre, descripción o material" autocomplete="off"></label>
+          <select id="fCat" aria-label="Categoría"></select>
+          <select id="fEst" aria-label="Estado">
+            <option value="">Todos los estados</option><option value="visibles">Visibles</option><option value="ocultos">Ocultos</option>
+            <option value="sin-precio">Sin precio</option><option value="sin-fotos">Sin fotos</option><option value="sin-medidas">Sin medidas</option>
+            <option value="sin-materiales">Sin materiales</option><option value="sin-descripcion">Sin descripción</option>
+          </select>
+        </div>
+        <div class="selbar"><label><input type="checkbox" id="selTodo">Seleccionar todos</label><span id="cuenta"></span><span id="notaOrden" hidden>· Para ordenar arrastrando, quita la búsqueda y los filtros.</span></div>
+        <div class="tabla">
+          <div class="thead" aria-hidden="true"><span></span><span></span><span></span><span>Producto</span><span>Precio</span><span class="c-medios">Contenido</span><span>Estado</span><span></span></div>
+          <div id="lista"></div>
+        </div>
+      </section>
+
+      <!-- CATEGORÍAS -->
+      <section data-panel="categorias" hidden>
+        <div class="cab">
+          <div><h1>Categorías</h1><p>Arrastra para cambiar el orden. Si cambias un nombre, sus productos se actualizan solos.</p></div>
+          <div class="acc"><button id="bCat" class="ghost"><svg class="i"><use href="#i-mas"/></svg>Agregar</button><button id="gCats"><svg class="i"><use href="#i-check"/></svg>Guardar</button></div>
+        </div>
+        <div class="box" id="cats"></div>
+      </section>
+
+      <!-- HISTORIAL -->
+      <section data-panel="historial" hidden>
+        <div class="cab"><div><h1>Historial</h1><p>Todo lo que se cambió y las versiones guardadas para volver atrás.</p></div></div>
+        <div class="duo">
+          <div class="box">
+            <h3><span class="ib"><svg class="i"><use href="#i-reloj"/></svg></span>Registro de actividad</h3>
+            <ul class="act" id="actividad"></ul>
+          </div>
+          <div class="box">
+            <h3><span class="ib"><svg class="i"><use href="#i-disco"/></svg></span>Versiones guardadas</h3>
+            <p class="sub">Antes de cada cambio se guarda una copia. Puedes volver a cualquiera de las últimas 40.</p>
+            <div class="vers" id="versiones"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- AJUSTES -->
+      <section data-panel="ajustes" hidden>
+        <div class="cab"><div><h1>Ajustes</h1><p>Datos de contacto, portada y uso del panel.</p></div></div>
+        <div class="duo">
+          <div>
+            <div class="box">
+              <h3><span class="ib"><svg class="i"><use href="#i-tel"/></svg></span>WhatsApp de pedidos</h3>
+              <label>Número con código de país <small>Perú: 51 y el número, sin espacios</small><input id="tel" inputmode="numeric" autocomplete="off"></label>
+              <button id="gTel"><svg class="i"><use href="#i-check"/></svg>Guardar número</button>
+            </div>
+            <div class="box">
+              <h3><span class="ib"><svg class="i"><use href="#i-3d"/></svg></span>Muñeca 3D de la portada</h3>
+              <div class="portada">
+                <div class="pv" id="pPv"></div>
+                <div style="display:grid;gap:12px">
+                  <p class="hint">Es el modelo que se puede girar al entrar a la tienda. Sube un archivo <b>.glb</b> de hasta 50 MB; mejor si pesa menos de 5 MB, para que cargue rápido en celulares.</p>
+                  <button class="ghost" id="bPortada"><svg class="i"><use href="#i-subir"/></svg>Cambiar modelo 3D</button>
+                  <p class="hint" id="pMsg"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="box">
+              <h3><span class="ib"><svg class="i"><use href="#i-celular"/></svg></span>Usar como app</h3>
+              <p id="appTxt">Instala el panel en la pantalla de inicio: se abre como una app y aparece en «Compartir» de la galería, para mandar fotos directo a un producto.</p>
+              <button class="ghost" id="bInstalar2" hidden><svg class="i"><use href="#i-celular"/></svg>Instalar el panel</button>
+            </div>
+            <div class="box">
+              <h3><span class="ib"><svg class="i"><use href="#i-disco"/></svg></span>Espacio usado</h3>
+              <p id="espacio">—</p>
+            </div>
+            <div class="box">
+              <h3><span class="ib"><svg class="i"><use href="#i-teclado"/></svg></span>Atajos de teclado</h3>
+              <div class="atajos">
+                <span><kbd>/</kbd></span><span>Buscar un producto</span>
+                <span><kbd>N</kbd></span><span>Nuevo producto</span>
+                <span><kbd>Ctrl</kbd> + <kbd>S</kbd></span><span>Guardar el producto que editas</span>
+                <span><kbd>Ctrl</kbd> + <kbd>V</kbd></span><span>Pegar una foto copiada en el editor</span>
+                <span><kbd>Esc</kbd></span><span>Cerrar el editor</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
-  <div class="wrap tabs" role="tablist">
+
+  <nav class="abajo movil-nav" role="tablist" aria-label="Secciones">
     <button role="tab" data-tab="inicio" aria-selected="true"><svg class="i"><use href="#i-casa"/></svg>Inicio</button>
     <button role="tab" data-tab="productos" aria-selected="false"><svg class="i"><use href="#i-ovillo"/></svg>Productos</button>
     <button role="tab" data-tab="categorias" aria-selected="false"><svg class="i"><use href="#i-etiqueta"/></svg>Categorías</button>
     <button role="tab" data-tab="historial" aria-selected="false"><svg class="i"><use href="#i-reloj"/></svg>Historial</button>
     <button role="tab" data-tab="ajustes" aria-selected="false"><svg class="i"><use href="#i-carrete"/></svg>Ajustes</button>
+  </nav>
+
+  <div class="lote" id="lote" hidden role="toolbar" aria-label="Acciones con los seleccionados">
+    <b id="loteN"></b>
+    <button data-lote="mostrar"><svg class="i"><use href="#i-ojo"/></svg>Mostrar</button>
+    <button data-lote="ocultar"><svg class="i"><use href="#i-ojo-no"/></svg>Ocultar</button>
+    <button data-lote="categoria"><svg class="i"><use href="#i-etiqueta"/></svg>Categoría</button>
+    <button data-lote="precio"><svg class="i"><use href="#i-regla"/></svg>Precio %</button>
+    <button data-lote="eliminar" class="del"><svg class="i"><use href="#i-basura"/></svg>Eliminar</button>
+    <button data-lote="nada" aria-label="Quitar selección"><svg class="i"><use href="#i-x"/></svg></button>
   </div>
-</header>
-
-<main class="wrap">
-  <!-- INICIO: tablero -->
-  <section data-panel="inicio">
-    <div class="bar"><h2 id="saludo">Hola</h2>
-      <div class="rango" role="group" aria-label="Periodo"><button data-dias="7" aria-pressed="false">7 días</button><button data-dias="30" aria-pressed="true">30 días</button><button data-dias="90" aria-pressed="false">90 días</button></div>
-    </div>
-    <div class="kpis" id="kpis"></div>
-    <div class="box">
-      <h3><svg class="i"><use href="#i-ojo-g"/></svg>Visitas por día</h3>
-      <p class="sub">Entradas a la portada y a las páginas de producto. Se cuentan sin cookies y sin guardar datos de nadie.</p>
-      <div class="grafico" id="grafico"></div>
-    </div>
-    <div class="duo">
-      <div class="box">
-        <h3><svg class="i"><use href="#i-estrella"/></svg>Productos más vistos</h3>
-        <div id="top"></div>
-      </div>
-      <div>
-        <div class="box">
-          <h3><svg class="i"><use href="#i-lapiz"/></svg>Pendientes</h3>
-          <div class="pend" id="pend"></div>
-        </div>
-        <div class="box">
-          <h3><svg class="i"><use href="#i-reloj"/></svg>Últimos cambios</h3>
-          <ul class="act" id="ultimos"></ul>
-          <button class="ghost" data-ir="historial">Ver todo el historial</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PRODUCTOS -->
-  <section data-panel="productos" hidden>
-    <div class="bar"><h2>Productos</h2><button id="bNuevo"><svg class="i"><use href="#i-mas"/></svg>Nuevo producto</button></div>
-    <div class="tools">
-      <label class="buscar"><span hidden>Buscar</span><svg class="i"><use href="#i-buscar"/></svg><input id="q" type="search" placeholder="Buscar por nombre o descripción" autocomplete="off"></label>
-      <select id="fCat" aria-label="Categoría"></select>
-      <select id="fEst" aria-label="Estado">
-        <option value="">Todos</option><option value="visibles">Visibles</option><option value="ocultos">Ocultos</option>
-        <option value="sin-precio">Sin precio</option><option value="sin-fotos">Sin fotos</option><option value="sin-medidas">Sin medidas</option>
-        <option value="sin-materiales">Sin materiales</option><option value="sin-descripcion">Sin descripción</option>
-      </select>
-    </div>
-    <div class="selbar"><label><input type="checkbox" id="selTodo">Seleccionar todos</label><span id="cuenta"></span><span id="notaOrden" hidden>· Para ordenar arrastrando, quita la búsqueda y los filtros.</span></div>
-    <div class="list" id="lista"></div>
-  </section>
-
-  <!-- CATEGORÍAS -->
-  <section data-panel="categorias" hidden>
-    <div class="bar"><h2>Categorías</h2><button id="bCat" class="ghost"><svg class="i"><use href="#i-mas"/></svg>Agregar</button></div>
-    <p class="hint">Arrastra para cambiar el orden. Si cambias el nombre de una categoría, sus productos se actualizan solos.</p>
-    <div class="box" id="cats"></div>
-    <button id="gCats"><svg class="i"><use href="#i-check"/></svg>Guardar categorías</button>
-  </section>
-
-  <!-- HISTORIAL -->
-  <section data-panel="historial" hidden>
-    <div class="bar"><h2>Historial</h2></div>
-    <div class="duo">
-      <div class="box">
-        <h3><svg class="i"><use href="#i-reloj"/></svg>Registro de actividad</h3>
-        <p class="sub">Cada cambio guardado, con fecha y desde qué conexión.</p>
-        <ul class="act" id="actividad"></ul>
-      </div>
-      <div class="box">
-        <h3><svg class="i"><use href="#i-disco"/></svg>Versiones guardadas</h3>
-        <p class="sub">Antes de cada cambio se guarda una copia. Puedes volver a cualquiera de las últimas 40.</p>
-        <div class="vers" id="versiones"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- AJUSTES -->
-  <section data-panel="ajustes" hidden>
-    <div class="box">
-      <h3><svg class="i"><use href="#i-tel"/></svg>WhatsApp de pedidos</h3>
-      <label>Número con código de país <small>(Perú: 51 y el número, sin espacios)</small><input id="tel" inputmode="numeric" autocomplete="off"></label>
-      <button id="gTel"><svg class="i"><use href="#i-check"/></svg>Guardar número</button>
-    </div>
-    <div class="box">
-      <h3><svg class="i"><use href="#i-3d"/></svg>Muñeca 3D de la portada</h3>
-      <div class="portada">
-        <div class="pv" id="pPv"></div>
-        <div style="display:grid;gap:10px">
-          <p class="hint" style="margin:0">Es el modelo que se puede girar al entrar a la web. Sube un archivo <b>.glb</b> de hasta 50 MB (mejor si pesa menos de 5 MB, para que cargue rápido en celulares).</p>
-          <button class="ghost" id="bPortada"><svg class="i"><use href="#i-subir"/></svg>Cambiar modelo 3D</button>
-          <p class="hint" id="pMsg" style="margin:0"></p>
-        </div>
-      </div>
-    </div>
-    <div class="box">
-      <h3><svg class="i"><use href="#i-celular"/></svg>Usar como app en el celular</h3>
-      <p id="appTxt">Instala el panel en la pantalla de inicio: se abre como una app y aparece en «Compartir» de la galería, para mandar fotos directo a un producto.</p>
-      <button class="ghost" id="bInstalar2" hidden><svg class="i"><use href="#i-celular"/></svg>Instalar el panel</button>
-    </div>
-    <div class="box">
-      <h3><svg class="i"><use href="#i-disco"/></svg>Espacio usado</h3>
-      <p id="espacio">—</p>
-    </div>
-    <div class="box">
-      <h3><svg class="i"><use href="#i-teclado"/></svg>Atajos de teclado</h3>
-      <div class="atajos">
-        <span><kbd>/</kbd></span><span>Buscar un producto</span>
-        <span><kbd>N</kbd></span><span>Nuevo producto</span>
-        <span><kbd>Ctrl</kbd> + <kbd>S</kbd></span><span>Guardar el producto que estás editando</span>
-        <span><kbd>Ctrl</kbd> + <kbd>V</kbd></span><span>Pegar una foto copiada (con el editor abierto)</span>
-        <span><kbd>Esc</kbd></span><span>Cerrar el editor</span>
-      </div>
-    </div>
-  </section>
-</main>
-
-<div class="lote" id="lote" hidden role="toolbar" aria-label="Acciones con los seleccionados">
-  <b id="loteN"></b>
-  <button data-lote="mostrar"><svg class="i"><use href="#i-ojo"/></svg>Mostrar</button>
-  <button data-lote="ocultar"><svg class="i"><use href="#i-ojo-no"/></svg>Ocultar</button>
-  <button data-lote="categoria"><svg class="i"><use href="#i-etiqueta"/></svg>Categoría</button>
-  <button data-lote="precio"><svg class="i"><use href="#i-regla"/></svg>Precio %</button>
-  <button data-lote="eliminar" class="del"><svg class="i"><use href="#i-basura"/></svg>Eliminar</button>
-  <button data-lote="nada" aria-label="Quitar selección"><svg class="i"><use href="#i-x"/></svg></button>
-</div>
 </div>
 
-<!-- Editor de producto -->
+<!-- ============ Editor de producto (panel lateral) ============ -->
 <dialog id="ed" aria-labelledby="edT">
   <form method="dialog" id="fEd">
-    <div class="dhead"><h2 id="edT">Producto</h2><button type="button" class="plain" id="edX" aria-label="Cerrar"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <div class="dhead"><h2 id="edT">Producto</h2><button type="button" class="ico" id="edX" aria-label="Cerrar"><svg class="i"><use href="#i-x"/></svg></button></div>
     <div class="dbody">
-      <label>Nombre<input id="eNom" maxlength="80" required></label>
-      <div class="two">
-        <label>Categoría<select id="eCat"></select></label>
-        <label>Precio desde (S/) <small>vacío = «A cotizar»</small><input id="ePre" type="number" min="0" step="0.5" inputmode="decimal"></label>
-      </div>
-      <label>Descripción corta<textarea id="eDet" rows="2" maxlength="400"></textarea></label>
-      <fieldset class="grupo">
-        <legend><svg class="i"><use href="#i-regla"/></svg>Medidas <small>en cm · llena solo las que sepas</small></legend>
+      <section class="secc">
+        <h3><span class="ib"><svg class="i"><use href="#i-info"/></svg></span>Información</h3>
+        <label>Nombre<input id="eNom" maxlength="80" required placeholder="Ej.: Danzarina de Tinkus"></label>
+        <div class="two">
+          <label>Categoría<select id="eCat"></select></label>
+          <label>Precio desde (S/) <small>vacío = «A cotizar»</small><input id="ePre" type="number" min="0" step="0.5" inputmode="decimal" placeholder="A cotizar"></label>
+        </div>
+        <label>Descripción corta<textarea id="eDet" rows="3" maxlength="400" placeholder="Lo que la hace especial: traje, colores, detalles…"></textarea></label>
+      </section>
+      <section class="secc">
+        <h3><span class="ib"><svg class="i"><use href="#i-foto"/></svg></span>Fotos, videos, 3D y giro 360°<small>Arrastra para ordenar</small></h3>
+        <p class="hint" style="margin-top:-6px">Lo primero es lo que se ve al abrir el producto; la primera foto sale en el catálogo. También puedes soltar archivos aquí o pegar una foto copiada.</p>
+        <div class="media" id="eMed"></div>
+      </section>
+      <section class="secc">
+        <h3><span class="ib"><svg class="i"><use href="#i-regla"/></svg></span>Medidas<small>en cm · solo las que sepas</small></h3>
         <div class="tres">
           <label>Alto<input id="mAl" type="number" min="0" max="500" step="0.5" inputmode="decimal" placeholder="25"></label>
           <label>Ancho<input id="mAn" type="number" min="0" max="500" step="0.5" inputmode="decimal" placeholder="12"></label>
           <label>Fondo<input id="mFo" type="number" min="0" max="500" step="0.5" inputmode="decimal" placeholder="10"></label>
         </div>
-      </fieldset>
-      <fieldset class="grupo">
-        <legend><svg class="i"><use href="#i-ovillo"/></svg>Materiales</legend>
+      </section>
+      <section class="secc">
+        <h3><span class="ib"><svg class="i"><use href="#i-ovillo"/></svg></span>Materiales</h3>
         <ul class="mats" id="mats"></ul>
         <div class="matadd"><input id="matIn" maxlength="50" placeholder="Escribe un material" aria-label="Nuevo material"><button type="button" class="ghost" id="matOk"><svg class="i"><use href="#i-mas"/></svg>Agregar</button></div>
         <div class="sug" id="matSugBtns" aria-label="Sugerencias"></div>
-      </fieldset>
-      <label class="switch"><input type="checkbox" id="eVis">Mostrar en la web</label>
-      <div>
-        <h3 style="font-size:17px;margin-bottom:4px">Fotos, videos y 3D</h3>
-        <p class="hint" style="margin:0 0 10px">Arrastra para ordenar: lo primero es lo que se ve al abrir el producto, y la primera foto sale en el catálogo. También puedes soltar archivos aquí o pegar una foto copiada.</p>
-        <div class="media" id="eMed"></div>
-      </div>
+      </section>
+      <section class="secc">
+        <label class="switch"><span>Mostrar en la tienda<small>Si lo apagas, el producto se guarda pero no se ve en la web.</small></span><input type="checkbox" class="toggle" id="eVis"></label>
+      </section>
     </div>
     <div class="dfoot">
       <div class="l">
-        <button type="button" class="danger-btn" id="eDel"><svg class="i"><use href="#i-basura"/></svg><span class="hide-s">Eliminar</span></button>
-        <button type="button" class="ghost" id="eDup"><svg class="i"><use href="#i-copiar"/></svg><span class="hide-s">Duplicar</span></button>
+        <button type="button" class="danger-btn" id="eDel" title="Eliminar"><svg class="i"><use href="#i-basura"/></svg><span class="hide-s">Eliminar</span></button>
+        <button type="button" class="ghost" id="eDup" title="Duplicar"><svg class="i"><use href="#i-copiar"/></svg><span class="hide-s">Duplicar</span></button>
       </div>
       <div class="r"><button type="button" class="ghost" id="eCan">Cancelar</button><button type="submit" id="eOk"><svg class="i"><use href="#i-check"/></svg>Guardar</button></div>
     </div>

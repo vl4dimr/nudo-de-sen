@@ -140,26 +140,37 @@ function refrescar() { pintarLista(); pintarCats(); pintarAjustes(); pintarPendi
 /* ================= INICIO: tablero ================= */
 async function cargarMetricas() {
   try {
-    const [m, a] = await Promise.all([api('/admin/api/metricas?dias=' + dias), api('/admin/api/actividad')]);
-    MET = m; pintarActividad($('ultimos'), a.actividad, 4);
+    // también se pide el doble de días para comparar con el periodo anterior
+    const [m, m2, a] = await Promise.all([api('/admin/api/metricas?dias=' + dias), api('/admin/api/metricas?dias=' + (dias * 2)), api('/admin/api/actividad')]);
+    MET = m; MET.antes = m2.serie.slice(0, m2.serie.length - m.serie.length); pintarActividad($('ultimos'), a.actividad, 4);
   } catch (e) { if (!e.silencio) toast(msgError(e), true); }
   pintarInicio(); pintarLista(); pintarAjustes();
 }
 function pintarInicio() {
   const h = new Date().getHours();
   $('saludo').textContent = h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
-  const s = MET ? MET.serie : [];
-  const suma = k => s.reduce((t, d) => t + (d[k] || 0), 0);
-  const kp = [['ojo-g', 'Visitas', suma('inicio') + suma('vista'), 'portada y productos'],
-    ['ojo', 'Productos vistos', suma('vista'), 'páginas de producto abiertas'],
-    ['corazon', 'Me interesa', suma('interes'), 'agregados a «Mi lista»'],
-    ['wa', 'WhatsApp', suma('whatsapp'), 'clics para escribir']];
-  $('kpis').innerHTML = kp.map(([i, t, v, d]) => '<div class="kpi"><span>' + ic(i) + t + '</span><b>' + (MET ? num(v) : '—') + '</b><small>' + d + '</small></div>').join('');
+  const s = MET ? MET.serie : [], s0 = MET ? MET.antes || [] : [];
+  const suma = (k, x = s) => x.reduce((t, d) => t + (d[k] || 0), 0);
+  const kp = [['ojo-g', 'Visitas', ['inicio', 'vista'], 'portada y productos'],
+    ['ojo', 'Productos vistos', ['vista'], 'páginas de producto abiertas'],
+    ['corazon', 'Me interesa', ['interes'], 'agregados a «Mi lista»'],
+    ['wa', 'Clics a WhatsApp', ['whatsapp'], 'personas que escribieron']];
+  // flecha de tendencia contra el periodo anterior del mismo largo (texto + color, nunca solo color)
+  const delta = (a, b) => { if (!MET || (!a && !b)) return '';
+    if (!b) return '<span class="delta sube">nuevo</span>';
+    const p = Math.round((a - b) / b * 100);
+    return '<span class="delta ' + (p > 0 ? 'sube">↑ ' : p < 0 ? 'baja">↓ ' : 'igual">= ') + Math.abs(p) + ' %</span>'; };
+  $('kpis').innerHTML = kp.map(([i, t, ks, d]) => { const v = ks.reduce((x, k) => x + suma(k), 0), v0 = ks.reduce((x, k) => x + suma(k, s0), 0);
+    return '<div class="kpi"><div class="ib">' + ic(i) + '</div><span>' + t + '</span><b>' + (MET ? num(v) : '—') + '</b><small>' + delta(v, v0) + (MET && (v || v0) ? 'vs. ' + dias + ' días antes' : d) + '</small></div>'; }).join('');
+  const vis = C ? C.productos.filter(p => p.visible !== false).length : 0, falt = C ? C.productos.filter(p => PEND.slice(0, 5).some(([k]) => ESTADOS[k](p))).length : 0;
+  $('resumenTxt').textContent = C ? vis + ' productos a la vista en la tienda' + (falt ? ' · ' + falt + ' con datos por completar' : ' · todo completo') + '.' : '';
   grafico(s);
   const pr = MET ? Object.entries(MET.productos).map(([id, v]) => ({ id, ...v, p: prod(id) })).filter(x => x.p).sort((a, b) => b.vista - a.vista || b.interes - a.interes).slice(0, 6) : [];
   $('top').innerHTML = pr.length
     ? '<table><thead><tr><th>Producto</th><th class="n">Vistas</th><th class="n">Interés</th><th class="n">WhatsApp</th></tr></thead><tbody>'
-      + pr.map(x => '<tr><td><a href="#" data-ed="' + esc(x.id) + '">' + esc(x.p.nombre) + '</a></td><td class="n">' + num(x.vista) + '</td><td class="n">' + num(x.interes) + '</td><td class="n">' + num(x.whatsapp) + '</td></tr>').join('')
+      + pr.map(x => { const f = portadaDe(x.p);
+        return '<tr><td><a href="#" data-ed="' + esc(x.id) + '">' + (f ? '<img src="' + esc(url(f)) + '" alt="" loading="lazy">' : '') + esc(x.p.nombre) + '</a></td>'
+          + '<td class="n">' + num(x.vista) + '</td><td class="n">' + num(x.interes) + '</td><td class="n">' + num(x.whatsapp) + '</td></tr>'; }).join('')
       + '</tbody></table>'
     : '<p class="hint" style="margin:0">Todavía no hay visitas registradas en este periodo. Se empiezan a contar desde hoy.</p>';
   pintarPendientes();
@@ -175,7 +186,7 @@ function pintarPendientes() {
 function grafico(s) {
   const el = $('grafico');
   if (!s.length) { el.innerHTML = '<p class="hint" style="margin:0">Sin datos todavía.</p>'; return; }
-  const W = Math.max(280, el.clientWidth || 600), H = 200, pl = 34, pr = 4, pt = 10, pb = 26;
+  const W = Math.max(280, el.clientWidth || 600), H = 260, pl = 34, pr = 4, pt = 10, pb = 26;
   const v = s.map(d => (d.inicio || 0) + (d.vista || 0));
   const max = Math.max(...v), tope = Math.max(4, Math.ceil(max / 4) * 4);
   const ancho = (W - pl - pr) / s.length, bw = Math.max(1, ancho - 2), y = n => pt + (H - pt - pb) * (1 - n / tope);
@@ -208,16 +219,17 @@ function filtrados() {
 }
 function fila(p) {
   const th = portadaDe(p), m = p.medios || [], n = t => m.filter(x => x.tipo === t).length, id = esc(p.id), v = MET && MET.productos[p.id];
+  const medios = (n('giro') ? '<span title="Giro 360°">' + ic('360') + '360°</span>' : '') + (n('imagen') ? '<span title="Fotos">' + ic('foto') + n('imagen') + '</span>' : '')
+    + (n('video') ? '<span title="Videos">' + ic('video') + n('video') + '</span>' : '') + (n('modelo') ? '<span title="Modelos 3D">' + ic('3d') + n('modelo') + '</span>' : '')
+    + (v ? '<span title="Vistas en el periodo">' + ic('ojo-g') + num(v.vista) + '</span>' : '');
   return '<div class="row' + (p.visible === false ? ' off' : '') + (sel.has(p.id) ? ' sel' : '') + '" data-id="' + id + '">'
     + '<input type="checkbox" class="ck" data-sel="' + id + '" aria-label="Seleccionar ' + esc(p.nombre) + '"' + (sel.has(p.id) ? ' checked' : '') + '>'
     + '<span class="grip" title="Arrastra para ordenar">' + ic('grip') + '</span>'
-    + '<button class="th plain" data-ed="' + id + '" aria-label="Editar ' + esc(p.nombre) + '">' + (th ? '<img src="' + esc(url(th)) + '" alt="" loading="lazy">' : ic('ovillo')) + '</button>'
-    + '<div class="info"><strong>' + esc(p.nombre) + '</strong><div class="meta"><span class="price">' + (p.precio != null ? money(p.precio) : 'A cotizar') + '</span><span>' + esc(p.categoria) + '</span>'
-    + (p.medidas && p.medidas.alto ? '<span>' + ic('regla') + p.medidas.alto + ' cm</span>' : '')
-    + (n('giro') ? '<span>' + ic('360') + '360°</span>' : '') + (n('imagen') ? '<span>' + ic('foto') + n('imagen') + '</span>' : '')
-    + (n('video') ? '<span>' + ic('video') + n('video') + '</span>' : '') + (n('modelo') ? '<span>' + ic('3d') + n('modelo') + '</span>' : '')
-    + (v ? '<span title="Vistas en el periodo">' + ic('ojo-g') + num(v.vista) + '</span>' : '')
-    + (p.visible === false ? '<span class="tag">Oculto</span>' : '') + '</div></div>'
+    + '<button class="th" data-ed="' + id + '" aria-label="Editar ' + esc(p.nombre) + '">' + (th ? '<img src="' + esc(url(th)) + '" alt="" loading="lazy">' : ic('ovillo')) + '</button>'
+    + '<div class="info"><strong>' + esc(p.nombre) + '</strong><span class="cat">' + esc(p.categoria) + (p.medidas && p.medidas.alto ? ' · ' + String(p.medidas.alto).replace('.', ',') + ' cm' : '') + '</span></div>'
+    + '<span class="precio' + (p.precio == null ? ' cot' : '') + '">' + (p.precio != null ? money(p.precio) : 'A cotizar') + '</span>'
+    + '<div class="meta c-medios">' + (medios || '<span>Sin fotos</span>') + '</div>'
+    + '<span class="c-estado"><span class="pill ' + (p.visible === false ? 'off">Oculto' : 'on">Visible') + '</span></span>'
     + '<div class="rbtn"><button class="ico" data-vis="' + id + '" title="' + (p.visible === false ? 'Mostrar en la web' : 'Ocultar de la web') + '" aria-label="' + (p.visible === false ? 'Mostrar' : 'Ocultar') + '">' + ic(p.visible === false ? 'ojo-no' : 'ojo') + '</button>'
     + '<button class="ico" data-dup="' + id + '" title="Duplicar" aria-label="Duplicar">' + ic('copiar') + '</button>'
     + '<button class="ico" data-ed="' + id + '" title="Editar" aria-label="Editar">' + ic('lapiz') + '</button></div></div>';
@@ -231,6 +243,7 @@ function pintarLista() {
   sel = new Set([...sel].filter(id => prod(id)));
   $('lista').classList.toggle('sin-orden', conFiltro); $('notaOrden').hidden = !conFiltro;
   $('cuenta').textContent = conFiltro ? L.length + ' de ' + C.productos.length : C.productos.length + ' productos';
+  $('nProd').textContent = C.productos.length;
   $('lista').innerHTML = L.length ? L.map(fila).join('') : '<p class="empty">' + (C.productos.length ? 'Ningún producto coincide con la búsqueda.' : 'Todavía no hay productos. Toca «Nuevo producto».') + '</p>';
   if (!ordenLista) ordenLista = Sortable.create($('lista'), { handle: '.grip', animation: 160, ghostClass: 'fantasma', draggable: '.row',
     onEnd: async ev => { if (ev.oldIndex === ev.newIndex) return;
@@ -271,6 +284,7 @@ async function lote(acc) {
     if (!ok) return; C.productos = C.productos.filter(p => !sel.has(p.id)); return listo(n + ' producto' + s + ' eliminado' + s + '.');
   }
 }
+$('bNuevo').onclick = () => abrir(null);
 function duplicar(id) {
   const p = clon(prod(id)); delete p.id; p.nombre = (p.nombre + ' (copia)').slice(0, 80); p.visible = false;
   abrir(null, p);
@@ -546,6 +560,7 @@ async function entrarApp() {
 $('fLogin').onsubmit = async e => { e.preventDefault(); $('lErr').textContent = ''; const b = e.submitter; b.disabled = true;
   try { await api('/admin/api/entrar', { method: 'POST', body: JSON.stringify({ clave: $('clave').value }) }); $('clave').value = ''; await entrarApp(); }
   catch (err) { $('lErr').textContent = msgError(err); } finally { b.disabled = false; } };
+$('bSalirM').onclick = () => $('bSalir').click();
 $('bSalir').onclick = async () => { if (!await confirmar('¿Cerrar sesión?', 'Tendrás que escribir la contraseña la próxima vez.', 'Salir')) return;
   try { await api('/admin/api/salir', { method: 'POST' }); } catch (e) {} mostrarLogin(); };
 api('/admin/api/sesion').then(j => j.ok ? entrarApp() : mostrarLogin()).catch(() => mostrarLogin());

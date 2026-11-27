@@ -529,7 +529,9 @@ class Panel(BaseHTTPRequestHandler):
             html = (APP / "index.html").read_bytes()
             csp = ("default-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; "
                    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; "
-                   "script-src 'self' 'unsafe-inline'; connect-src 'self' blob: data:; worker-src 'self' blob:; "
+                   # Cloudflare inyecta su script de estadísticas (Web Analytics): se permite solo ese origen
+                   "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; "
+                   "connect-src 'self' blob: data: https://cloudflareinsights.com; worker-src 'self' blob:; "
                    + ("" if self.server.dev else "frame-ancestors 'none'; ") + "base-uri 'none'; form-action 'self'")
             return self.enviar(200, html, "text/html; charset=utf-8", {"Content-Security-Policy": csp, "Cache-Control": "no-cache"})
         # archivos de la app del panel (instalable): JS, manifiesto y service worker
