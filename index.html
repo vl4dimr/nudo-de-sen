@@ -421,6 +421,7 @@ button,.btn{background-image:linear-gradient(180deg,rgba(255,255,255,.2),rgba(25
 .menuM .redes svg.i{width:19px;height:19px}
 @media(max-width:900px){.hamb{display:grid;place-items:center}.cart{margin-left:auto}.cart .ctxt{display:none}.header .wrap{gap:8px}}
 /* posición del texto en los recuadros de la portada (la eligen desde el panel) */
+.ban .btn.suelto{position:absolute;z-index:2;margin:0}
 .ban.v-t{justify-content:flex-start;padding-top:48px}.ban.v-m{justify-content:center;padding-top:20px;padding-bottom:20px}.ban.v-b{justify-content:flex-end;padding-bottom:40px}
 .ban.h-l{align-items:flex-start;text-align:left;padding-left:36px;padding-right:20px}.ban.h-c{align-items:center;text-align:center}.ban.h-r{align-items:flex-end;text-align:right;padding-right:36px;padding-left:20px}
 @media(min-width:901px){.ban.c.h-r::after{background:linear-gradient(270deg,var(--fade) 45%,transparent 75%)}.ban.c.h-r>img{left:0;right:auto}
@@ -697,7 +698,10 @@ $('cPhoto').addEventListener('change',()=>{const f=$('cPhoto').files[0];$('cPrev
 const P=D.portada||{};
 // posición del texto (3×3: arriba/centro/abajo × izquierda/centro/derecha) y encuadre de la foto de cada recuadro
 function posicion(el,x){if(/^[tmb][lcr]$/.test(x.pos||'')){el.classList.add('v-'+x.pos[0],'h-'+x.pos[1])}
- if(['top','center','bottom'].includes(x.foco)){const im=el.querySelector('img');if(im)im.style.objectPosition='center '+x.foco}}
+ if(['top','center','bottom'].includes(x.foco)){const im=el.querySelector('img');if(im)im.style.objectPosition='center '+x.foco}
+ // el botón puede ir en otra posición que el título (por ejemplo, título arriba y botón abajo)
+ const b=el.querySelector('.btn');if(b&&/^[tmb][lcr]$/.test(x.btn||'')){const v=x.btn[0],h=x.btn[1];b.classList.add('suelto');
+  Object.assign(b.style,{top:v==='t'?'28px':v==='m'?'50%':'',bottom:v==='b'?'28px':'',left:h==='l'?'28px':h==='c'?'50%':'',right:h==='r'?'28px':'',translate:(h==='c'?'-50%':'0')+' '+(v==='m'?'-50%':'0')})}}
 {const a=P.a||{};if(a.acento)$('aAcc').textContent=a.acento;if(a.titulo)$('aTit').textContent=a.titulo;if(a.boton)$('aBtn').textContent=a.boton;
  for(const k of['b','c']){const x=P[k];if(!x)continue;const el=$(k==='b'?'banB':'banC');
   if(x.titulo)el.querySelector('h2').textContent=x.titulo;if(x.boton)el.querySelector('.btn').textContent=x.boton;if(x.imagen)el.querySelector('img').src=x.imagen;

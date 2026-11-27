@@ -191,6 +191,7 @@ def validar_portada(p: dict, out: dict, categorias: set):
     def lugar(x, r):
         if x.get("pos") in POS: r["pos"] = x["pos"]
         if x.get("foco") in ("top", "center", "bottom"): r["foco"] = x["foco"]
+        if x.get("btn") in POS or x.get("btn") == "junto": r["btn"] = x["btn"]   # botón suelto en otra posición
     a = p.get("a") or {}
     if a: out["a"] = {"acento": texto(a.get("acento"), 60), "titulo": texto(a.get("titulo"), 120), "boton": texto(a.get("boton"), 30)}
     for k in ("b", "c"):

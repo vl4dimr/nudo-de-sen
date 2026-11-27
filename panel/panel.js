@@ -515,7 +515,10 @@ const lugarHtml = k => { const x = PO[k];
     + Object.keys(NOMBRE_POS).map(p => '<button type="button" data-pos="' + k + ':' + p + '" aria-pressed="' + (x.pos === p) + '" aria-label="' + NOMBRE_POS[p] + '" title="' + NOMBRE_POS[p] + '"><i></i></button>').join('')
     + '</div></div><div><span class="lt">Encuadre de la foto</span><div class="seg3" role="group" aria-label="Encuadre de la foto">'
     + [['top', 'Arriba'], ['center', 'Centro'], ['bottom', 'Abajo']].map(([v, t]) => '<button type="button" data-foco="' + k + ':' + v + '" aria-pressed="' + ((x.foco || 'center') === v) + '">' + t + '</button>').join('')
-    + '</div><p class="hint" style="margin-top:8px;font-size:13.5px">Qué parte de la foto se ve cuando no entra completa.</p></div></div>'; };
+    + '</div><p class="hint" style="margin-top:8px;font-size:13.5px">Qué parte de la foto se ve cuando no entra completa.</p></div>'
+    + (k === 'b' || k === 'c' ? '<div><span class="lt">Posición del botón</span><div class="seg3" style="margin-bottom:8px"><button type="button" data-btn="' + k + ':junto" aria-pressed="' + (!x.btn || x.btn === 'junto') + '">Junto al texto</button></div>'
+      + '<div class="pp3" role="group" aria-label="Posición del botón">' + Object.keys(NOMBRE_POS).map(p => '<button type="button" data-btn="' + k + ':' + p + '" aria-pressed="' + (x.btn === p) + '" aria-label="Botón: ' + NOMBRE_POS[p] + '" title="Botón: ' + NOMBRE_POS[p] + '"><i></i></button>').join('') + '</div></div>' : '')
+    + '</div>'; };
 const fechaDe = (f, a) => { if (f.regla === 'segundo-domingo') { const d = new Date(a, f.mes - 1, 1); return new Date(a, f.mes - 1, 1 + (7 - d.getDay()) % 7 + 7); } return new Date(a, f.mes - 1, f.dia); };
 function proximaFecha(lista) {
   const hoy = new Date(), y = hoy.getFullYear();
@@ -567,9 +570,13 @@ function pintarPreview() {
   const a = PO.a, b = PO.b, c = PO.c, d = PO.d, prox = proximaFecha(PO.fechas), fd = prox ? (prox.imagen || d.imagen) : d.imagen;
   const im = (s, x) => s ? '<img src="' + esc(url(s)) + '" alt=""' + (x && x.foco ? ' style="object-position:center ' + x.foco + '"' : '') + '>' : '';
   const cl = x => x.pos ? ' v-' + x.pos[0] + ' h-' + x.pos[1] : '';
+  const bt = (x, t) => { if (!/^[tmb][lcr]$/.test(x.btn || '')) return '<span class="pbtn">' + esc(t) + '</span>';
+    const v = x.btn[0], h = x.btn[1], st = 'position:absolute;margin:0;' + (v === 't' ? 'top:10px;' : v === 'm' ? 'top:50%;' : 'bottom:10px;') + (h === 'l' ? 'left:10px;' : h === 'c' ? 'left:50%;' : 'right:10px;')
+      + 'translate:' + (h === 'c' ? '-50%' : '0') + ' ' + (v === 'm' ? '-50%' : '0');
+    return '<span class="pbtn" style="' + st + '">' + esc(t) + '</span>'; };
   $('pmos').innerHTML = '<div class="ta"><i>' + esc(a.acento) + '</i><b>' + esc(a.titulo) + '</b><span class="m3">' + ic('3d') + '</span><span class="pbtn">' + esc(a.boton) + '</span></div>'
-    + '<div class="tb ov' + cl(b) + '">' + im(b.imagen, b) + '<b>' + esc(b.titulo) + '</b><span class="pbtn">' + esc(b.boton) + '</span></div>'
-    + '<div class="tc' + cl(c) + '">' + im(c.imagen, c) + '<b>' + esc(c.titulo) + '</b><span class="pbtn">' + esc(c.boton) + '</span></div>'
+    + '<div class="tb ov' + cl(b) + '">' + im(b.imagen, b) + '<b>' + esc(b.titulo) + '</b>' + bt(b, b.boton) + '</div>'
+    + '<div class="tc' + cl(c) + '">' + im(c.imagen, c) + '<b>' + esc(c.titulo) + '</b>' + bt(c, c.boton) + '</div>'
     + '<div class="td ov' + cl(d) + '">' + im(fd, d) + '<i>' + esc(d.acento) + '</i><b>' + (prox ? 'Falta poco para ' + esc(prox.nombre) : esc(d.titulo)) + '</b>' + (prox ? '<div class="cl"><span>' + prox.dias + ' días</span></div>' : '') + '</div>';
 }
 $('app').addEventListener('input', e => { const t = e.target.closest('[data-po]'); if (!t) return;
@@ -653,6 +660,8 @@ document.addEventListener('click', async e => {
   if (d.lote) return lote(d.lote);
   if (d.rest) return restaurar(d.rest);
   if (d.img) return cambiarImagen(d.img);
+  if (d.btn) { const [k, v] = d.btn.split(':'); PO[k].btn = v; poSucio = true;
+    b.closest('div').parentElement.querySelectorAll('[data-btn]').forEach(x => x.setAttribute('aria-pressed', x === b)); return pintarPreview(); }
   if (d.pos || d.foco) { const [k, v] = (d.pos || d.foco).split(':'); PO[k][d.pos ? 'pos' : 'foco'] = v; poSucio = true;
     b.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); return pintarPreview(); }
   if (d.fdel) { PO.fechas.splice(+d.fdel, 1); poSucio = true; pintarFechas(); return pintarPreview(); }
