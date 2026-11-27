@@ -181,6 +181,40 @@ def ruta_medio(v):
     return v
 
 
+def validar_portada(p: dict, out: dict, categorias: set):
+    """Textos, imágenes y fechas del mosaico de la portada (todo opcional: si falta, la web usa lo de siempre).
+    a = recuadro principal con el 3D, b y c = recuadros con foto que llevan a una categoría,
+    d = cuenta regresiva hacia la próxima fecha especial de la lista `fechas`."""
+    def img(v):
+        return ruta_medio(v) if v else None
+    a = p.get("a") or {}
+    if a: out["a"] = {"acento": texto(a.get("acento"), 60), "titulo": texto(a.get("titulo"), 120), "boton": texto(a.get("boton"), 30)}
+    for k in ("b", "c"):
+        x = p.get(k) or {}
+        if not x: continue
+        cat = texto(x.get("categoria"), 40)
+        if cat and cat not in categorias: cat = ""
+        r = {"titulo": texto(x.get("titulo"), 60), "boton": texto(x.get("boton"), 30), "categoria": cat}
+        if x.get("imagen"): r["imagen"] = img(x["imagen"])
+        out[k] = r
+    d = p.get("d") or {}
+    if d:
+        out["d"] = {"acento": texto(d.get("acento"), 60), "titulo": texto(d.get("titulo"), 80)}
+        if d.get("imagen"): out["d"]["imagen"] = img(d["imagen"])
+    fechas = p.get("fechas")
+    if fechas is not None:
+        if not isinstance(fechas, list) or len(fechas) > 12: raise ValueError("La portada admite hasta 12 fechas especiales")
+        out["fechas"] = []
+        for f in fechas:
+            regla = f.get("regla") if f.get("regla") in ("fija", "segundo-domingo") else "fija"
+            mes = int(f.get("mes") or 0)
+            dia = int(f.get("dia") or 0) if regla == "fija" else 0
+            if not 1 <= mes <= 12 or (regla == "fija" and not 1 <= dia <= 31): raise ValueError("Revisa el día y el mes de las fechas especiales")
+            r = {"nombre": texto(f.get("nombre"), 40, True), "regla": regla, "mes": mes, "dia": dia, "ocasion": texto(f.get("ocasion"), 60)}
+            if f.get("imagen"): r["imagen"] = img(f["imagen"])
+            out["fechas"].append(r)
+
+
 def validar(c):
     if not isinstance(c, dict): raise ValueError("Formato no válido")
     out = {"version": 1}
@@ -200,6 +234,7 @@ def validar(c):
         if n in nombres: raise ValueError(f"Categoría repetida: {n}")
         nombres.add(n)
         out["categorias"].append({"nombre": n, "frase": texto(k.get("frase"), 120)})
+    validar_portada(p, out["portada"], nombres)
     prods = c.get("productos")
     if not isinstance(prods, list) or len(prods) > 500: raise ValueError("Lista de productos no válida")
     out["productos"] = []
@@ -424,7 +459,9 @@ def resumen_cambios(a: dict, b: dict) -> list:
     if oa != ob: cambios.append("Cambió el orden de los productos")
     if a.get("categorias") != b.get("categorias"): cambios.append("Cambió las categorías")
     if a.get("telefono") != b.get("telefono"): cambios.append("Cambió el número de WhatsApp")
-    if a.get("portada") != b.get("portada"): cambios.append("Cambió el 3D de la portada")
+    pa_, pb_ = a.get("portada") or {}, b.get("portada") or {}
+    if pa_.get("modelo") != pb_.get("modelo"): cambios.append("Cambió el 3D de la portada")
+    if {k: v for k, v in pa_.items() if k != "modelo"} != {k: v for k, v in pb_.items() if k != "modelo"}: cambios.append("Cambió los textos, imágenes o fechas de la portada")
     return cambios or ["Guardó sin cambios"]
 
 

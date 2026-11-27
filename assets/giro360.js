@@ -37,5 +37,5 @@ window.giro360 = function (box, vistas, op) {
       setTimeout(girar, 900);
     });
   }
-  return { ver, parar: () => { auto = false; } };
+  return { ver, parar: () => { auto = false; }, actual: () => k };
 };

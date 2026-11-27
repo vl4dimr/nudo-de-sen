@@ -24,6 +24,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Outfit:wght@400..700&display=swap" rel="stylesheet">
 %%MODEL_VIEWER%%
 %%GIRO_JS%%
+<script src="/assets/zoom.js"></script>
 <script type="application/ld+json">%%JSONLD%%</script>
 %%ESTILOS%%
 </head>
@@ -87,14 +88,24 @@ const ver=m=>m.tipo==='giro'?'<div class="g360"></div>':m.tipo==='video'?'<video
 // Modelos en relieve (hechos desde una sola foto): se balancean suave de lado a lado
 // en vez de dar la vuelta entera, y paran en cuanto la persona los mueve.
 // Giro 360°: se arma con las vistas del medio que se está mostrando
-const armarGiro=m=>{const b=$('fStage').querySelector('.g360');if(b&&m&&m.tipo==='giro'&&window.giro360)giro360(b,m.vistas.map(v=>'/'+v),{alt:N})};
+let giro=null,actual=0;
+const armarGiro=m=>{giro=null;const b=$('fStage').querySelector('.g360');if(b&&m&&m.tipo==='giro'&&window.giro360)giro=giro360(b,m.vistas.map(v=>'/'+v),{alt:N})};
+// Zoom: botón «Ampliar» sobre fotos y giros; tocar la foto también la amplía
+const FOTOS=M.filter(m=>m.tipo==='imagen').map(m=>'/'+m.src);
+const ampliar=()=>{const m=M[actual];if(!m||!window.zoomVer)return;
+  if(m.tipo==='giro'){if(giro)giro.parar();zoomVer(m.vistas.map(v=>'/'+v),giro?giro.actual():0)}
+  else if(m.tipo==='imagen')zoomVer(FOTOS,FOTOS.indexOf('/'+m.src))};
+const ponerAmpliar=()=>{const m=M[actual];if(!m||(m.tipo!=='imagen'&&m.tipo!=='giro'))return;
+  const b=document.createElement('button');b.type='button';b.className='ampliar';b.setAttribute('aria-label','Ampliar');b.title='Ampliar';
+  b.innerHTML='<svg class="i"><use href="#i-ampliar"/></svg>';b.onclick=ampliar;$('fStage').appendChild(b)};
+$('fStage').addEventListener('click',e=>{if(e.target.matches('.fstage>img'))ampliar()});
 const balancear=()=>{const mv=$('fStage').querySelector('model-viewer[data-relieve]');if(!mv)return;
   let quieto=false,t0=performance.now();mv.addEventListener('camera-change',e=>{if(e.detail&&e.detail.source==='user-interaction')quieto=true});
   if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   const paso=t=>{if(quieto||!mv.isConnected)return;mv.cameraOrbit=(28*Math.sin((t-t0)/1400))+'deg 85deg auto';requestAnimationFrame(paso)};requestAnimationFrame(paso)};
 $('fThumbs').addEventListener('click',e=>{const b=e.target.closest('[data-fi]');if(!b)return;
-  $('fStage').innerHTML=ver(M[+b.dataset.fi]);armarGiro(M[+b.dataset.fi]);balancear();$('fThumbs').querySelectorAll('button').forEach(x=>x.setAttribute('aria-current',x===b))});
-armarGiro(M[0]);balancear();
+  actual=+b.dataset.fi;$('fStage').innerHTML=ver(M[actual]);armarGiro(M[actual]);ponerAmpliar();balancear();$('fThumbs').querySelectorAll('button').forEach(x=>x.setAttribute('aria-current',x===b))});
+armarGiro(M[0]);ponerAmpliar();balancear();
 // Mi lista: la misma que usa la página principal
 let cart={};try{cart=JSON.parse(localStorage.getItem('lista-nudodesen')||'{}')||{}}catch(e){}
 const id=$('fAdd').dataset.id;

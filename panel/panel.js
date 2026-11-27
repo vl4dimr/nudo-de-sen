@@ -135,7 +135,7 @@ function irA(t) {
   if (t === 'inicio') cargarMetricas();
   window.scrollTo(0, 0);
 }
-function refrescar() { pintarLista(); pintarCats(); pintarAjustes(); pintarPendientes(); }
+function refrescar() { pintarLista(); pintarCats(); pintarAjustes(); pintarPendientes(); pintarPortada(); }
 
 /* ================= INICIO: tablero ================= */
 async function cargarMetricas() {
@@ -487,8 +487,120 @@ $('fGlb').onchange = async () => { const f = $('fGlb').files[0]; $('fGlb').value
   if (!f.name.toLowerCase().endsWith('.glb')) return toast('El modelo debe ser un archivo .glb', true);
   try { $('pMsg').textContent = 'Subiendo…';
     const r = await subir(f, f.name, 'modelo', k => $('pMsg').textContent = 'Subiendo… ' + Math.round(k * 100) + '%');
-    C.portada = { modelo: r.src, ...(r.relieve ? { relieve: true } : {}) }; await guardar('Modelo 3D de la portada cambiado.');
+    const { poster, relieve, ...resto } = C.portada;   // conserva textos, imágenes y fechas; quita la portada de espera del modelo anterior
+    C.portada = { ...resto, modelo: r.src, ...(r.relieve ? { relieve: true } : {}) }; await guardar('Modelo 3D de la portada cambiado.');
   } catch (e) { toast(msgError(e), true); } finally { $('pMsg').textContent = ''; } };
+
+/* ================= PORTADA (mosaico de la tienda) ================= */
+// Lo mismo que muestra la tienda si nunca se editó (ver index.html). Se edita una copia (PO) y solo se publica al guardar.
+const POR_DEF = {
+  a: { acento: 'Tu mini versión', titulo: 'Convierte a quien más quieres en un amigurumi', boton: 'Crear el mío' },
+  b: { titulo: 'Danzas de Puno', boton: 'Ver modelos', imagen: 'assets/productos/danza-plumas.jpg', categoria: 'Danzas de Puno' },
+  c: { titulo: 'Ramos que no se marchitan', boton: 'Ver ramos', imagen: 'assets/productos/ramo-crema.jpg', categoria: 'Ramos tejidos' },
+  d: { acento: 'Pide con anticipación', titulo: 'Hecho a pedido', imagen: 'assets/productos/ramo-rojo-pareja.jpg' },
+  fechas: [
+    { nombre: 'San Valentín', regla: 'fija', mes: 2, dia: 14, imagen: 'assets/productos/ramo-rojo-pareja.jpg', ocasion: 'San Valentín o aniversario' },
+    { nombre: 'el Día de la Madre', regla: 'segundo-domingo', mes: 5, dia: 0, imagen: 'assets/productos/ramo-crema.jpg', ocasion: 'Día de la Madre' },
+    { nombre: 'el Día de la Policía', regla: 'fija', mes: 12, dia: 6, imagen: 'assets/productos/policia-caja.jpg', ocasion: 'Día de la Policía' },
+    { nombre: 'Navidad', regla: 'fija', mes: 12, dia: 25, imagen: 'assets/productos/mini-mochila.jpg', ocasion: 'Navidad' }] };
+const OCASIONES = ['San Valentín o aniversario', 'Graduación', 'Día de la Policía', 'Cumpleaños', 'Navidad', 'Día de la Madre', 'Otra'];
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+let PO = null, poSucio = false;
+const fechaDe = (f, a) => { if (f.regla === 'segundo-domingo') { const d = new Date(a, f.mes - 1, 1); return new Date(a, f.mes - 1, 1 + (7 - d.getDay()) % 7 + 7); } return new Date(a, f.mes - 1, f.dia); };
+function proximaFecha(lista) {
+  const hoy = new Date(), y = hoy.getFullYear();
+  const t = [y, y + 1].flatMap(a => (lista || []).filter(f => f.nombre && f.mes && (f.regla === 'segundo-domingo' || f.dia)).map(f => ({ ...f, d: fechaDe(f, a) })))
+    .filter(x => x.d - hoy > 7 * 864e5).sort((a, b) => a.d - b.d)[0];
+  return t ? { ...t, dias: Math.floor((t.d - hoy) / 864e5) } : null;
+}
+function pintarPortada(reset) {
+  if (!C) return;
+  if (reset || !poSucio || !PO) {
+    PO = clon(POR_DEF);
+    for (const k of ['a', 'b', 'c', 'd']) if (C.portada[k]) PO[k] = { ...PO[k], ...C.portada[k] };
+    if (C.portada.fechas) PO.fechas = clon(C.portada.fechas);
+    poSucio = false;
+    [['aAcc', 'a.acento'], ['aTit', 'a.titulo'], ['aBtn', 'a.boton'], ['dAcc', 'd.acento'], ['dTit', 'd.titulo']].forEach(([id, ruta]) => { $(id).dataset.po = ruta; $(id).value = leerRuta(ruta) ?? ''; });
+    for (const [k, n, t] of [['b', 2, 'Recuadro 2'], ['c', 3, 'Recuadro 3']]) {
+      const x = PO[k];
+      $('box' + k.toUpperCase()).innerHTML = '<h3><span class="ib">' + n + '</span>' + t + (k === 'b' ? ' (alto, al centro)' : ' (arriba a la derecha)') + '</h3>'
+        + '<label>Título<input data-po="' + k + '.titulo" maxlength="60" value="' + esc(x.titulo) + '"></label>'
+        + '<div class="two"><label>Texto del botón<input data-po="' + k + '.boton" maxlength="30" value="' + esc(x.boton) + '"></label>'
+        + '<label>Al tocarlo muestra<select data-po="' + k + '.categoria"><option value="">Todo el catálogo</option>' + C.categorias.map(c => '<option' + (c.nombre === x.categoria ? ' selected' : '') + '>' + esc(c.nombre) + '</option>').join('') + '</select></label></div>'
+        + '<div class="imgsel"><div class="ph">' + (x.imagen ? '<img src="' + esc(url(x.imagen)) + '" alt="">' : ic('foto')) + '</div><button class="ghost" data-img="' + k + '.imagen">' + ic('foto') + 'Cambiar imagen</button></div>';
+    }
+  }
+  pintarFechas(); $('dImg').innerHTML = '<div class="ph">' + (PO.d.imagen ? '<img src="' + esc(url(PO.d.imagen)) + '" alt="">' : ic('foto')) + '</div><button class="ghost" data-img="d.imagen">' + ic('foto') + 'Cambiar imagen</button>';
+  pintarPreview();
+}
+function leerRuta(ruta) { return ruta.split('.').reduce((o, k) => o == null ? o : o[k], PO); }
+function ponerRuta(ruta, v) { const ks = ruta.split('.'); let o = PO; for (let i = 0; i < ks.length - 1; i++) o = o[ks[i]]; o[ks[ks.length - 1]] = v; }
+function pintarFechas() {
+  const hoy = new Date();
+  $('fechas').innerHTML = PO.fechas.map((f, i) => {
+    let cuando = '';
+    if (f.mes && (f.regla === 'segundo-domingo' || f.dia)) { let d = fechaDe(f, hoy.getFullYear()); if (d < hoy) d = fechaDe(f, hoy.getFullYear() + 1);
+      cuando = 'Próxima: ' + d.toLocaleDateString('es-PE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · faltan ' + Math.ceil((d - hoy) / 864e5) + ' días'; }
+    return '<div class="fecha"><div class="fcab"><button type="button" class="ph" data-img="fechas.' + i + '.imagen" title="Cambiar imagen" aria-label="Cambiar imagen">' + (f.imagen ? '<img src="' + esc(url(f.imagen)) + '" alt="">' : ic('foto')) + '</button>'
+      + '<input data-po="fechas.' + i + '.nombre" maxlength="40" value="' + esc(f.nombre) + '" placeholder="Ej.: el Día del Padre" aria-label="Nombre (se lee «Falta poco para …»)">'
+      + '<button type="button" class="ico danger" data-fdel="' + i + '" aria-label="Quitar esta fecha" title="Quitar">' + ic('basura') + '</button></div>'
+      + '<div class="fila"><select data-po="fechas.' + i + '.regla" aria-label="Tipo de fecha"><option value="fija"' + (f.regla !== 'segundo-domingo' ? ' selected' : '') + '>Día fijo</option><option value="segundo-domingo"' + (f.regla === 'segundo-domingo' ? ' selected' : '') + '>2.º domingo</option></select>'
+      + '<select data-po="fechas.' + i + '.mes" aria-label="Mes">' + MESES.map((m, j) => '<option value="' + (j + 1) + '"' + (f.mes === j + 1 ? ' selected' : '') + '>' + m + '</option>').join('') + '</select>'
+      + (f.regla === 'segundo-domingo' ? '<span></span>' : '<input type="number" data-po="fechas.' + i + '.dia" min="1" max="31" value="' + (f.dia || '') + '" aria-label="Día">') + '</div>'
+      + '<select data-po="fechas.' + i + '.ocasion" aria-label="Ocasión que se marca en el formulario"><option value="">Ocasión en el formulario: ninguna</option>' + OCASIONES.map(o => '<option' + (o === f.ocasion ? ' selected' : '') + '>' + o + '</option>').join('') + '</select>'
+      + '<span class="cuando">' + cuando + '</span></div>';
+  }).join('') || '<p class="hint">Sin fechas: la cuenta regresiva no se muestra.</p>';
+}
+function pintarPreview() {
+  const a = PO.a, b = PO.b, c = PO.c, d = PO.d, prox = proximaFecha(PO.fechas), fd = prox ? (prox.imagen || d.imagen) : d.imagen;
+  const im = s => s ? '<img src="' + esc(url(s)) + '" alt="">' : '';
+  $('pmos').innerHTML = '<div class="ta"><i>' + esc(a.acento) + '</i><b>' + esc(a.titulo) + '</b><span class="m3">' + ic('3d') + '</span><span class="pbtn">' + esc(a.boton) + '</span></div>'
+    + '<div class="tb ov">' + im(b.imagen) + '<b>' + esc(b.titulo) + '</b><span class="pbtn">' + esc(b.boton) + '</span></div>'
+    + '<div class="tc">' + im(c.imagen) + '<b>' + esc(c.titulo) + '</b><span class="pbtn">' + esc(c.boton) + '</span></div>'
+    + '<div class="td ov">' + im(fd) + '<i>' + esc(d.acento) + '</i><b>' + (prox ? 'Falta poco para ' + esc(prox.nombre) : esc(d.titulo)) + '</b>' + (prox ? '<div class="cl"><span>' + prox.dias + ' días</span></div>' : '') + '</div>';
+}
+$('app').addEventListener('input', e => { const t = e.target.closest('[data-po]'); if (!t) return;
+  let v = t.value; if (/\.(mes|dia)$/.test(t.dataset.po)) v = +v || 0;
+  ponerRuta(t.dataset.po, v); poSucio = true;
+  if (/\.regla$/.test(t.dataset.po) || /^fechas\./.test(t.dataset.po) && e.type === 'change') pintarFechas();
+  pintarPreview(); });
+$('app').addEventListener('change', e => { const t = e.target.closest('[data-po]'); if (t && /^fechas\.\d+\.(regla|mes|dia)$/.test(t.dataset.po)) { pintarFechas(); pintarPreview(); } });
+// Elegir una imagen: entre las fotos de los productos o subiendo una nueva
+function elegirImagen() {
+  return new Promise(res => {
+    const fotos = [...new Set(C.productos.flatMap(p => (p.medios || []).filter(m => m.tipo === 'imagen').map(m => m.src)))];
+    dlg({ title: 'Elegir imagen', width: 760, showConfirmButton: false, showCancelButton: true,
+      html: '<button type="button" class="ghost" id="gSubir" style="margin:0 auto 14px">' + ic('subir') + 'Subir una foto nueva</button>'
+        + '<p class="hint" style="margin-bottom:8px">O toca una de las fotos de tus productos:</p><div class="galeria">'
+        + fotos.map(s => '<button type="button" data-src="' + esc(s) + '"><img src="' + esc(url(s)) + '" alt="" loading="lazy"></button>').join('') + '</div>',
+      didOpen: pop => {
+        pop.querySelector('.galeria').addEventListener('click', e => { const b = e.target.closest('[data-src]'); if (b) { res(b.dataset.src); Swal.close(); } });
+        pop.querySelector('#gSubir').onclick = () => { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
+          inp.onchange = async () => { const f = inp.files[0]; if (!f) return;
+            try { Swal.showLoading(); const { blob, nombre } = await achicar(f); const r = await subir(blob, nombre, 'imagen'); res(r.src); Swal.close(); }
+            catch (e) { Swal.hideLoading(); Swal.showValidationMessage(msgError(e)); } };
+          inp.click(); };
+      } }).then(() => res(null));
+  });
+}
+async function cambiarImagen(ruta) {
+  const s = await elegirImagen(); if (!s) return;
+  ponerRuta(ruta, s); poSucio = true;
+  if (ruta.startsWith('fechas.')) pintarFechas();
+  else if (ruta === 'd.imagen') $('dImg').querySelector('.ph').innerHTML = '<img src="' + esc(url(s)) + '" alt="">';
+  else $('box' + ruta[0].toUpperCase()).querySelector('.ph').innerHTML = '<img src="' + esc(url(s)) + '" alt="">';
+  pintarPreview();
+}
+$('bFecha').onclick = () => { if (PO.fechas.length >= 12) return toast('Máximo 12 fechas especiales.', true);
+  PO.fechas.push({ nombre: '', regla: 'fija', mes: new Date().getMonth() + 1, dia: 1, imagen: '', ocasion: '' }); poSucio = true; pintarFechas(); pintarPreview();
+  const ins = $('fechas').querySelectorAll('[data-po$=".nombre"]'); ins[ins.length - 1].focus(); };
+$('gPor').onclick = async () => {
+  const vacia = PO.fechas.findIndex(f => !f.nombre.trim()); if (vacia >= 0) return toast('Escribe el nombre de cada fecha especial (o quita la que sobra).', true);
+  const mala = PO.fechas.find(f => f.regla === 'fija' && !(f.dia >= 1 && f.dia <= 31)); if (mala) return toast('Revisa el día de «' + mala.nombre + '».', true);
+  C.portada = { ...C.portada, ...clon(PO) };
+  if (await guardar('Portada guardada. Ya se ve en la tienda.')) { poSucio = false; pintarPortada(true); }
+};
+$('rPor').onclick = async () => { if (poSucio && !await confirmar('¿Descartar los cambios de la portada?', 'Vuelve a quedar como está publicada.', 'Descartar', true)) return; pintarPortada(true); };
 
 /* ================= app instalable y «Compartir» ================= */
 let pedidoInstalar = null;
@@ -527,6 +639,8 @@ document.addEventListener('click', async e => {
   if (d.vis) { const p = prod(d.vis); p.visible = p.visible === false; return guardar(p.visible ? '«' + p.nombre + '» ahora se ve en la web.' : '«' + p.nombre + '» quedó oculto.'); }
   if (d.lote) return lote(d.lote);
   if (d.rest) return restaurar(d.rest);
+  if (d.img) return cambiarImagen(d.img);
+  if (d.fdel) { PO.fechas.splice(+d.fdel, 1); poSucio = true; pintarFechas(); return pintarPreview(); }
   if (d.ml || d.mr) { const i = +(d.ml ?? d.mr), j = d.ml ? i - 1 : i + 1; [edMed[i], edMed[j]] = [edMed[j], edMed[i]]; return pintarMed(); }
   if (d.mp) { const [m] = edMed.splice(+d.mp, 1); edMed.unshift(m); return pintarMed(); }
   if (d.mx) { edMed.splice(+d.mx, 1); return pintarMed(); }
@@ -545,7 +659,7 @@ document.addEventListener('keydown', e => {
   if (e.key === '/') { e.preventDefault(); irA('productos'); $('q').focus(); }
   else if (e.key.toLowerCase() === 'n') { e.preventDefault(); irA('productos'); abrir(null); }
 });
-window.addEventListener('beforeunload', e => { if (subiendo || (ed.open && estadoEd() !== edInicial)) { e.preventDefault(); e.returnValue = ''; } });
+window.addEventListener('beforeunload', e => { if (subiendo || poSucio || (ed.open && estadoEd() !== edInicial)) { e.preventDefault(); e.returnValue = ''; } });
 
 /* ================= sesión ================= */
 function mostrarLogin() { $('app').hidden = true; $('login').hidden = false; $('clave').focus(); }
@@ -553,7 +667,7 @@ async function entrarApp() {
   C = await api('/admin/api/catalogo'); snap = clon(C);
   $('login').hidden = true; $('app').hidden = false; enLinea();
   refrescar();
-  const h = location.hash.slice(1), tabs = ['inicio', 'productos', 'categorias', 'historial', 'ajustes'];
+  const h = location.hash.slice(1), tabs = ['inicio', 'productos', 'portada', 'categorias', 'historial', 'ajustes'];
   if (/^editar-.+/.test(h) && prod(h.slice(7))) { irA('productos'); abrir(h.slice(7)); } else irA(tabs.includes(h) ? h : 'inicio');
   compartidos();
 }

@@ -26,6 +26,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Outfit:wght@400..700&display=swap" rel="stylesheet">
 <script type="module" src="assets/model-viewer.min.js"></script>
 <script src="productos.js"></script>
+<script src="assets/zoom.js" defer></script>
 <style>
 /* ESTILO: tienda clásica y limpia. Franja superior de color, cabecera blanca, mosaico de portada,
    tres ventajas con iconos, títulos enmarcados entre líneas, fila de categorías y tarjetas blancas.
@@ -164,6 +165,22 @@ model-viewer::part(default-progress-bar){display:none}
 .fstage img,.fstage video{width:100%;height:100%;object-fit:contain;background:#000}
 .fstage img{background:transparent;object-fit:cover}
 .fstage model-viewer{width:100%;height:100%;--poster-color:transparent}
+/* fotos protegidas: sin arrastrar, sin seleccionar y sin el menú de «guardar imagen» al mantener pulsado (iPhone) */
+img{-webkit-user-drag:none;user-select:none;-webkit-touch-callout:none}
+.ampliar{position:absolute;right:10px;bottom:10px;z-index:2;width:44px;min-height:44px;padding:0;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:#2b2b2b;box-shadow:var(--sh)}
+.ampliar svg.i{width:22px;height:22px}
+.fstage>img{cursor:zoom-in}
+/* visor ampliado (assets/zoom.js) */
+.zoom{position:fixed;inset:0;z-index:100;background:rgba(14,8,10,.95);display:grid;grid-template-rows:minmax(0,1fr) auto;color:#fff;font-family:var(--sans)}
+.zoom .zl{overflow:hidden;display:grid;place-items:center;touch-action:none;cursor:zoom-in}
+.zoom.ampliada .zl{cursor:grab}
+.zoom img{max-width:100%;max-height:100%;object-fit:contain;transform-origin:center;transition:transform .08s linear;will-change:transform;background:#fff}
+.zoom .zb{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 12px calc(12px + env(safe-area-inset-bottom))}
+.zoom .zb i{width:10px}
+.zoom .zb button{width:48px;min-height:48px;padding:0;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:22px;font-weight:500}
+.zoom .zn{min-width:60px;text-align:center;font-size:15px;font-variant-numeric:tabular-nums}
+.zoom .zh{position:absolute;left:50%;top:14px;translate:-50% 0;font-size:13px;opacity:.75;background:rgba(0,0,0,.4);padding:4px 12px;border-radius:99px;white-space:nowrap;pointer-events:none}
+.zoom .zm{position:absolute;right:18px;bottom:84px;font-size:13px;letter-spacing:.08em;opacity:.45;pointer-events:none}
 .g360{position:absolute;inset:0;display:grid;place-items:center;background:#fff;cursor:grab;touch-action:pan-y;outline-offset:-3px}
 .fthumbs svg.pl.g{color:var(--wine);filter:none;inset:auto 2px 2px auto;translate:none;width:18px;height:18px;background:#fff;border-radius:50%}
 .g360:active{cursor:grabbing}
@@ -289,6 +306,7 @@ footer .chipsf a{background:var(--tint);border-radius:3px;padding:8px 14px;font-
   <symbol id="i-cam" viewBox="0 0 24 24"><path d="M8.500 5l1.200-2h4.600l1.200 2H20a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4.500zM12 16.500a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></symbol>
   <!-- Iconos de línea (mismo trazo redondeado del logo) -->
   <symbol id="i-play" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.6v6.8l5.6-3.4z" fill="currentColor"/></g></symbol>
+  <symbol id="i-ampliar" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5M10.5 7.5v6M7.5 10.5h6"/></g></symbol>
   <symbol id="i-regla" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8" width="19" height="8" rx="1.5"/><path d="M6.5 8v3M10 8v4.5M13.5 8v3M17 8v4.5"/></g></symbol>
   <symbol id="i-ovillo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7.5"/><path d="M4.3 8.6c3.6-.4 8 1.2 11.6 4.8M4 12.6c3.4.3 7 2 9.5 5.1M8.2 4.1c2.4 2.7 3.9 6.5 3.8 10.9M15.8 5.4c-1.5 2.3-2.1 5-1.8 8"/><path d="M16.6 16.6c1.6 1.6 2.7 3.6 4.9 3.4"/></g></symbol>
   <symbol id="i-360" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15.6C4.3 14.9 2.5 13.6 2.5 12c0-2.2 4.3-4 9.5-4s9.5 1.8 9.5 4c0 1.9-3.1 3.4-7.4 3.9"/><path d="m11.6 13.4 2.6 2.5-2.6 2.5"/></g></symbol>
@@ -315,14 +333,14 @@ footer .chipsf a{background:var(--tint);border-radius:3px;padding:8px 14px;font-
 
 <header class="hero" id="inicio"><div class="wrap"><div class="mosaic">
   <div class="ban a">
-    <span class="acc">Tu mini versión</span>
-    <h1>Convierte a quien más quieres en un amigurumi</h1>
+    <span class="acc" id="aAcc">Tu mini versión</span>
+    <h1 id="aTit">Convierte a quien más quieres en un amigurumi</h1>
     <model-viewer id="mv" src="assets/muneca.glb" poster="assets/muneca-poster.webp" alt="Muñeca amigurumi en 3D sobre base de madera; puedes girarla" camera-controls auto-rotate auto-rotate-delay="800" rotation-per-second="18deg" shadow-intensity="1" shadow-softness=".8" exposure="1" camera-orbit="20deg 80deg auto" interaction-prompt="none" loading="eager"></model-viewer>
     <small>↻ Gírala en 3D</small>
-    <a class="btn" href="#personalizados">Crear el mío</a>
+    <a class="btn" href="#personalizados" id="aBtn">Crear el mío</a>
   </div>
-  <a class="ban b" href="#catalogo" data-cat="Danzas de Puno"><img src="assets/productos/danza-plumas.jpg" alt=""><h2>Danzas de Puno</h2><span class="btn white">Ver modelos</span></a>
-  <a class="ban c" href="#catalogo" data-cat="Ramos tejidos"><img src="assets/productos/ramo-crema.jpg" alt=""><h2>Ramos que no se marchitan</h2><span class="btn ghost">Ver ramos</span></a>
+  <a class="ban b" href="#catalogo" data-cat="Danzas de Puno" id="banB"><img src="assets/productos/danza-plumas.jpg" alt=""><h2>Danzas de Puno</h2><span class="btn white">Ver modelos</span></a>
+  <a class="ban c" href="#catalogo" data-cat="Ramos tejidos" id="banC"><img src="assets/productos/ramo-crema.jpg" alt=""><h2>Ramos que no se marchitan</h2><span class="btn ghost">Ver ramos</span></a>
   <a class="ban d" href="#personalizados" id="banD"><img id="clockImg" src="assets/productos/ramo-rojo-pareja.jpg" alt=""><span class="acc" id="clockPre">Pide con anticipación</span><h2 id="clockTtl">Hecho a pedido</h2>
     <div class="clock" id="clock"><div><b id="cd">0</b><span>Días</span></div><div><b id="ch">0</b><span>Horas</span></div><div><b id="cm">0</b><span>Min</span></div></div></a>
 </div></div></header>
@@ -514,20 +532,28 @@ $('customForm').addEventListener('submit',e=>{e.preventDefault();openWa(customTe
   $('cMsg').textContent='Se abrió WhatsApp con tu pedido.'+($('cPhoto').files.length?' No olvides adjuntar la foto en el chat.':'')+' Si no se abrió, usa «Copiar mensaje».'});
 $('cCopy').onclick=()=>copy(customText(),$('cMsg'));
 $('cPhoto').addEventListener('change',()=>{const f=$('cPhoto').files[0];$('cPreview').classList.toggle('on',!!f);if(f)$('cImg').src=URL.createObjectURL(f)});
+// Portada en mosaico: textos, imágenes y fechas se editan en el panel (pestaña «Portada»); si no hay, queda lo de siempre
+const P=D.portada||{};
+{const a=P.a||{};if(a.acento)$('aAcc').textContent=a.acento;if(a.titulo)$('aTit').textContent=a.titulo;if(a.boton)$('aBtn').textContent=a.boton;
+ for(const k of['b','c']){const x=P[k];if(!x)continue;const el=$(k==='b'?'banB':'banC');
+  if(x.titulo)el.querySelector('h2').textContent=x.titulo;if(x.boton)el.querySelector('.btn').textContent=x.boton;if(x.imagen)el.querySelector('img').src=x.imagen;
+  if(x.categoria&&cats.includes(x.categoria))el.dataset.cat=x.categoria;else delete el.dataset.cat}}
 // Cuenta regresiva hacia la próxima fecha especial (se calcula sola cada año)
 {const now=new Date(),y=now.getFullYear();$('year').textContent=y;
  $('cDate').min=y+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
- const madre=a=>{const d=new Date(a,4,1);return new Date(a,4,1+(7-d.getDay())%7+7)};
- const fechas=[y,y+1].flatMap(a=>[
-  {n:'San Valentín',d:new Date(a,1,14),f:'ramo-rojo-pareja',o:'San Valentín o aniversario'},
-  {n:'el Día de la Madre',d:madre(a),f:'ramo-crema',o:'Día de la Madre'},
-  {n:'el Día de la Policía',d:new Date(a,11,6),f:'policia-caja',o:'Día de la Policía'},
-  {n:'Navidad',d:new Date(a,11,25),f:'mini-mochila',o:'Navidad'}]).filter(x=>x.d-now>7*864e5).sort((a,b)=>a.d-b.d);
- const prox=fechas[0];
- if(prox){$('clockImg').src='assets/productos/'+prox.f+'.jpg';$('clockPre').textContent='Pide con anticipación';$('clockTtl').textContent='Falta poco para '+prox.n;
-  $('banD').addEventListener('click',()=>{$('cOcc').value=prox.o});
+ const segDomingo=(a,m)=>{const d=new Date(a,m-1,1);return new Date(a,m-1,1+(7-d.getDay())%7+7)};
+ const LISTA=P.fechas||[
+  {nombre:'San Valentín',regla:'fija',mes:2,dia:14,imagen:'assets/productos/ramo-rojo-pareja.jpg',ocasion:'San Valentín o aniversario'},
+  {nombre:'el Día de la Madre',regla:'segundo-domingo',mes:5,imagen:'assets/productos/ramo-crema.jpg',ocasion:'Día de la Madre'},
+  {nombre:'el Día de la Policía',regla:'fija',mes:12,dia:6,imagen:'assets/productos/policia-caja.jpg',ocasion:'Día de la Policía'},
+  {nombre:'Navidad',regla:'fija',mes:12,dia:25,imagen:'assets/productos/mini-mochila.jpg',ocasion:'Navidad'}];
+ const fechas=[y,y+1].flatMap(a=>LISTA.map(f=>({...f,d:f.regla==='segundo-domingo'?segDomingo(a,f.mes):new Date(a,f.mes-1,f.dia)}))).filter(x=>x.d-now>7*864e5).sort((a,b)=>a.d-b.d);
+ const prox=fechas[0],dd=P.d||{};
+ $('clockPre').textContent=dd.acento||'Pide con anticipación';
+ if(prox){if(prox.imagen)$('clockImg').src=prox.imagen;$('clockTtl').textContent='Falta poco para '+prox.nombre;
+  $('banD').addEventListener('click',()=>{if(!prox.ocasion)return;const s=$('cOcc');if(![...s.options].some(o=>o.value===prox.ocasion))s.add(new Option(prox.ocasion,prox.ocasion));s.value=prox.ocasion});
   const tick=()=>{const ms=Math.max(0,prox.d-new Date());$('cd').textContent=Math.floor(ms/864e5);$('ch').textContent=Math.floor(ms/36e5)%24;$('cm').textContent=Math.floor(ms/6e4)%60};tick();setInterval(tick,30000)}
- else $('clock').hidden=true}
+ else{$('clock').hidden=true;if(dd.titulo)$('clockTtl').textContent=dd.titulo;if(dd.imagen)$('clockImg').src=dd.imagen}}
 document.querySelectorAll('.waL').forEach(a=>a.href=wa('Hola, vi su página y quiero información sobre sus amigurumis.'));
 $('phoneTxt').textContent='+'+PHONE.slice(0,2)+' '+PHONE.slice(2,5)+' '+PHONE.slice(5,8)+' '+PHONE.slice(8);
 if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}}),{rootMargin:'0px 0px -6% 0px'});document.querySelectorAll('.rv').forEach(el=>io.observe(el))}

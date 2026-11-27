@@ -214,6 +214,49 @@ td a:hover{color:var(--wine)}
 .portada .pv{aspect-ratio:3/4;background:linear-gradient(#fbeeea,#f1ead9);border-radius:10px;overflow:hidden}
 .portada model-viewer{width:100%;height:100%}
 
+/* ===== portada ===== */
+.box>h3 .ib:not(:has(svg)){font-weight:700;font-size:16px}
+.pmos{display:grid;grid-template-columns:1.36fr 1fr 1.72fr;grid-template-rows:96px 150px;gap:10px;background:#f4f1ef;padding:14px;border-radius:10px;font-family:var(--sans)}
+.pmos>div{position:relative;overflow:hidden;border-radius:4px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.14);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px;color:#fff}
+.pmos img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pmos .ov::after{content:"";position:absolute;inset:0;background:rgba(40,20,25,.38)}
+.pmos>div>*:not(img){position:relative;z-index:1}
+.pmos .ta{grid-row:1/3;background:linear-gradient(#fbeeea,#f1ead9);color:#2b2b2b;justify-content:flex-start;padding-top:16px}
+.pmos .ta i{font:italic 400 15px var(--serif);color:#8e2a3c}
+.pmos .ta b{font-size:13.5px;line-height:1.15;margin-top:4px}
+.pmos .ta .m3{margin-top:auto;color:#8e2a3c;opacity:.7}
+.pmos .tb{grid-row:1/3;justify-content:flex-start;padding-top:22px}
+.pmos b{font-size:14px;line-height:1.1;font-weight:600;text-shadow:0 1px 6px rgba(0,0,0,.4)}
+.pmos .ta b{text-shadow:none}
+.pmos .tc{align-items:flex-start;text-align:left;color:#2b2b2b;padding-left:14px}
+.pmos .tc::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.94) 45%,transparent 75%)}
+.pmos .tc img{left:auto;width:62%}
+.pmos .tc b{text-shadow:none;max-width:9em}
+.pmos .pbtn{font-size:10px;font-weight:600;border:1.5px solid currentColor;padding:3px 8px;margin-top:6px;border-radius:2px}
+.pmos .ta .pbtn{background:#8e2a3c;color:#fff;border-color:#8e2a3c;margin-top:8px}
+.pmos .tc .pbtn{color:#8e2a3c}
+.pmos .td i{font:italic 400 14px var(--serif)}
+.pmos .td .cl{display:flex;gap:4px;margin-top:6px}
+.pmos .td .cl span{background:rgba(0,0,0,.42);font-size:13px;font-weight:600;padding:3px 7px;border-radius:2px}
+.imgsel{display:flex;align-items:center;gap:14px}
+.imgsel .ph{width:84px;height:84px;border-radius:10px;overflow:hidden;background:var(--bg);flex:none;display:grid;place-items:center;color:var(--soft);border:1px solid var(--line)}
+.imgsel .ph img{width:100%;height:100%;object-fit:cover}
+.imgsel button{min-height:40px;padding:6px 14px;font-size:14.5px}
+.fechas{display:grid;gap:10px}
+.fecha{border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:8px;background:var(--hover)}
+.fecha .fcab{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:10px;align-items:center}
+.fecha .ph{width:56px;height:56px;border-radius:8px;overflow:hidden;background:var(--bg);border:1px solid var(--line);padding:0;min-height:0;display:grid;place-items:center;color:var(--soft)}
+.fecha .ph img{width:100%;height:100%;object-fit:cover}
+.fecha .fila{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr) 76px;gap:8px}
+.fecha input,.fecha select{min-height:42px;padding:8px 10px;font-size:15px}
+.fecha .cuando{font-size:13.5px;color:var(--soft)}
+.sinfecha{border-top:1px solid var(--line);padding-top:16px;display:grid;gap:12px}
+.galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;max-height:52vh;overflow:auto;padding:4px}
+.galeria button{padding:0;min-height:0;aspect-ratio:5/6;border-radius:8px;overflow:hidden;border:2px solid transparent;background:var(--bg)}
+.galeria button:hover,.galeria button:focus-visible{border-color:var(--wine);box-shadow:none}
+.galeria img{width:100%;height:100%;object-fit:cover}
+@media(max-width:560px){.pmos{grid-template-columns:1fr 1fr;grid-template-rows:170px 110px 110px}.pmos .ta{grid-row:1/2}.pmos .tb{grid-row:1/2}.pmos .tc,.pmos .td{grid-column:1/3}.fecha .fila{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 70px}}
+
 /* ===== editor (panel lateral) ===== */
 dialog#ed{border:0;padding:0;margin:0 0 0 auto;width:min(820px,100%);height:100dvh;max-height:100dvh;max-width:100%;background:var(--bg);color:var(--ink);box-shadow:-30px 0 60px -20px rgba(0,0,0,.4);overflow:hidden}
 dialog#ed[open]{animation:entra .28s cubic-bezier(.2,.8,.2,1)}
@@ -304,12 +347,12 @@ dialog#ed::backdrop{background:rgba(20,10,14,.5);backdrop-filter:blur(2px)}
  .movil .marca{padding:0;font-size:19px}.movil .marca .mk{width:28px;height:34px}
  .movil .acts{display:flex;gap:2px}
  .movil .acts a,.movil .acts button{background:transparent;border:0;color:var(--side-soft);min-height:44px;width:44px;padding:0;display:grid;place-items:center;border-radius:10px}
- .abajo{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px -12px rgba(0,0,0,.15)}
- .abajo button{flex-direction:column;gap:3px;background:transparent;border:0;color:var(--soft);font-size:11.5px;font-weight:500;min-height:54px;padding:4px 2px;border-radius:10px}
+ .abajo{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(6,1fr);padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px -12px rgba(0,0,0,.15)}
+ .abajo button{flex-direction:column;gap:3px;background:transparent;border:0;color:var(--soft);font-size:11px;font-weight:500;min-height:54px;padding:4px 2px;border-radius:10px}
  .abajo button svg.i{width:23px;height:23px}
  .abajo button:hover{box-shadow:none}
  .abajo button[aria-selected=true]{color:var(--wine);font-weight:600}
- .abajo button[aria-selected=true] svg.i{background:var(--tint);border-radius:99px;padding:3px 14px;width:52px;height:30px}
+ .abajo button[aria-selected=true] svg.i{background:var(--tint);border-radius:99px;padding:3px 10px;width:44px;height:30px}
  main{padding:20px 14px calc(110px + env(safe-area-inset-bottom))}
  .lote{bottom:calc(84px + env(safe-area-inset-bottom))}
  .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -377,6 +420,8 @@ dialog#ed::backdrop{background:rgba(20,10,14,.5);backdrop-filter:blur(2px)}
   <symbol id="i-candado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5v-3a4 4 0 0 1 8 0v3"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-tel" viewBox="0 0 24 24"><path d="M5 4h3.5l1.5 4-2 1.5a11 11 0 0 0 6.5 6.5l1.5-2 4 1.5V19a1.5 1.5 0 0 1-1.6 1.5C10.5 20 4 13.5 3.5 5.6A1.5 1.5 0 0 1 5 4z"/></symbol>
+  <symbol id="i-mosaico" viewBox="0 0 24 24"><rect x="3" y="3.5" width="7" height="17" rx="1.5"/><rect x="12.5" y="3.5" width="8.5" height="6.5" rx="1.5"/><rect x="12.5" y="12.5" width="8.5" height="8" rx="1.5"/></symbol>
+  <symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8 13.5h2M14 13.5h2M8 17h2"/></symbol>
   <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.2"/></symbol>
 </defs></svg>
 
@@ -408,6 +453,7 @@ dialog#ed::backdrop{background:rgba(20,10,14,.5);backdrop-filter:blur(2px)}
     <nav class="nav" role="tablist" aria-label="Secciones">
       <button role="tab" data-tab="inicio" aria-selected="true"><svg class="i"><use href="#i-casa"/></svg>Inicio</button>
       <button role="tab" data-tab="productos" aria-selected="false"><svg class="i"><use href="#i-ovillo"/></svg>Productos<span class="cnt" id="nProd"></span></button>
+      <button role="tab" data-tab="portada" aria-selected="false"><svg class="i"><use href="#i-mosaico"/></svg>Portada</button>
       <button role="tab" data-tab="categorias" aria-selected="false"><svg class="i"><use href="#i-etiqueta"/></svg>Categorías</button>
       <button role="tab" data-tab="historial" aria-selected="false"><svg class="i"><use href="#i-reloj"/></svg>Historial</button>
       <button role="tab" data-tab="ajustes" aria-selected="false"><svg class="i"><use href="#i-carrete"/></svg>Ajustes</button>
@@ -483,6 +529,52 @@ dialog#ed::backdrop{background:rgba(20,10,14,.5);backdrop-filter:blur(2px)}
         </div>
       </section>
 
+      <!-- PORTADA -->
+      <section data-panel="portada" hidden>
+        <div class="cab">
+          <div><h1>Portada</h1><p>Lo primero que se ve al entrar a la tienda. Edita los textos, las fotos y las fechas; la vista previa cambia mientras escribes.</p></div>
+          <div class="acc"><button class="ghost" id="rPor"><svg class="i"><use href="#i-reloj"/></svg>Descartar</button><button id="gPor"><svg class="i"><use href="#i-check"/></svg>Guardar portada</button></div>
+        </div>
+        <div class="box">
+          <h3><span class="ib"><svg class="i"><use href="#i-ojo"/></svg></span>Vista previa</h3>
+          <div class="pmos" id="pmos"></div>
+        </div>
+        <div class="duo">
+          <div>
+            <div class="box">
+              <h3><span class="ib">1</span>Recuadro principal (con el 3D)</h3>
+              <label>Frase de acento <small>en letra cursiva</small><input id="aAcc" maxlength="60"></label>
+              <label>Título<input id="aTit" maxlength="120"></label>
+              <label>Texto del botón<input id="aBtn" maxlength="30"></label>
+              <div class="portada">
+                <div class="pv" id="pPv"></div>
+                <div style="display:grid;gap:12px">
+                  <p class="hint">Modelo 3D que se puede girar. Sube un <b>.glb</b> de hasta 50 MB (mejor menos de 5 MB). Se guarda al instante.</p>
+                  <button class="ghost" id="bPortada"><svg class="i"><use href="#i-subir"/></svg>Cambiar modelo 3D</button>
+                  <p class="hint" id="pMsg"></p>
+                </div>
+              </div>
+            </div>
+            <div class="box" id="boxB"></div>
+            <div class="box" id="boxC"></div>
+          </div>
+          <div>
+            <div class="box">
+              <h3><span class="ib">4</span>Cuenta regresiva</h3>
+              <p class="sub">Muestra cuánto falta para la próxima fecha de esta lista (cuando faltan más de 7 días). Al tocarla, el formulario de pedido ya trae la ocasión elegida.</p>
+              <label>Frase de acento<input id="dAcc" maxlength="60"></label>
+              <div class="fechas" id="fechas"></div>
+              <button class="ghost" id="bFecha"><svg class="i"><use href="#i-mas"/></svg>Agregar fecha especial</button>
+              <div class="sinfecha">
+                <b>Cuando no hay ninguna fecha cerca</b>
+                <label>Título<input id="dTit" maxlength="80" placeholder="Hecho a pedido"></label>
+                <div class="imgsel" id="dImg"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- CATEGORÍAS -->
       <section data-panel="categorias" hidden>
         <div class="cab">
@@ -518,17 +610,6 @@ dialog#ed::backdrop{background:rgba(20,10,14,.5);backdrop-filter:blur(2px)}
               <label>Número con código de país <small>Perú: 51 y el número, sin espacios</small><input id="tel" inputmode="numeric" autocomplete="off"></label>
               <button id="gTel"><svg class="i"><use href="#i-check"/></svg>Guardar número</button>
             </div>
-            <div class="box">
-              <h3><span class="ib"><svg class="i"><use href="#i-3d"/></svg></span>Muñeca 3D de la portada</h3>
-              <div class="portada">
-                <div class="pv" id="pPv"></div>
-                <div style="display:grid;gap:12px">
-                  <p class="hint">Es el modelo que se puede girar al entrar a la tienda. Sube un archivo <b>.glb</b> de hasta 50 MB; mejor si pesa menos de 5 MB, para que cargue rápido en celulares.</p>
-                  <button class="ghost" id="bPortada"><svg class="i"><use href="#i-subir"/></svg>Cambiar modelo 3D</button>
-                  <p class="hint" id="pMsg"></p>
-                </div>
-              </div>
-            </div>
           </div>
           <div>
             <div class="box">
@@ -559,6 +640,7 @@ dialog#ed::backdrop{background:rgba(20,10,14,.5);backdrop-filter:blur(2px)}
   <nav class="abajo movil-nav" role="tablist" aria-label="Secciones">
     <button role="tab" data-tab="inicio" aria-selected="true"><svg class="i"><use href="#i-casa"/></svg>Inicio</button>
     <button role="tab" data-tab="productos" aria-selected="false"><svg class="i"><use href="#i-ovillo"/></svg>Productos</button>
+    <button role="tab" data-tab="portada" aria-selected="false"><svg class="i"><use href="#i-mosaico"/></svg>Portada</button>
     <button role="tab" data-tab="categorias" aria-selected="false"><svg class="i"><use href="#i-etiqueta"/></svg>Categorías</button>
     <button role="tab" data-tab="historial" aria-selected="false"><svg class="i"><use href="#i-reloj"/></svg>Historial</button>
     <button role="tab" data-tab="ajustes" aria-selected="false"><svg class="i"><use href="#i-carrete"/></svg>Ajustes</button>
